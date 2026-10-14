@@ -90,6 +90,7 @@
     }
   },
   "$defs": {
+    "sfxName": {"type": "string", "pattern": "^[a-z0-9_]+$", "description": "house sound (pen, stamp, paper, whoosh) or any pipeline/sfxlib.py name (docs/library/sound-usage.md); validate_spec.py checks the name"},
     "scene": {
       "type": "object",
       "required": ["id", "kind", "narration", "visual"],
@@ -106,7 +107,21 @@
             {"type": "object", "required": ["type"], "properties": {"type": {"enum": ["none", "push-in", "pull-out", "pan", "pan-left", "pan-right", "parallax"]}, "strength": {"type": "number", "minimum": 0, "maximum": 3}}}
           ]
         },
-        "sfx": {"enum": ["pen", "stamp", "paper", "whoosh", null]},
+        "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
+        "sfxCues": {
+          "type": "array",
+          "maxItems": 12,
+          "description": "extra sounds at exact moments, atSec relative to the scene start",
+          "items": {
+            "type": "object",
+            "required": ["sfx", "atSec"],
+            "properties": {
+              "sfx": {"$ref": "#/$defs/sfxName"},
+              "atSec": {"type": "number", "minimum": 0},
+              "gainDb": {"type": "number", "minimum": -30, "maximum": 12}
+            }
+          }
+        },
         "minDurationSec": {"type": "number", "minimum": 0},
         "dateTag": {"type": ["string", "null"], "description": "optional: text of the date tag bottom-left (extension, IBM Plex Mono)"}
       },
@@ -138,7 +153,7 @@
       "type": "object",
       "required": ["layers"],
       "properties": {
-        "background": {"type": "string", "description": "paper | board | ink | stamp | CityBackdrop | OfficeBackdrop | BoardroomBackdrop"},
+        "background": {"type": "string", "description": "paper | board | ink | stamp | CityBackdrop | OfficeBackdrop | BoardroomBackdrop | an era backdrop (AncientBackdrop, docs/library/eras.md)"},
         "layers": {
           "type": "array",
           "items": {
@@ -152,7 +167,8 @@
                 "Computer", "Laptop", "Smartphone", "FloppyDisk", "VHSTape", "DVD", "FilmCamera", "DigitalCamera", "OldTelephone",
                 "Guitar", "VinylRecord", "Sneaker", "Basketball", "Microphone",
                 "Handshake", "Gavel", "Lightbulb", "CoinRain", "MoneyBag", "PriceTag", "ShareCertificate", "FallingChart", "Crowd", "Queue", "Envelope", "Telegram", "FlipCalendar", "Hourglass", "Scales", "MagnifyingGlass", "LockKey", "Trophy", "SpinningNewspaper",
-                "CityBackdrop", "OfficeBackdrop", "BoardroomBackdrop"
+                "CityBackdrop", "OfficeBackdrop", "BoardroomBackdrop",
+                "AncientBackdrop", "ColumnTemple", "Pyramid", "Amphora", "Scroll", "Laurel", "OilLamp", "AncientCoin", "WaxTablet", "Galley", "Chariot"
               ]},
               "props": {"type": "object", "description": "colour, label, pose (and component specific props, see README)"},
               "x": {"type": "number", "description": "centre, percent of frame width (0-100)"},
