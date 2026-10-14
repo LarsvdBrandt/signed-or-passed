@@ -1,0 +1,82 @@
+name: upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Production slug (release tag; 0000-sample uses tag sample)'
+        required: true
+      privacy:
+        description: 'Privacy status'
+        type: choice
+        options:
+          - private
+          - unlisted
+          - public
+        default: private
+      publishAt:
+        description: 'Optional ISO 8601 publish time, e.g. 2026-11-01T16:00:00Z (video stays private until then)'
+        required: false
+        default: ''
+      shorts:
+        description: 'Also upload the Shorts'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      SLUG: ${{ inputs.slug }}
+      PRIVACY: ${{ inputs.privacy }}
+      PUBLISH_AT: ${{ inputs.publishAt }}
+      SHORTS: ${{ inputs.shorts }}
+    steps:
+      - name: Check secrets
+        run: |
+          missing=""
+          for k in YT_CLIENT_ID YT_CLIENT_SECRET YT_REFRESH_TOKEN; do
+            if [ -z "${!k}" ]; then missing="$missing $k"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. Add them under Settings > Secrets and variables > Actions, then run this workflow again."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install upload dependencies
+        run: pip install -r pipeline/requirements-upload.txt
+
+      - name: Download release files
+        run: |
+          tag="$SLUG"
+          if [ "$SLUG" = "0000-sample" ]; then tag="sample"; fi
+          mkdir -p "build/$SLUG/out"
+          gh release download "$tag" -D "build/$SLUG/out" --clobber
+          ls -la "build/$SLUG/out"
+
+      - name: Upload to YouTube
+        run: |
+          args=(--slug "$SLUG" --privacy "$PRIVACY")
+          if [ -n "$PUBLISH_AT" ]; then args+=(--publish-at "$PUBLISH_AT"); fi
+          if [ "$SHORTS" = "true" ]; then args+=(--shorts); fi
+          python pipeline/upload.py "${args[@]}"
