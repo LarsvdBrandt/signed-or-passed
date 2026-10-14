@@ -1,5 +1,9 @@
-# torch is installed first from the CPU index in CI (see .github/workflows/render.yml)
+# torch is installed first from the CPU index in CI (see .github/workflows/render.yml): torch==2.5.1
+# transformers 5.x calls torch.accelerator (torch>=2.6) and breaks Kokoro's AlbertModel import -> stay on 4.x
 kokoro==0.9.4
+misaki[en]==0.9.4
+transformers==4.48.3
+huggingface-hub==0.28.1
 soundfile==0.12.1
 numpy>=1.26,<3
 jsonschema==4.23.0

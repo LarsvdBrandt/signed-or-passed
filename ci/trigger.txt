@@ -1,1 +1,3 @@
-sample render requested 2026-10-14T21:30+02:00 (iteration 7: re-trigger after Actions minutes issue; repo now public)
+iteration 8
+2026-10-14T21:52:00+02:00
+reason: fix Kokoro import (pin transformers 4.48.3)
