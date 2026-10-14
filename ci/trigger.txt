@@ -1,1 +1,1 @@
-sample render requested 2026-10-14T20:55+02:00 (iteration 6: start marker + diagnostics)
+sample render requested 2026-10-14T21:30+02:00 (iteration 7: re-trigger after Actions minutes issue; repo now public)
