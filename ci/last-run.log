@@ -1,0 +1,300 @@
+Collecting joblib (from phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting segments (from phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading segments-2.4.0-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting cloudpickle>=3.0 (from joblib->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Collecting csvw>=1.5.6 (from segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading csvw-4.1.0-py2.py3-none-any.whl.metadata (10 kB)
+Collecting isodate (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading isodate-0.7.2-py3-none-any.whl.metadata (11 kB)
+Collecting python-dateutil (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting rfc3986<2 (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading rfc3986-1.5.0-py2.py3-none-any.whl.metadata (6.5 kB)
+Collecting uritemplate>=3.0.0 (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting babel (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading babel-2.18.0-py3-none-any.whl.metadata (2.2 kB)
+Collecting language-tags (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading language_tags-1.3.1-py3-none-any.whl.metadata (6.5 kB)
+Collecting rdflib (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading rdflib-7.6.0-py3-none-any.whl.metadata (12 kB)
+Collecting termcolor (from csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading termcolor-3.3.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting six>=1.5 (from python-dateutil->csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Collecting pyparsing<4,>=2.1.0 (from rdflib->csvw>=1.5.6->segments->phonemizer-fork->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+Collecting spacy-legacy<3.1.0,>=3.0.11 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading spacy_legacy-3.0.12-py2.py3-none-any.whl.metadata (2.8 kB)
+Collecting spacy-loggers<2.0.0,>=1.0.0 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading spacy_loggers-1.0.5-py3-none-any.whl.metadata (23 kB)
+Collecting murmurhash<1.1.0,>=0.28.0 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading murmurhash-1.0.15-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (2.3 kB)
+Collecting cymem<2.1.0,>=2.0.2 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading cymem-2.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (9.7 kB)
+Collecting preshed<3.1.0,>=3.0.2 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading preshed-3.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.2 kB)
+Collecting thinc<8.4.0,>=8.3.12 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading thinc-8.3.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (14 kB)
+Collecting wasabi<1.2.0,>=0.9.1 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading wasabi-1.1.3-py3-none-any.whl.metadata (28 kB)
+Collecting srsly<3.0.0,>=2.5.3 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading srsly-2.5.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+Collecting catalogue<2.1.0,>=2.0.6 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading catalogue-2.0.10-py3-none-any.whl.metadata (14 kB)
+Collecting weasel<2.0.0,>=1.0.0 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading weasel-1.0.0-py3-none-any.whl.metadata (4.6 kB)
+Collecting confection<2.0.0,>=1.3.2 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading confection-1.3.3-py3-none-any.whl.metadata (19 kB)
+Collecting typer<1.0.0,>=0.3.0 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading typer-0.27.3-py3-none-any.whl.metadata (16 kB)
+Collecting pydantic<3.0.0,>=2.0.0 (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+Requirement already satisfied: jinja2 in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (3.1.6)
+Requirement already satisfied: setuptools in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (79.0.1)
+Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.1 (from pydantic<3.0.0,>=2.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading pydantic_core-2.50.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting typing-inspection>=0.4.4 (from pydantic<3.0.0,>=2.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting blis<1.4.0,>=1.3.0 (from thinc<8.4.0,>=8.3.12->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading blis-1.3.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (7.5 kB)
+Collecting shellingham>=1.3.0 (from typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+Collecting cloudpathlib>=0.7.0 (from weasel<2.0.0,>=1.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading cloudpathlib-0.26.0-py3-none-any.whl.metadata (16 kB)
+Collecting smart-open>=5.2.1 (from weasel<2.0.0,>=1.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading smart_open-8.0.3-py3-none-any.whl.metadata (25 kB)
+Collecting httpx>=0.24.0 (from weasel<2.0.0,>=1.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting httpcore==1.* (from httpx>=0.24.0->weasel<2.0.0,>=1.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer<1.0.0,>=0.3.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting wrapt (from smart-open>=5.2.1->weasel<2.0.0,>=1.0.0->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading wrapt-2.5.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (7.6 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from jinja2->spacy->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (3.0.3)
+Collecting curated-transformers<3.0.0,>=2.0.0 (from spacy-curated-transformers->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading curated_transformers-2.0.1-py2.py3-none-any.whl.metadata (5.3 kB)
+Collecting curated-tokenizers<3.0.0,>=2.0.0 (from spacy-curated-transformers->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading curated_tokenizers-2.0.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (2.0 kB)
+INFO: pip is looking at multiple versions of spacy-curated-transformers to determine which version is compatible with other requirements. This could take a while.
+Collecting spacy-curated-transformers (from misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading spacy_curated_transformers-2.1.1-py2.py3-none-any.whl.metadata (2.8 kB)
+Collecting spacy (from misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading spacy-4.0.0.dev3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (26 kB)
+Collecting spacy-curated-transformers (from misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading spacy_curated_transformers-2.0.0-py2.py3-none-any.whl.metadata (2.8 kB)
+  Downloading spacy_curated_transformers-0.3.1-py2.py3-none-any.whl.metadata (2.7 kB)
+Collecting curated-transformers<0.2.0,>=0.1.0 (from spacy-curated-transformers->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading curated_transformers-0.1.1-py2.py3-none-any.whl.metadata (965 bytes)
+Collecting curated-tokenizers<0.1.0,>=0.0.9 (from spacy-curated-transformers->misaki[en]>=0.9.4->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading curated_tokenizers-0.0.10-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (2.0 kB)
+Requirement already satisfied: networkx in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from torch->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (3.6.1)
+Requirement already satisfied: sympy==1.13.1 in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from torch->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (1.13.1)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages (from sympy==1.13.1->torch->kokoro==0.9.4->-r pipeline/requirements.txt (line 2)) (1.3.0)
+Collecting tokenizers<0.24.0,>=0.23.1 (from transformers->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+Collecting safetensors>=0.8.0 (from transformers->kokoro==0.9.4->-r pipeline/requirements.txt (line 2))
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Downloading kokoro-0.9.4-py3-none-any.whl (32 kB)
+Downloading soundfile-0.12.1-py2.py3-none-manylinux_2_31_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 67.9 MB/s  0:00:00
+Downloading jsonschema-4.23.0-py3-none-any.whl (88 kB)
+Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 284.1 MB/s  0:00:00
+Downloading charset_normalizer-3.5.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading cffi-2.1.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (217 kB)
+Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+Downloading misaki-0.9.4-py3-none-any.whl (3.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.6/3.6 MB 239.4 MB/s  0:00:00
+Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+Downloading rpds_py-2026.9.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (375 kB)
+Downloading addict-2.4.0-py3-none-any.whl (3.8 kB)
+Downloading espeakng_loader-0.2.4-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (10.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.1/10.1 MB 229.7 MB/s  0:00:00
+Downloading huggingface_hub-2.2.0-py3-none-any.whl (839 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 839.9/839.9 kB 123.6 MB/s  0:00:00
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Downloading hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 342.4 MB/s  0:00:00
+Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 181.7 MB/s  0:00:00
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+Downloading loguru-0.7.3-py3-none-any.whl (61 kB)
+Downloading num2words-0.5.14-py3-none-any.whl (163 kB)
+Downloading phonemizer_fork-3.3.2-py3-none-any.whl (82 kB)
+Downloading dlinfo-2.0.0-py3-none-any.whl (3.7 kB)
+Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+Downloading regex-2026.9.29-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 805.0/805.0 kB 190.8 MB/s  0:00:00
+Downloading segments-2.4.0-py2.py3-none-any.whl (16 kB)
+Downloading csvw-4.1.0-py2.py3-none-any.whl (69 kB)
+Downloading rfc3986-1.5.0-py2.py3-none-any.whl (31 kB)
+Downloading uritemplate-4.2.0-py3-none-any.whl (11 kB)
+Downloading babel-2.18.0-py3-none-any.whl (10.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.2/10.2 MB 339.2 MB/s  0:00:00
+Downloading isodate-0.7.2-py3-none-any.whl (22 kB)
+Downloading language_tags-1.3.1-py3-none-any.whl (216 kB)
+Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Downloading rdflib-7.6.0-py3-none-any.whl (615 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 615.4/615.4 kB 122.0 MB/s  0:00:00
+Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+Downloading spacy-3.8.16-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (34.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 34.7/34.7 MB 148.6 MB/s  0:00:00
+Downloading catalogue-2.0.10-py3-none-any.whl (17 kB)
+Downloading confection-1.3.3-py3-none-any.whl (35 kB)
+Downloading cymem-2.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (244 kB)
+Downloading murmurhash-1.0.15-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (128 kB)
+Downloading preshed-3.0.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (823 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.1/823.1 kB 75.3 MB/s  0:00:00
+Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+Downloading pydantic_core-2.50.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 327.7 MB/s  0:00:00
+Downloading spacy_legacy-3.0.12-py2.py3-none-any.whl (29 kB)
+Downloading spacy_loggers-1.0.5-py3-none-any.whl (22 kB)
+Downloading srsly-2.5.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 138.6 MB/s  0:00:00
+Downloading thinc-8.3.13-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.1/4.1 MB 198.7 MB/s  0:00:00
+Downloading blis-1.3.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (11.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.4/11.4 MB 158.9 MB/s  0:00:00
+Downloading typer-0.27.3-py3-none-any.whl (123 kB)
+Downloading wasabi-1.1.3-py3-none-any.whl (27 kB)
+Downloading weasel-1.0.0-py3-none-any.whl (50 kB)
+Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading cloudpathlib-0.26.0-py3-none-any.whl (66 kB)
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 260.0 MB/s  0:00:00
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Downloading smart_open-8.0.3-py3-none-any.whl (73 kB)
+Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Downloading spacy_curated_transformers-0.3.1-py2.py3-none-any.whl (237 kB)
+Downloading curated_tokenizers-0.0.10-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 182.5 MB/s  0:00:00
+Downloading curated_transformers-0.1.1-py2.py3-none-any.whl (25 kB)
+Downloading termcolor-3.3.0-py3-none-any.whl (7.7 kB)
+Downloading transformers-5.19.0-py3-none-any.whl (12.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.6/12.6 MB 300.2 MB/s  0:00:00
+Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 345.8 MB/s  0:00:00
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading wrapt-2.5.1-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (240 kB)
+Building wheels for collected packages: docopt
+  Building wheel for docopt (pyproject.toml): started
+  Building wheel for docopt (pyproject.toml): finished with status 'done'
+  Created wheel for docopt: filename=docopt-0.6.2-py2.py3-none-any.whl size=13783 sha256=f90f2ce174645340740b9a958d85c07c01d03c572bb8a66318cef34494912f24
+  Stored in directory: /home/runner/.cache/pip/wheels/1a/b0/8c/4b75c4116c31f83c8f9f047231251e13cc74481cca4a78a9ce
+Successfully built docopt
+Installing collected packages: rfc3986, docopt, addict, wrapt, wasabi, urllib3, uritemplate, typing-inspection, truststore, tqdm, termcolor, spacy-loggers, spacy-legacy, six, shellingham, safetensors, rpds-py, regex, pyyaml, pyparsing, pygments, pydantic-core, pycparser, packaging, numpy, num2words, murmurhash, mdurl, loguru, language-tags, isodate, idna, hf-xet, h11, espeakng-loader, dlinfo, cymem, confection, cloudpickle, cloudpathlib, click, charset-normalizer, certifi, catalogue, babel, attrs, annotated-types, annotated-doc, srsly, smart-open, requests, referencing, rdflib, python-dateutil, pydantic, preshed, misaki, markdown-it-py, joblib, httpcore2, httpcore, curated-tokenizers, cffi, blis, anyio, thinc, soundfile, rich, jsonschema-specifications, httpx2, httpx, curated-transformers, typer, spacy-curated-transformers, jsonschema, huggingface-hub, weasel, tokenizers, csvw, transformers, spacy, segments, phonemizer-fork, kokoro
+
+Successfully installed addict-2.4.0 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 attrs-26.1.0 babel-2.18.0 blis-1.3.3 catalogue-2.0.10 certifi-2026.7.22 cffi-2.1.1 charset-normalizer-3.5.2 click-8.5.0 cloudpathlib-0.26.0 cloudpickle-3.1.2 confection-1.3.3 csvw-4.1.0 curated-tokenizers-0.0.10 curated-transformers-0.1.1 cymem-2.0.13 dlinfo-2.0.0 docopt-0.6.2 espeakng-loader-0.2.4 h11-0.16.0 hf-xet-1.7.0 httpcore-1.0.9 httpcore2-2.13.1 httpx-0.28.1 httpx2-2.13.1 huggingface-hub-2.2.0 idna-3.20 isodate-0.7.2 joblib-1.6.0 jsonschema-4.23.0 jsonschema-specifications-2025.9.1 kokoro-0.9.4 language-tags-1.3.1 loguru-0.7.3 markdown-it-py-4.2.0 mdurl-0.1.2 misaki-0.9.4 murmurhash-1.0.15 num2words-0.5.14 numpy-2.4.6 packaging-26.3 phonemizer-fork-3.3.2 preshed-3.0.13 pycparser-3.11 pydantic-2.14.1 pydantic-core-2.50.1 pygments-2.21.0 pyparsing-3.3.3 python-dateutil-2.9.0.post0 pyyaml-6.0.3 rdflib-7.6.0 referencing-0.37.0 regex-2026.9.29 requests-2.32.3 rfc3986-1.5.0 rich-15.0.0 rpds-py-2026.9.1 safetensors-0.8.0 segments-2.4.0 shellingham-1.5.4 six-1.17.0 smart-open-8.0.3 soundfile-0.12.1 spacy-3.8.16 spacy-curated-transformers-0.3.1 spacy-legacy-3.0.12 spacy-loggers-1.0.5 srsly-2.5.4 termcolor-3.3.0 thinc-8.3.13 tokenizers-0.23.3 tqdm-4.70.1 transformers-5.19.0 truststore-0.10.5 typer-0.27.3 typing-inspection-0.4.4 uritemplate-4.2.0 urllib3-2.8.0 wasabi-1.1.3 weasel-1.0.0 wrapt-2.5.1
+===== [setup:npm] 19:30:30 =====
+
+added 252 packages in 15s
+[90mDownloading Chrome Headless Shell https://www.remotion.dev/chrome-headless-shell[39m
+Downloading from: https://remotion.media/chromium-headless-shell-linux-x64-157.0.8080.0.zip?clear
+Getting Headless Shell - 9.6 Mb/98.9 Mb
+Getting Headless Shell - 19.1 Mb/98.9 Mb
+Getting Headless Shell - 28.6 Mb/98.9 Mb
+Getting Headless Shell - 38.2 Mb/98.9 Mb
+Getting Headless Shell - 47.7 Mb/98.9 Mb
+Getting Headless Shell - 57.3 Mb/98.9 Mb
+Getting Headless Shell - 66.8 Mb/98.9 Mb
+Getting Headless Shell - 76.4 Mb/98.9 Mb
+Getting Headless Shell - 85.9 Mb/98.9 Mb
+Getting Headless Shell - 95.5 Mb/98.9 Mb
+Got Headless Shell
+Has browser at /home/runner/work/signed-or-passed/signed-or-passed/render/node_modules/.remotion/chrome-headless-shell/linux64/chrome-headless-shell-linux64/chrome-headless-shell
+===== [validate:0000-sample] 19:30:49 =====
+spec 0000-sample is valid: 12 scenes, 1 short(s)
+===== [assets:0000-sample] 19:30:49 =====
+font: Bricolage Grotesque -> render/public/fonts/BricolageGrotesque.ttf
+font: Mrs Saint Delafield -> render/public/fonts/MrsSaintDelafield-Regular.ttf
+font: IBM Plex Mono -> render/public/fonts/IBMPlexMono-Regular.ttf
+font: IBM Plex Mono Bold -> render/public/fonts/IBMPlexMono-Bold.ttf
+asset img1: Public domain -> render/public/assets/0000-sample/img1.jpg
+1 asset(s) ready
+===== [tts:0000-sample] 19:30:51 =====
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2589, in __getattr__
+    module = self._get_module(self._class_to_module[name])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2820, in _get_module
+    raise e
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2818, in _get_module
+    return importlib.import_module("." + module_name, self.__name__)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/models/albert/modeling_albert.py", line 25, in <module>
+    from ...masking_utils import create_bidirectional_mask
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/masking_utils.py", line 32, in <module>
+    if is_torch_flex_attn_available():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 766, in is_torch_flex_attn_available
+    and get_device_type() != "tpu"
+        ^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 339, in get_device_type
+    device = torch.accelerator.current_accelerator() or torch.device("cpu")
+             ^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/__init__.py", line 2562, in __getattr__
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+AttributeError: module 'torch' has no attribute 'accelerator'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/signed-or-passed/signed-or-passed/pipeline/tts.py", line 112, in <module>
+    main()
+  File "/home/runner/work/signed-or-passed/signed-or-passed/pipeline/tts.py", line 89, in main
+    from kokoro import KPipeline  # heavy import, keep it here
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/kokoro/__init__.py", line 22, in <module>
+    from .model import KModel
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/kokoro/model.py", line 2, in <module>
+    from .modules import CustomAlbert, ProsodyPredictor, TextEncoder
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/kokoro/modules.py", line 4, in <module>
+    from transformers import AlbertModel
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/utils/import_utils.py", line 2677, in __getattr__
+    raise ModuleNotFoundError(import_error_message) from e
+ModuleNotFoundError: Could not import module 'AlbertModel'. Are this object's requirements defined correctly? Set the logging verbosity to DEBUG for the original import error.
+===== [tts:0000-sample] FAILED with exit code 1 =====
