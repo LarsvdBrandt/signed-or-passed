@@ -21,6 +21,8 @@ export type VideoProps = {
   cut: string;
   format: 'long' | 'short';
   verdict: 'SIGNED' | 'PASSED';
+  /** Theme id from render/src/themes (spec.theme); default 'signed-or-passed'. */
+  theme?: string;
   fps: number;
   width: number;
   height: number;

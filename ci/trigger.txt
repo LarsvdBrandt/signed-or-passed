@@ -1,1 +1,1 @@
-iteration 13 · 2026-10-14T21:45:00Z · sample v2: 45 new props, new scene kinds, parallax, preview.mp4
+2026-10-15T00:30:00+02:00 iteration 14: theme system batch 1 (9 themes, preview-themes.mp4)

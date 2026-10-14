@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Easing, Freeze, Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, TRANSITION_FRAMES} from './constants';
-import {Captions, DateTag, PaperGrain, clamp} from './components/common';
+import {Captions, DateTag, clamp} from './components/common';
 import {BrandIntro, EndCard, Watermark} from './components/brand';
 import type {Scene, VideoProps} from './types';
 import {LessonScene, RevealScene, TitleScene} from './scenes/TextScenes';
@@ -13,6 +13,8 @@ import {QuestionScene} from './scenes/QuestionScene';
 import {VerdictScene} from './scenes/VerdictScene';
 import {IllustrationScene, motionOf} from './scenes/IllustrationScene';
 import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWallScene, SplitFlapScene, VersusScene} from './scenes/MotionScenes';
+import {applyTheme, currentTheme} from './themes';
+import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
   const v = scene.visual || {};
@@ -80,14 +82,15 @@ const Camera: React.FC<{motion?: any; duration: number; children: React.ReactNod
 };
 
 /** Paper-slide transition: a new sheet slides in over the previous one. */
-const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slide, children}) => {
+export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slide, children}) => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
   const p = !slide ? 1 : interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
   const x = (1 - p) * width * 1.05;
   const rot = (1 - p) * 2.5;
+  const shadow = currentTheme().sheetShadow;
   return (
-    <AbsoluteFill style={{transform: `translateX(${x}px) rotate(${rot}deg)`, transformOrigin: 'left bottom', backgroundColor: C.paper, overflow: 'hidden', boxShadow: p < 1 ? '-18px 0 0 rgba(20,20,20,0.18)' : 'none'}}>
+    <AbsoluteFill style={{transform: `translateX(${x}px) rotate(${rot}deg)`, transformOrigin: 'left bottom', backgroundColor: C.paper, overflow: 'hidden', boxShadow: p < 1 ? `-18px 0 0 ${shadow}` : 'none'}}>
       {children}
     </AbsoluteFill>
   );
@@ -95,13 +98,16 @@ const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slid
 
 const SceneFrame: React.FC<{scene: Scene; prev?: Scene; slide: boolean; ctx: VideoProps}> = ({scene, prev, slide, ctx}) => (
   <PaperSheet slide={slide}>
-    <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
-      <SceneContent scene={scene} prev={prev} ctx={ctx} />
-    </Camera>
+    <AbsoluteFill style={themeContentStyle()}>
+      <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
+        <SceneContent scene={scene} prev={prev} ctx={ctx} />
+      </Camera>
+    </AbsoluteFill>
   </PaperSheet>
 );
 
 export const VideoMain: React.FC<VideoProps> = (props) => {
+  applyTheme(props.theme);
   const frame = useCurrentFrame();
   const scenes = props.scenes || [];
   const intro = Math.max(0, Math.round(props.introFrames || 0));
@@ -113,6 +119,7 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
   const inBody = frame >= intro && frame < lastEnd;
   return (
     <AbsoluteFill style={{backgroundColor: C.paper}}>
+      <ThemeDefs />
       {intro > 0 ? (
         <Sequence name="brand-intro" from={0} durationInFrames={intro + TRANSITION_FRAMES}>
           <BrandIntro />
@@ -134,7 +141,7 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
           </PaperSheet>
         </Sequence>
       ) : null}
-      <PaperGrain />
+      <ThemeOverlay />
       {inBody ? <DateTag scenes={scenes} /> : null}
       {inBody ? <Watermark /> : null}
       {props.format === 'short' ? <Captions words={props.words} /> : null}

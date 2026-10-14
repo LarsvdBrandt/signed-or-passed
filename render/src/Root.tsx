@@ -4,7 +4,9 @@ import {loadFonts} from './fonts';
 import {VideoMain} from './Video';
 import {Thumbnail} from './compositions/Thumbnail';
 import {PREVIEW_FRAMES, Preview} from './compositions/Preview';
+import {THEME_PREVIEW_FRAMES, ThemePreview} from './compositions/ThemePreview';
 import {sampleLong, sampleShort} from './sample-props';
+import {applyTheme} from './themes';
 import type {VideoProps} from './types';
 
 loadFonts();
@@ -15,15 +17,33 @@ const calc = ({props}: {props: VideoProps}) => ({
 });
 
 const AnyVideo = VideoMain as React.FC<any>;
-const AnyThumb = Thumbnail as React.FC<any>;
+
+/** The thumbnail follows spec.theme too. */
+const ThemedThumb: React.FC<any> = (props) => {
+  applyTheme(props.theme);
+  const T = Thumbnail as React.FC<any>;
+  return <T {...props} />;
+};
+
+const DefaultThemed: React.FC<{children: React.ReactNode}> = ({children}) => {
+  applyTheme(null);
+  return <>{children}</>;
+};
+
+const PreviewDefault: React.FC = () => (
+  <DefaultThemed>
+    <Preview />
+  </DefaultThemed>
+);
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition id="LongVideo" component={AnyVideo} width={1920} height={1080} fps={30} durationInFrames={sampleLong.totalFrames} defaultProps={sampleLong as any} calculateMetadata={calc as any} />
       <Composition id="ShortVideo" component={AnyVideo} width={1080} height={1920} fps={30} durationInFrames={sampleShort.totalFrames} defaultProps={sampleShort as any} calculateMetadata={calc as any} />
-      <Composition id="Thumbnail" component={AnyThumb} width={1280} height={720} fps={30} durationInFrames={90} defaultProps={sampleLong as any} />
-      <Composition id="Preview" component={Preview} width={1920} height={1080} fps={30} durationInFrames={PREVIEW_FRAMES} />
+      <Composition id="Thumbnail" component={ThemedThumb} width={1280} height={720} fps={30} durationInFrames={90} defaultProps={sampleLong as any} />
+      <Composition id="Preview" component={PreviewDefault} width={1920} height={1080} fps={30} durationInFrames={PREVIEW_FRAMES} />
+      <Composition id="ThemePreview" component={ThemePreview} width={1920} height={1080} fps={30} durationInFrames={THEME_PREVIEW_FRAMES} />
     </>
   );
 };

@@ -2,7 +2,7 @@
   "fonts": [
     {
       "family": "Bricolage Grotesque",
-      "role": "headings",
+      "role": "headings (theme signed-or-passed, paper-cutout)",
       "file": "BricolageGrotesque.ttf",
       "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/bricolagegrotesque/BricolageGrotesque%5Bopsz%2Cwdth%2Cwght%5D.ttf",
       "license": "OFL-1.1"
@@ -26,6 +26,41 @@
       "role": "big figures",
       "file": "IBMPlexMono-Bold.ttf",
       "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Bold.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "IM Fell English",
+      "role": "headings (theme engraving)",
+      "file": "IMFellEnglish-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/imfellenglish/IMFeENrm28P.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Bangers",
+      "role": "headings (theme retro-comic)",
+      "file": "Bangers-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/bangers/Bangers-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Caveat",
+      "role": "headings (theme chalkboard)",
+      "file": "Caveat.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/caveat/Caveat%5Bwght%5D.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Fredoka",
+      "role": "headings (theme pastel-kids)",
+      "file": "Fredoka.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/fredoka/Fredoka%5Bwdth%2Cwght%5D.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Oswald",
+      "role": "headings (themes blueprint, synthwave, documentary-dark)",
+      "file": "Oswald.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/oswald/Oswald%5Bwght%5D.ttf",
       "license": "OFL-1.1"
     }
   ]
