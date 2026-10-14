@@ -1,1 +1,1 @@
-iteration 16 · 2026-10-15T01:25:00+02:00 · SOUND-3 (library sfx + sfxCues in specs) + ERAS-1 (era framework, EraPreview) + Ancient era pack
+iteration 17 - 2026-10-15T01:40:00+02:00 - Medieval + Golden Age era packs registered
