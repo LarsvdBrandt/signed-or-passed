@@ -40,6 +40,8 @@ def main():
             "width": w,
             "height": h,
             "totalFrames": max(1, frame(timing["totalSec"])),
+            "introFrames": frame(float(timing.get("introSec") or 0)),
+            "outroFrames": frame(float(timing.get("outroSec") or 0)),
             "scenes": scenes,
             "words": [{"text": x["text"], "startFrame": frame(x["start"]), "endFrame": frame(x["end"])} for x in words],
             "assets": {k: {"src": v["src"], "attribution": v.get("attribution", "")} for k, v in assets.items()},
@@ -48,7 +50,8 @@ def main():
             "title": spec["metadata"]["title"],
         }
         write_json(d / "props.json", props)
-        log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h})")
+        log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), "
+            f"intro {props['introFrames']} / outro {props['outroFrames']} frames")
 
 
 if __name__ == "__main__":

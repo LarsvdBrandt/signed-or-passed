@@ -17,6 +17,17 @@ SCENE_TAIL = 0.45
 END_TAIL = 0.8
 VERDICT_MIN = 2.8
 
+# Default narration speed (Kokoro), used when spec.voice.speed is missing.
+DEFAULT_SPEED = 1.1
+
+# Brand intro sting and end card: long videos, main cut only (render/src/components/brand.tsx).
+INTRO_SEC = 3.0
+OUTRO_SEC = 6.0
+# (sfx, seconds from video start). Must match INTRO_PEN_FRAME / INTRO_STAMP_IMPACT in brand.tsx.
+BRAND_INTRO_SFX = [("pen", 0.2), ("stamp", 1.667)]
+# (sfx, seconds from the start of the end card)
+BRAND_OUTRO_SFX = [("paper", 0.0)]
+
 # When the sound effect plays, relative to the scene start (must match render/src/constants.ts)
 SFX_OFFSETS = {"pen": 0.5, "stamp": 0.62, "paper": 0.0, "whoosh": 0.0}
 
@@ -88,6 +99,11 @@ def cuts(spec):
     for s in spec.get("shorts") or []:
         res.append({"name": f"short-{s['id']}", "format": "short", "scenes": s["scenes"]})
     return res
+
+
+def branded(cut):
+    """True when this cut gets the brand intro sting and end card (long main video only)."""
+    return cut["name"] == "main" and cut["format"] == "long"
 
 
 def is_test(slug):

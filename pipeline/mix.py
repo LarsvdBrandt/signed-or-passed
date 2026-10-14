@@ -4,8 +4,8 @@ import json
 import re
 import subprocess
 
-from common import (ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec, log, read_json, slug_arg,
-                    work_dir, write_json)
+from common import (BRAND_INTRO_SFX, BRAND_OUTRO_SFX, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
+                    log, read_json, slug_arg, work_dir, write_json)
 from fetch_assets import download
 
 TARGET_I = -14.0
@@ -51,6 +51,23 @@ def measure(path):
     return json.loads(m.group(0))
 
 
+def sfx_events(timing):
+    """(name, seconds) for every sound effect: scene sfx plus the brand intro / end card sounds."""
+    total = float(timing["totalSec"])
+    events = []
+    for sc in timing["scenes"]:
+        name = sc.get("sfx")
+        if name:
+            events.append((name, sc["start"] + SFX_OFFSETS.get(name, 0.0)))
+    intro = float(timing.get("introSec") or 0)
+    outro = float(timing.get("outroSec") or 0)
+    if intro > 0:
+        events += [(n, off) for n, off in BRAND_INTRO_SFX if off < intro]
+    if outro > 0:
+        events += [(n, total - outro + off) for n, off in BRAND_OUTRO_SFX]
+    return [(n, max(0.0, t)) for n, t in events if t < total]
+
+
 def mix_cut(slug, cut, music):
     d = cut_dir(slug, cut["name"])
     timing = read_json(d / "timing.json")
@@ -60,14 +77,11 @@ def mix_cut(slug, cut, music):
     graph = [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={total},atrim=0:{total},asplit=2[vmix][vkey]"]
     mix_labels = ["[vmix]"]
     idx = 1
-    for sc in timing["scenes"]:
-        name = sc.get("sfx")
-        if not name:
-            continue
+    for name, at in sfx_events(timing):
         f = sfx_dir / f"{name}.wav"
         if not f.exists():
             fail(f"missing sfx {f}; run sfx.py first")
-        ms = int(round((sc["start"] + SFX_OFFSETS.get(name, 0.0)) * 1000))
+        ms = int(round(at * 1000))
         inputs += ["-i", str(f)]
         graph.append(f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.7,adelay={ms}:all=1[s{idx}]")
         mix_labels.append(f"[s{idx}]")

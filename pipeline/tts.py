@@ -1,9 +1,14 @@
-"""Kokoro TTS: one clip per sentence, laid out per scene; writes voice.wav + timing.json per cut."""
+"""Kokoro TTS: one clip per sentence, laid out per scene; writes voice.wav + timing.json per cut.
+
+Long main cuts get INTRO_SEC of silence before the first scene (brand intro sting) and OUTRO_SEC after the last
+scene (end card); both are recorded in timing.json as introSec / outroSec.
+"""
 import numpy as np
 import soundfile as sf
 
-from common import (END_TAIL, FIRST_LEAD, FPS, SCENE_LEAD, SCENE_TAIL, SENTENCE_GAP, VERDICT_MIN, cut_dir, cuts,
-                    fail, load_spec, log, slug_arg, split_sentences, write_json)
+from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, INTRO_SEC, OUTRO_SEC, SCENE_LEAD, SCENE_TAIL,
+                    SENTENCE_GAP, VERDICT_MIN, branded, cut_dir, cuts, fail, load_spec, log, slug_arg,
+                    split_sentences, write_json)
 
 SR = 24000
 
@@ -45,8 +50,8 @@ def snap(t):
     return round(t * FPS) / FPS
 
 
-def layout(pipe, scenes, voice, speed):
-    t = 0.0
+def layout(pipe, scenes, voice, speed, intro=0.0, outro=0.0):
+    t = snap(intro)
     out = []
     clips = []
     for i, sc in enumerate(scenes):
@@ -77,7 +82,8 @@ def layout(pipe, scenes, voice, speed):
         })
         log(f"  scene {sc['id']:<8} {sc['kind']:<12} {start:7.2f} -> {end:7.2f}")
         t = end
-    return out, clips, t
+    total = snap(t + outro)
+    return out, clips, total
 
 
 def main():
@@ -85,13 +91,15 @@ def main():
     spec = load_spec(args.slug)
     v = spec["voice"]
     voice = v.get("voice", "bm_george")
-    speed = float(v.get("speed", 1.0))
+    speed = float(v.get("speed", DEFAULT_SPEED))
     from kokoro import KPipeline  # heavy import, keep it here
 
     pipe = KPipeline(lang_code=voice[0], repo_id="hexgrad/Kokoro-82M")
     for cut in cuts(spec):
-        log(f"TTS {args.slug}/{cut['name']} voice={voice} speed={speed}")
-        scenes, clips, total = layout(pipe, cut["scenes"], voice, speed)
+        intro = INTRO_SEC if branded(cut) else 0.0
+        outro = OUTRO_SEC if branded(cut) else 0.0
+        log(f"TTS {args.slug}/{cut['name']} voice={voice} speed={speed} intro={intro}s outro={outro}s")
+        scenes, clips, total = layout(pipe, cut["scenes"], voice, speed, intro, outro)
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -103,7 +111,8 @@ def main():
         d = cut_dir(args.slug, cut["name"])
         sf.write(str(d / "voice.wav"), buf, SR, subtype="PCM_16")
         write_json(d / "timing.json", {
-            "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3), "scenes": scenes,
+            "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3),
+            "introSec": intro, "outroSec": outro, "speed": speed, "scenes": scenes,
         })
         log(f"  total {total:.2f}s -> {d / 'voice.wav'}")
 

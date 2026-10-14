@@ -3,10 +3,10 @@
   "slug": "0000-sample",
   "format": "long",
   "verdict": "PASSED",
-  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.0},
+  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.1},
   "music": {"mood": "tense"},
   "scenes": [
-    {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
+    {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test · brand v2"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
     {"id": "s02", "kind": "illustration", "narration": "Every story starts with one decision, made at one desk.", "visual": {"background": "OfficeBackdrop", "layers": [
       {"component": "Person", "props": {"pose": "sitting", "colour": "board"}, "x": 50, "y": 58, "scale": 1.0, "enter": "fade"},
       {"component": "Desk", "props": {}, "x": 50, "y": 80, "scale": 1.2, "enter": "slide-up"},
@@ -17,7 +17,7 @@
     {"id": "s03", "kind": "evidence", "narration": "Here is a piece of evidence, shown in a file frame.", "visual": {"assetId": "img1", "caption": "Public domain painting, used as a test image"}, "motion": "push-in", "sfx": "paper"},
     {"id": "s04", "kind": "chart", "narration": "A bar chart shows placeholder numbers. They are not real data.", "visual": {"type": "bar", "series": [{"label": "A", "value": 12}, {"label": "B", "value": 30}, {"label": "C", "value": 21}], "unit": "units", "sourceId": "src1"}},
     {"id": "s05", "kind": "counter", "narration": "A counter runs up to a placeholder figure.", "visual": {"from": 0, "to": 1000000, "unit": "$", "sourceId": "src1"}},
-    {"id": "s06", "kind": "timeline", "narration": "A timeline puts the test dates in order.", "visual": {"events": [{"date": "2001", "label": "Test event one"}, {"date": "2005", "label": "Test event two"}, {"date": "2010", "label": "Test event three"}]}, "sfx": "whoosh"},
+    {"id": "s06", "kind": "timeline", "narration": "A timeline puts five test dates in order, one dot at a time.", "visual": {"events": [{"date": "1999", "label": "Test event one"}, {"date": "2001", "label": "Test event two"}, {"date": "2005", "label": "A much longer test label that has to wrap neatly"}, {"date": "2010", "label": "Test event four"}, {"date": "2020", "label": "Test event five"}]}, "sfx": "whoosh"},
     {"id": "s07", "kind": "map", "narration": "A map pins the places in the story.", "visual": {"region": "world", "pins": [{"lat": 52.37, "lon": 4.9, "label": "Amsterdam"}, {"lat": 40.71, "lon": -74.0, "label": "New York"}], "arrows": [{"from": "Amsterdam", "to": "New York"}]}},
     {"id": "s08", "kind": "quote", "narration": "A quote appears with its source, and with a tag when it is disputed.", "visual": {"text": "This is a placeholder quote for testing.", "speaker": "Test Speaker", "sourceId": "src1", "status": "disputed"}},
     {"id": "s09", "kind": "question", "narration": "So. Would you sign? Or would you pass?", "visual": {"question": "Sign the test contract?", "options": ["SIGN", "PASS"], "holdSec": 3}},
@@ -40,7 +40,7 @@
     "containsSyntheticMedia": false,
     "madeForKids": false
   },
-  "thumbnail": {"bigText": "$1,000,000", "headline": "The test offer they passed", "verdict": "PASSED", "illustration": "Contract"},
+  "thumbnail": {"bigText": "0000 · $1M", "headline": "The test offer they passed", "verdict": "PASSED", "illustration": "Contract"},
   "shorts": [
     {"id": "s1", "scenes": [
       {"id": "sh1", "kind": "illustration", "narration": "One test. One decision.", "visual": {"background": "BoardroomBackdrop", "layers": [

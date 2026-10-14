@@ -1,3 +1,1 @@
-iteration 8
-2026-10-14T21:52:00+02:00
-reason: fix Kokoro import (pin transformers 4.48.3)
+iteration 10 · 2026-10-14T22:50:00+02:00 · brand v2 (intro sting, end card, watermark, title card, thumbnail template), timeline fix, voice speed 1.1
