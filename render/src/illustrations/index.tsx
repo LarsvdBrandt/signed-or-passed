@@ -6,7 +6,7 @@ import {Arrow, Briefcase, Calendar, Clock, Contract, DecisionChair, Desk, Founta
 import {Building} from './Buildings';
 import {BoardroomBackdrop, CityBackdrop, OfficeBackdrop} from './Backdrops';
 import {AssemblyLine, Airplane, Bank, ContainerShip, CrumblingBuilding, Factory, FallingChart, Rocket, Ship, StockBoard, StoreFront, Train, Truck, Warehouse} from './Industry';
-import {Basketball, Computer, DVD, DigitalCamera, FilmCamera, FloppyDisk, Guitar, Laptop, Microphone, OldTelephone, Record, Smartphone, Sneaker, VHSTape} from './Tech';
+import {Basketball, Computer, DVD, DigitalCamera, FilmCamera, FloppyDisk, Guitar, Laptop, Microphone, OldTelephone, Record as VinylRecord, Smartphone, Sneaker, VHSTape} from './Tech';
 import {CoinRain, Crowd, Envelope, FlipCalendar, Gavel, Handshake, Hourglass, Lightbulb, LockKey, MagnifyingGlass, MoneyBag, PriceTag, Queue, Scales, ShareCertificate, SpinningNewspaper, Telegram, Trophy} from './Symbols';
 
 export type IllEntry = {C: React.FC<any>; w: number; h: number; enter: string; group?: string};
@@ -55,7 +55,7 @@ export const ILLUSTRATIONS: Record<string, IllEntry> = {
   DigitalCamera: {C: DigitalCamera, w: 280, h: 200, enter: 'pop', group: 'tech'},
   OldTelephone: {C: OldTelephone, w: 280, h: 240, enter: 'drop', group: 'tech'},
   Guitar: {C: Guitar, w: 180, h: 460, enter: 'slide-up', group: 'culture'},
-  Record: {C: Record, w: 320, h: 320, enter: 'pop', group: 'culture'},
+  VinylRecord: {C: VinylRecord, w: 320, h: 320, enter: 'pop', group: 'culture'},
   Sneaker: {C: Sneaker, w: 320, h: 190, enter: 'drop', group: 'culture'},
   Basketball: {C: Basketball, w: 220, h: 260, enter: 'drop', group: 'culture'},
   Microphone: {C: Microphone, w: 180, h: 380, enter: 'slide-up', group: 'culture'},

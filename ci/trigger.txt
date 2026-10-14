@@ -1,1 +1,1 @@
-iteration 12 · 2026-10-14T21:25:00Z · fix CityScene saw roof crash
+iteration 13 · 2026-10-14T21:45:00Z · sample v2: 45 new props, new scene kinds, parallax, preview.mp4

@@ -26,6 +26,12 @@ for props in build/"$slug"/*/props.json; do
 done
 
 $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumbnail ../$OUT/thumbnail.png --props=../build/$slug/main/props.json --frame=89"
+
+# The test production also ships preview.mp4: the whole illustration library + a demo of every scene kind (silent).
+if [ "$slug" = "0000-sample" ]; then
+  $S "preview:$slug" bash -c "cd render && npx remotion render src/index.ts Preview ../$OUT/preview.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+fi
+
 $S "metadata:$slug" python pipeline/metadata.py --slug "$slug"
 $S "qa:$slug" python pipeline/qa.py --slug "$slug"
 
@@ -33,7 +39,7 @@ if [ -n "${GITHUB_ACTIONS:-}" ]; then
   tag="$slug"
   if [ "$slug" = "0000-sample" ]; then tag="sample"; fi
   shopt -s nullglob
-  files=("$OUT"/video.mp4 "$OUT"/short-*.mp4 "$OUT"/thumbnail.png "$OUT"/captions.srt "$OUT"/short-*.srt "$OUT"/metadata.json "$OUT"/render-report.json)
+  files=("$OUT"/video.mp4 "$OUT"/short-*.mp4 "$OUT"/preview.mp4 "$OUT"/thumbnail.png "$OUT"/captions.srt "$OUT"/short-*.srt "$OUT"/metadata.json "$OUT"/render-report.json)
   shopt -u nullglob
   $S "release:$slug" bash -c "gh release delete '$tag' --yes --cleanup-tag >/dev/null 2>&1 || true; sleep 2; gh release create '$tag' ${files[*]} --title '$slug' --notes 'Rendered by the factory from commit ${GITHUB_SHA:-local}. See render-report.json.' --target '${GITHUB_SHA:-main}'"
 fi

@@ -90,11 +90,17 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
-        "motion": {"type": ["string", "null"], "description": "none | push-in | pull-out | pan-left | pan-right (camera move over the scene)"},
+        "motion": {
+          "description": "Camera move: none | push-in | pull-out | pan | pan-left | pan-right | parallax (illustration scenes: layers move by depth), or {type, strength 0-3}",
+          "oneOf": [
+            {"type": ["string", "null"]},
+            {"type": "object", "required": ["type"], "properties": {"type": {"enum": ["none", "push-in", "pull-out", "pan", "pan-left", "pan-right", "parallax"]}, "strength": {"type": "number", "minimum": 0, "maximum": 3}}}
+          ]
+        },
         "sfx": {"enum": ["pen", "stamp", "paper", "whoosh", null]},
         "minDurationSec": {"type": "number", "minimum": 0},
         "dateTag": {"type": ["string", "null"], "description": "optional: text of the date tag bottom-left (extension, IBM Plex Mono)"}
@@ -108,6 +114,11 @@
         {"if": {"properties": {"kind": {"const": "timeline"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTimeline"}}}},
         {"if": {"properties": {"kind": {"const": "map"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vMap"}}}},
         {"if": {"properties": {"kind": {"const": "city"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCity"}}}},
+        {"if": {"properties": {"kind": {"const": "versus"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vVersus"}}}},
+        {"if": {"properties": {"kind": {"const": "growth"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vGrowth"}}}},
+        {"if": {"properties": {"kind": {"const": "split-flap"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vSplitFlap"}}}},
+        {"if": {"properties": {"kind": {"const": "document"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vDocument"}}}},
+        {"if": {"properties": {"kind": {"const": "photo-wall"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vPhotoWall"}}}},
         {"if": {"properties": {"kind": {"const": "quote"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuote"}}}},
         {"if": {"properties": {"kind": {"const": "question"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuestion"}}}},
         {"if": {"properties": {"kind": {"const": "reveal"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vText"}}}},
@@ -129,13 +140,22 @@
             "type": "object",
             "required": ["component"],
             "properties": {
-              "component": {"enum": ["Desk", "Contract", "FountainPen", "Stamp", "DecisionChair", "Person", "NameCard", "Building", "Phone", "Newspaper", "Briefcase", "MoneyStack", "Clock", "Calendar", "Arrow", "Spotlight", "CityBackdrop", "OfficeBackdrop", "BoardroomBackdrop"]},
-              "props": {"type": "object", "description": "colour, label, pose (and component specific props)"},
+              "component": {"enum": [
+                "Desk", "Contract", "FountainPen", "Stamp", "DecisionChair", "Person", "NameCard", "Building", "Phone", "Newspaper", "Briefcase", "MoneyStack", "Clock", "Calendar", "Arrow", "Spotlight",
+                "Factory", "StoreFront", "Warehouse", "Bank", "StockBoard", "CrumblingBuilding", "AssemblyLine",
+                "Ship", "ContainerShip", "Train", "Truck", "Airplane", "Rocket",
+                "Computer", "Laptop", "Smartphone", "FloppyDisk", "VHSTape", "DVD", "FilmCamera", "DigitalCamera", "OldTelephone",
+                "Guitar", "VinylRecord", "Sneaker", "Basketball", "Microphone",
+                "Handshake", "Gavel", "Lightbulb", "CoinRain", "MoneyBag", "PriceTag", "ShareCertificate", "FallingChart", "Crowd", "Queue", "Envelope", "Telegram", "FlipCalendar", "Hourglass", "Scales", "MagnifyingGlass", "LockKey", "Trophy", "SpinningNewspaper",
+                "CityBackdrop", "OfficeBackdrop", "BoardroomBackdrop"
+              ]},
+              "props": {"type": "object", "description": "colour, label, pose (and component specific props, see README)"},
               "x": {"type": "number", "description": "centre, percent of frame width (0-100)"},
               "y": {"type": "number", "description": "centre, percent of frame height (0-100)"},
               "scale": {"type": "number", "exclusiveMinimum": 0},
               "enter": {"type": "string", "description": "pop | fade | slide-up | slide-down | slide-left | slide-right | drop | none"},
-              "delaySec": {"type": "number", "minimum": 0}
+              "delaySec": {"type": "number", "minimum": 0},
+              "depth": {"type": "number", "minimum": 0, "maximum": 1, "description": "parallax depth: 0 = far background, 1 = foreground (default by layer order)"}
             }
           }
         }
@@ -146,13 +166,13 @@
       "type": "object",
       "required": ["type", "series", "sourceId"],
       "properties": {
-        "type": {"enum": ["bar", "line"]},
+        "type": {"enum": ["bar", "line"], "description": "line = self-drawing line with a moving value label"},
         "series": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["label", "value"], "properties": {"label": {"type": "string"}, "value": {"type": "number"}}}},
         "unit": {"type": "string"},
         "sourceId": {"type": "string"}
       }
     },
-    "vCounter": {"type": "object", "required": ["from", "to", "sourceId"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}}},
+    "vCounter": {"type": "object", "required": ["from", "to", "sourceId"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}, "style": {"enum": ["plain", "money"], "description": "money = banknotes pile up while the number runs"}, "label": {"type": "string"}}},
     "vTimeline": {"type": "object", "required": ["events"], "properties": {"events": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["date", "label"], "properties": {"date": {"type": "string"}, "label": {"type": "string"}}}}}},
     "vMap": {
       "type": "object",
@@ -180,6 +200,12 @@
         "night": {"type": "boolean"}
       }
     },
+    "side": {"type": "object", "properties": {"label": {"type": "string"}, "value": {"type": "number"}, "unit": {"type": "string"}, "colour": {"type": "string"}, "component": {"type": "string"}, "props": {"type": "object"}}},
+    "vVersus": {"type": "object", "required": ["left", "right"], "properties": {"left": {"$ref": "#/$defs/side"}, "right": {"$ref": "#/$defs/side"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}}},
+    "vGrowth": {"type": "object", "required": ["to"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "label": {"type": "string"}, "sourceId": {"type": "string"}}},
+    "vSplitFlap": {"type": "object", "required": ["rows"], "properties": {"rows": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string", "maxLength": 18}}, "accentRow": {"type": "integer", "minimum": 0}, "sourceId": {"type": "string"}}},
+    "vDocument": {"type": "object", "properties": {"title": {"type": "string"}, "lines": {"type": "array", "maxItems": 7, "items": {"type": "string"}}, "verdict": {"enum": ["SIGNED", "PASSED"]}, "party": {"type": "string"}, "signature": {"type": "string"}}},
+    "vPhotoWall": {"type": "object", "required": ["cards"], "properties": {"cards": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"type": "object", "required": ["label"], "properties": {"label": {"type": "string"}, "component": {"type": "string"}, "props": {"type": "object"}, "dark": {"type": "boolean"}}}}, "links": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 0}}}}},
     "vQuote": {"type": "object", "required": ["text", "speaker", "sourceId", "status"], "properties": {"text": {"type": "string"}, "speaker": {"type": "string"}, "sourceId": {"type": "string"}, "status": {"enum": ["verified", "disputed"]}}},
     "vQuestion": {"type": "object", "required": ["question"], "properties": {"question": {"type": "string"}, "options": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}, "holdSec": {"type": "number", "minimum": 0, "maximum": 10}}}
   }
