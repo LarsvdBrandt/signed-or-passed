@@ -1,25 +1,32 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, FONT_HEAD, FONT_MONO} from '../constants';
-import {clamp, useUnit} from '../components/common';
+import {clamp, usePortrait, useUnit} from '../components/common';
+import {DashedRule} from '../components/brand';
 import type {SceneProps} from '../types';
 
+/** Title card in the style of the channel banner: dashed grey rules, heavy Bricolage title, mono subtitle. */
 export const TitleScene: React.FC<SceneProps> = ({scene}) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const {fps, width} = useVideoConfig();
   const u = useUnit();
+  const portrait = usePortrait();
   const v = scene.visual || {};
-  const p = spring({frame: Math.max(0, frame - 4), fps, config: {damping: 16}});
-  const rule = interpolate(frame, [10, 30], [0, 1], clamp);
+  const title = String(v.title || '');
+  const p = spring({frame: Math.max(0, frame - 6), fps, config: {damping: 16}});
+  const rule = interpolate(frame, [0, 18], [0, 100], {...clamp, easing: Easing.out(Easing.cubic)});
   const sub = interpolate(frame, [18, 30], [0, 1], clamp);
+  const longest = Math.max(4, ...title.split(/\s+/).map((w) => w.length));
+  const size = Math.min((portrait ? 130 : 150) * u, (width * 0.84) / (longest * 0.56), title.length > 22 ? 120 * u : 1e9);
   return (
-    <AbsoluteFill style={{backgroundColor: C.paper, justifyContent: 'center', alignItems: 'center', padding: 100 * u}}>
-      <div style={{fontFamily: FONT_HEAD, fontWeight: 800, fontSize: 150 * u, lineHeight: 0.98, letterSpacing: -2 * u, color: C.board, textAlign: 'center', transform: `translateY(${(1 - p) * 60}px)`, opacity: p}}>
-        {v.title}
+    <AbsoluteFill style={{backgroundColor: C.paper, justifyContent: 'center', alignItems: 'center'}}>
+      <DashedRule top={portrait ? '30%' : '24%'} progress={rule} />
+      <DashedRule top={portrait ? '70%' : '76%'} progress={rule} fromRight />
+      <div style={{fontFamily: FONT_HEAD, fontWeight: 800, fontSize: size, lineHeight: 0.98, letterSpacing: -2 * u, color: C.board, textAlign: 'center', maxWidth: '88%', transform: `translateY(${(1 - p) * 60 * u}px)`, opacity: p}}>
+        {title}
       </div>
-      <div style={{width: 520 * u * rule, height: 10 * u, background: C.board, marginTop: 36 * u}} />
       {v.subtitle ? (
-        <div style={{fontFamily: FONT_MONO, fontSize: 38 * u, letterSpacing: 4 * u, color: C.grey, marginTop: 30 * u, opacity: sub, textTransform: 'uppercase', textAlign: 'center'}}>{v.subtitle}</div>
+        <div style={{fontFamily: FONT_MONO, fontSize: 38 * u, letterSpacing: 1 * u, color: C.board, marginTop: 34 * u, opacity: sub, textAlign: 'center', maxWidth: '80%'}}>{v.subtitle}</div>
       ) : null}
     </AbsoluteFill>
   );

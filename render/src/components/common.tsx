@@ -53,12 +53,13 @@ export const PaperGrain: React.FC<{opacity?: number}> = ({opacity = 0.07}) => (
   </AbsoluteFill>
 );
 
+/** "Source: <title>" bottom-right (left of the watermark). */
 export const SourceLine: React.FC<{sourceId?: string; sources?: Record<string, {title: string}>; dark?: boolean}> = ({sourceId, sources, dark}) => {
   const u = useUnit();
   const s = sourceId && sources ? sources[sourceId] : undefined;
   if (!s) return null;
   return (
-    <div style={{position: 'absolute', right: 56 * u, bottom: 44 * u, maxWidth: '62%', textAlign: 'right', fontFamily: FONT_MONO, fontSize: 24 * u, color: dark ? C.greyLight : C.grey}}>
+    <div style={{position: 'absolute', right: 150 * u, bottom: 50 * u, maxWidth: '58%', textAlign: 'right', fontFamily: FONT_MONO, fontSize: 24 * u, color: dark ? C.greyLight : C.grey}}>
       Source: {s.title}
     </div>
   );

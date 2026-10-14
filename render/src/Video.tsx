@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Easing, Freeze, Sequence, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, TRANSITION_FRAMES} from './constants';
 import {Captions, DateTag, PaperGrain, clamp} from './components/common';
+import {BrandIntro, EndCard, Watermark} from './components/brand';
 import type {Scene, VideoProps} from './types';
 import {LessonScene, RevealScene, TitleScene} from './scenes/TextScenes';
 import {ChartScene, CounterScene, TimelineScene} from './scenes/DataScenes';
@@ -60,36 +61,64 @@ const Camera: React.FC<{motion?: string | null; duration: number; children: Reac
   return <AbsoluteFill style={{transform: t}}>{children}</AbsoluteFill>;
 };
 
-/** Paper-slide transition: each new scene slides in over the previous one like a new sheet. */
-const SceneFrame: React.FC<{scene: Scene; prev?: Scene; index: number; ctx: VideoProps}> = ({scene, prev, index, ctx}) => {
+/** Paper-slide transition: a new sheet slides in over the previous one. */
+const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slide, children}) => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
-  const p = index === 0 ? 1 : interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+  const p = !slide ? 1 : interpolate(frame, [0, TRANSITION_FRAMES], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
   const x = (1 - p) * width * 1.05;
   const rot = (1 - p) * 2.5;
   return (
     <AbsoluteFill style={{transform: `translateX(${x}px) rotate(${rot}deg)`, transformOrigin: 'left bottom', backgroundColor: C.paper, overflow: 'hidden', boxShadow: p < 1 ? '-18px 0 0 rgba(20,20,20,0.18)' : 'none'}}>
-      <Camera motion={scene.motion} duration={scene.durationFrames}>
-        <SceneContent scene={scene} prev={prev} ctx={ctx} />
-      </Camera>
+      {children}
     </AbsoluteFill>
   );
 };
 
+const SceneFrame: React.FC<{scene: Scene; prev?: Scene; slide: boolean; ctx: VideoProps}> = ({scene, prev, slide, ctx}) => (
+  <PaperSheet slide={slide}>
+    <Camera motion={scene.motion} duration={scene.durationFrames}>
+      <SceneContent scene={scene} prev={prev} ctx={ctx} />
+    </Camera>
+  </PaperSheet>
+);
+
 export const VideoMain: React.FC<VideoProps> = (props) => {
+  const frame = useCurrentFrame();
   const scenes = props.scenes || [];
+  const intro = Math.max(0, Math.round(props.introFrames || 0));
+  const outro = Math.max(0, Math.round(props.outroFrames || 0));
+  const lastScene = scenes[scenes.length - 1];
+  const lastEnd = lastScene ? lastScene.startFrame + lastScene.durationFrames : intro;
+  const total = Math.max(1, Math.round(props.totalFrames || lastEnd + outro));
+  const outroStart = Math.max(0, Math.min(lastEnd, total - 1));
+  const inBody = frame >= intro && frame < lastEnd;
   return (
     <AbsoluteFill style={{backgroundColor: C.paper}}>
+      {intro > 0 ? (
+        <Sequence name="brand-intro" from={0} durationInFrames={intro + TRANSITION_FRAMES}>
+          <BrandIntro />
+        </Sequence>
+      ) : null}
       {scenes.map((sc, i) => {
         const last = i === scenes.length - 1;
+        const extra = !last || outro > 0 ? TRANSITION_FRAMES : 0;
         return (
-          <Sequence key={sc.id} name={`${sc.kind}:${sc.id}`} from={sc.startFrame} durationInFrames={sc.durationFrames + (last ? 0 : TRANSITION_FRAMES)}>
-            <SceneFrame scene={sc} prev={scenes[i - 1]} index={i} ctx={props} />
+          <Sequence key={sc.id} name={`${sc.kind}:${sc.id}`} from={sc.startFrame} durationInFrames={sc.durationFrames + extra}>
+            <SceneFrame scene={sc} prev={scenes[i - 1]} slide={i > 0 || intro > 0} ctx={props} />
           </Sequence>
         );
       })}
+      {outro > 0 ? (
+        <Sequence name="end-card" from={outroStart} durationInFrames={Math.max(1, total - outroStart)}>
+          <PaperSheet slide>
+            <EndCard />
+          </PaperSheet>
+        </Sequence>
+      ) : null}
       <PaperGrain />
-      <DateTag scenes={scenes} />
+      {inBody ? <DateTag scenes={scenes} /> : null}
+      {inBody ? <Watermark /> : null}
       {props.format === 'short' ? <Captions words={props.words} /> : null}
     </AbsoluteFill>
   );

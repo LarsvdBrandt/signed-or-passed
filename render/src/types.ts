@@ -25,6 +25,10 @@ export type VideoProps = {
   width: number;
   height: number;
   totalFrames: number;
+  /** Brand intro sting length (frames) before the first scene; 0 = none. */
+  introFrames?: number;
+  /** End card length (frames) after the last scene; 0 = none. */
+  outroFrames?: number;
   scenes: Scene[];
   words: Word[];
   assets: Record<string, {src: string; attribution: string}>;
