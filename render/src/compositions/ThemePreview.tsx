@@ -4,6 +4,7 @@ import {C, FONT_HEAD, FONT_MONO} from '../constants';
 import {SceneContent} from '../Video';
 import {THEME_LIST, applyTheme} from '../themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from '../themes/ThemeLayer';
+import {BACKDROPS, ILLUSTRATIONS} from '../illustrations';
 import type {Scene, VideoProps} from '../types';
 
 const CTX: VideoProps = {
@@ -51,8 +52,51 @@ const segments = (i: number): Seg[] => [
   {kind: 'verdict', frames: 70, visual: {verdict: i % 2 === 0 ? 'PASSED' : 'SIGNED'}},
 ];
 
-const PER_THEME = segments(0).reduce((a, s) => a + s.frames, 0);
+const SEG_FRAMES = segments(0).reduce((a, s) => a + s.frames, 0);
+/** Contact sheet of every illustration component in the theme (THEMES-3 matrix check). */
+const SHEET_FRAMES = 105;
+const PER_THEME = SEG_FRAMES + SHEET_FRAMES;
 export const THEME_PREVIEW_FRAMES = PER_THEME * THEME_LIST.length;
+
+const SHEET_NAMES = Object.keys(ILLUSTRATIONS).filter((k) => !BACKDROPS[k]);
+const SHEET_COLS = 11;
+const SHEET_H = 990;
+
+const ContactSheet: React.FC = () => {
+  const rows = Math.max(1, Math.ceil(SHEET_NAMES.length / SHEET_COLS));
+  const cw = 1920 / SHEET_COLS;
+  const ch = SHEET_H / rows;
+  return (
+    <AbsoluteFill style={{backgroundColor: C.paper}}>
+      {SHEET_NAMES.map((name, i) => {
+        const e = ILLUSTRATIONS[name];
+        const Comp = e.C;
+        const fit = Math.min((cw - 18) / e.w, (ch - 34) / e.h);
+        return (
+          <div
+            key={name}
+            style={{
+              position: 'absolute',
+              left: (i % SHEET_COLS) * cw,
+              top: Math.floor(i / SHEET_COLS) * ch,
+              width: cw,
+              height: ch,
+              overflow: 'hidden',
+              borderRight: `1px solid ${C.greyLight}`,
+              borderBottom: `1px solid ${C.greyLight}`,
+              boxSizing: 'border-box',
+            }}
+          >
+            <div style={{position: 'absolute', left: cw / 2, top: (ch - 26) / 2, width: e.w, height: e.h, transform: `translate(-50%, -50%) scale(${fit})`}}>
+              <Comp />
+            </div>
+            <div style={{position: 'absolute', left: 0, right: 0, bottom: 4, textAlign: 'center', fontFamily: FONT_MONO, fontSize: 13, color: C.board, whiteSpace: 'nowrap', overflow: 'hidden'}}>{name}</div>
+          </div>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
 
 /** Applies a theme before its subtree renders (only the active Sequence's subtree is rendered). */
 const ThemeScope: React.FC<{id: string; children: React.ReactNode}> = ({id, children}) => {
@@ -95,13 +139,21 @@ const ThemeBlock: React.FC<{index: number}> = ({index}) => {
           </Sequence>
         );
       })}
+      <Sequence from={SEG_FRAMES} durationInFrames={SHEET_FRAMES}>
+        <AbsoluteFill style={{backgroundColor: C.paper, overflow: 'hidden', ...themeContentStyle(t)}}>
+          <ContactSheet />
+        </AbsoluteFill>
+      </Sequence>
       <ThemeOverlay />
       <Label name={t.name} id={t.id} description={t.description} />
     </AbsoluteFill>
   );
 };
 
-/** Every theme with the same mini-story: illustration scene, bar chart, verdict. Rendered as preview-themes.mp4. */
+/**
+ * Every theme with the same mini-story (illustration scene, bar chart, verdict) followed by a contact sheet of the
+ * whole illustration library in that theme. Rendered as preview-themes.mp4.
+ */
 export const ThemePreview: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: '#000000'}}>
     {THEME_LIST.map((t, i) => (

@@ -1,1 +1,1 @@
-2026-10-15T00:35:00+02:00 iteration 14b: theme system batch 1 complete (engine, 9 themes, easing, captions, spec.theme)
+iteration 15 - 2026-10-15T00:58+02:00 - theme stroke boot fix, theme contact sheets, procedural sound library + sound board

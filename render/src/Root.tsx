@@ -5,6 +5,7 @@ import {VideoMain} from './Video';
 import {Thumbnail} from './compositions/Thumbnail';
 import {PREVIEW_FRAMES, Preview} from './compositions/Preview';
 import {THEME_PREVIEW_FRAMES, ThemePreview} from './compositions/ThemePreview';
+import {SoundBoard, soundBoardDefaults} from './compositions/SoundBoard';
 import {sampleLong, sampleShort} from './sample-props';
 import {applyTheme} from './themes';
 import type {VideoProps} from './types';
@@ -14,6 +15,11 @@ loadFonts();
 const calc = ({props}: {props: VideoProps}) => ({
   durationInFrames: Math.max(1, Math.round(props.totalFrames || 1)),
   fps: props.fps || 30,
+});
+
+const calcBoard = ({props}: {props: any}) => ({
+  durationInFrames: Math.max(1, Math.round((props && props.totalFrames) || 1)),
+  fps: 30,
 });
 
 const AnyVideo = VideoMain as React.FC<any>;
@@ -36,6 +42,12 @@ const PreviewDefault: React.FC = () => (
   </DefaultThemed>
 );
 
+const SoundBoardDefault: React.FC<any> = (props) => (
+  <DefaultThemed>
+    <SoundBoard {...props} />
+  </DefaultThemed>
+);
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -44,6 +56,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Thumbnail" component={ThemedThumb} width={1280} height={720} fps={30} durationInFrames={90} defaultProps={sampleLong as any} />
       <Composition id="Preview" component={PreviewDefault} width={1920} height={1080} fps={30} durationInFrames={PREVIEW_FRAMES} />
       <Composition id="ThemePreview" component={ThemePreview} width={1920} height={1080} fps={30} durationInFrames={THEME_PREVIEW_FRAMES} />
+      <Composition id="SoundBoard" component={SoundBoardDefault} width={1920} height={1080} fps={30} durationInFrames={soundBoardDefaults.totalFrames} defaultProps={soundBoardDefaults as any} calculateMetadata={calcBoard as any} />
     </>
   );
 };

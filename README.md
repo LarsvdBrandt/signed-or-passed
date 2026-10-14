@@ -12,8 +12,11 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
    `remotion render` (LongVideo / ShortVideo, muted) > ffmpeg mux > `remotion still` (Thumbnail) > `metadata` > `qa`.
 3. The results are published as a **GitHub Release** with tag = slug (`sample` for the test production):
    `video.mp4`, `short-*.mp4`, `thumbnail.png`, `captions.srt`, `short-*.srt`, `metadata.json`, `render-report.json`.
-   The test production also ships **`preview.mp4`**: contact sheets of the whole illustration library followed by a
-   demo of every scene kind and brand component (silent).
+   The test production also ships the library previews:
+   - **`preview.mp4`**: contact sheets of the whole illustration library + a demo of every scene kind and brand component (silent)
+   - **`preview-themes.mp4`**: the same mini-story in every theme, each followed by a contact sheet of every component in that theme (silent)
+   - **`sound-board.mp4`**: every sound of the procedural sound library, with its name and category (with audio)
+   - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + `LICENCE.txt` (CC0)
 4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`.
 5. Uploading to YouTube is **manual**: Actions > `upload` > Run workflow (slug, privacy, optional publishAt).
 
@@ -28,19 +31,46 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 | `brand/` | palette, fonts (URLs, OFL), music licences (`licenses.csv`) |
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
-| `pipeline/` | Python 3.11 scripts (see above) + `upload.py` |
-| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview` |
+| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py` + `soundboard.py` = sound library |
+| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
+| `render/src/themes/` | theme engine and presets (see Themes) |
 | `ci/` | step runner, per-production render script, finalize script, last-run files, trigger |
-| `docs/` | privacy policy and terms (for the YouTube API audit) |
+| `docs/` | privacy policy and terms (for the YouTube API audit); `docs/library/` = library catalogues |
 
 ## Brand: intro and outro
 Every long video starts with a 3 s logo sting (`BrandIntro`) and ends with a 6 s end card (`EndCard`).
 `tts.py` writes `introSec` / `outroSec` into `timing.json`; `build_props.py` turns them into `introFrames` /
 `outroFrames`; `mix.py` keeps the voice silent during both. A small watermark sits bottom-right during the story and
 the date tag (`scene.dateTag`, IBM Plex Mono) bottom-left.
+
+## Themes (spec.theme)
+The factory is reusable for other channels: `spec.theme` switches the whole look (colours, fonts, outline width,
+corner radius, texture overlay, content filter, vignette, entrance easing, Shorts caption style). Omit it for the
+approved Signed or Passed house style.
+
+| theme | look | good for |
+|---|---|---|
+| `signed-or-passed` (default) | flat editorial vector, 3px outlines, paper grain | business stories |
+| `paper-cutout` | kraft paper layers, hard drop shadows, stop-motion easing | crafts, kids history |
+| `engraving` | sepia parchment, hatching, IM Fell English | ancient/medieval history, Golden Age |
+| `blueprint` | white lines on blue, grid | engineering, inventions |
+| `chalkboard` | slate board, rough chalk, Caveat | education, science |
+| `retro-comic` | bold outlines, halftone, Bangers, speech-bubble captions | funny stories, pop culture |
+| `synthwave` | neon on purple, glow, scanlines | 1980s, gaming, tech |
+| `pastel-kids` | pastels, round corners, Fredoka, bouncy motion | kids, simple explainers |
+| `documentary-dark` | dark, condensed type, heavy vignette | true crime, serious history |
+
+Details: `docs/library/themes.md`. `render/src/boot.ts` applies the theme from the input props before any module
+is evaluated, so the outline width follows the theme in productions. (In the multi-theme `preview-themes.mp4` all
+themes are drawn with the default 3px outline; colours, fonts and textures are exact.)
+
+## Sound library
+52 procedurally synthesised sound effects (office, money, transitions, UI, impacts, crowd, tech, ambience,
+transport, cartoon, music), CC0 by construction, loudness-normalised. Catalogue and usage: `docs/library/sound.md`.
+Productions currently use the four house sounds `pen`, `stamp`, `paper`, `whoosh` via `scenes[].sfx`.
 
 ## Thumbnail rules
 1280x720. Dark left half: `thumbnail.bigText` (max 16 chars, IBM Plex Mono) + a 3-5 word `headline` + the verdict
