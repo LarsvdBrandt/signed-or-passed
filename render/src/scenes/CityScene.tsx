@@ -38,6 +38,16 @@ const ERAS: Record<Era, {hMin: number; hMax: number; wMin: number; wMax: number;
 type Win = {x: number; y: number; w: number; h: number; lit: number; on: boolean; accent: boolean};
 type Bld = {x: number; w: number; h: number; slant: number; fill: string; start: number; windows: Win[]; roof: string; chimneyX: number; chimneyH: number};
 
+const sawPoints = (w: number, h: number, u: number): string => {
+  const n = Math.max(2, Math.round(w / (50 * u)));
+  const tw = w / n;
+  const parts: string[] = [];
+  for (let kk = 0; kk < n; kk++) {
+    parts.push(`${kk * tw},${-h} ${kk * tw + tw * 0.75},${-h - 34 * u} ${kk * tw + tw},${-h}`);
+  }
+  return parts.join(' ');
+};
+
 const buildRow = (rand: () => number, W: number, H: number, u: number, era: Era, density: number, back: boolean, night: boolean): Bld[] => {
   const cfg = ERAS[era];
   const out: Bld[] = [];
@@ -133,17 +143,7 @@ export const CityScene: React.FC<SceneProps> = ({scene}) => {
     return (
       <g key={(isBack ? 'b' : 'f') + i} transform={`translate(${b.x} ${groundY}) scale(1 ${p})`}>
         {b.roof === 'saw' ? (
-          <polygon
-            points={Array.from({length: Math.max(2, Math.round(b.w / (50 * u)))}, (_, kk, arr) => {
-              const tw = b.w / arr.length;
-              return `${kk * tw},${-b.h} ${kk * tw + tw * 0.75},${-b.h - 34 * u} ${kk * tw + tw},${-b.h}`;
-            }).join(' ')}
-            fill={b.fill}
-            stroke={C.board}
-            strokeWidth={STROKE}
-            strokeLinejoin="round"
-            {...sw}
-          />
+          <polygon points={sawPoints(b.w, b.h, u)} fill={b.fill} stroke={C.board} strokeWidth={STROKE} strokeLinejoin="round" {...sw} />
         ) : null}
         {b.roof === 'chimney' ? <rect x={b.chimneyX} y={-b.h - b.chimneyH} width={22 * u} height={b.chimneyH} fill={night ? C.grey : C.stamp} stroke={C.board} strokeWidth={STROKE} {...sw} /> : null}
         {b.roof === 'tank' ? (
@@ -204,11 +204,13 @@ export const CityScene: React.FC<SceneProps> = ({scene}) => {
           const hookY = top + (90 + 60 * (0.5 + 0.5 * Math.sin(time * 0.9 + c.phase))) * u;
           const mw = 24 * u;
           const segs = Math.max(1, Math.floor((c.h * p) / (mw * 1.6)));
-          const zig = Array.from({length: segs}, (_, kk) => {
+          const zigParts: string[] = [];
+          for (let kk = 0; kk < segs; kk++) {
             const y0 = groundY - kk * mw * 1.6;
             const y1 = groundY - (kk + 1) * mw * 1.6;
-            return `M${c.x - mw / 2} ${y0} L${c.x + mw / 2} ${y1}`;
-          }).join(' ');
+            zigParts.push(`M${c.x - mw / 2} ${y0} L${c.x + mw / 2} ${y1}`);
+          }
+          const zig = zigParts.join(' ');
           return (
             <g key={'c' + i}>
               <rect x={c.x - mw / 2} y={top} width={mw} height={Math.max(0, groundY - top)} fill="none" stroke={C.board} strokeWidth={STROKE} />
