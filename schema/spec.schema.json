@@ -15,7 +15,7 @@
       "properties": {
         "engine": {"const": "kokoro"},
         "voice": {"type": "string", "pattern": "^[ab][fm]_[a-z]+$"},
-        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0}
+        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "default": 1.1, "description": "Kokoro speed; the factory default is 1.1 when omitted"}
       }
     },
     "music": {
@@ -90,7 +90,7 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
@@ -107,6 +107,7 @@
         {"if": {"properties": {"kind": {"const": "counter"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCounter"}}}},
         {"if": {"properties": {"kind": {"const": "timeline"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTimeline"}}}},
         {"if": {"properties": {"kind": {"const": "map"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vMap"}}}},
+        {"if": {"properties": {"kind": {"const": "city"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCity"}}}},
         {"if": {"properties": {"kind": {"const": "quote"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuote"}}}},
         {"if": {"properties": {"kind": {"const": "question"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuestion"}}}},
         {"if": {"properties": {"kind": {"const": "reveal"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vText"}}}},
@@ -155,11 +156,28 @@
     "vTimeline": {"type": "object", "required": ["events"], "properties": {"events": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["date", "label"], "properties": {"date": {"type": "string"}, "label": {"type": "string"}}}}}},
     "vMap": {
       "type": "object",
-      "required": ["region", "pins"],
+      "required": ["pins"],
+      "description": "WorldZoom: starts on a rotating globe (globe: false skips it), zooms into focus (country) and optionally a city, then pulls out to show all pins when arrows exist.",
       "properties": {
-        "region": {"type": "string", "description": "world | europe | north-america | south-america | asia | africa | oceania"},
+        "region": {"type": "string", "description": "world | europe | north-america | united-states | south-america | asia | africa | oceania (used when there is no focus)"},
+        "focus": {"type": "string", "description": "country to zoom into and highlight: ISO 3166-1 alpha-3 (e.g. NLD), numeric code or English Natural Earth name"},
+        "focusLabel": {"type": "string", "description": "optional big label on the focus country"},
+        "focusColour": {"type": "string", "description": "brand colour name or hex; default ink"},
+        "zoomTo": {"enum": ["country", "city", "none"], "description": "default country (when focus is set)"},
+        "city": {"type": "object", "required": ["lat", "lon"], "properties": {"name": {"type": "string"}, "lat": {"type": "number", "minimum": -90, "maximum": 90}, "lon": {"type": "number", "minimum": -180, "maximum": 180}}},
+        "highlight": {"type": "array", "items": {"oneOf": [{"type": "string"}, {"type": "object", "required": ["country"], "properties": {"country": {"type": "string"}, "colour": {"type": "string"}}}]}, "description": "extra countries filled in stamp orange (or colour)"},
+        "globe": {"type": "boolean", "description": "default true: start on a rotating globe"},
         "pins": {"type": "array", "items": {"type": "object", "required": ["lat", "lon", "label"], "properties": {"lat": {"type": "number", "minimum": -90, "maximum": 90}, "lon": {"type": "number", "minimum": -180, "maximum": 180}, "label": {"type": "string"}}}},
         "arrows": {"type": "array", "items": {"type": "object", "required": ["from", "to"], "properties": {"from": {"type": ["string", "integer"], "description": "pin label or pin index"}, "to": {"type": ["string", "integer"]}}}}
+      }
+    },
+    "vCity": {
+      "type": "object",
+      "properties": {
+        "era": {"enum": ["1900s", "1950s", "modern"]},
+        "density": {"enum": ["low", "medium", "high"]},
+        "label": {"type": "string"},
+        "night": {"type": "boolean"}
       }
     },
     "vQuote": {"type": "object", "required": ["text", "speaker", "sourceId", "status"], "properties": {"text": {"type": "string"}, "speaker": {"type": "string"}, "sourceId": {"type": "string"}, "status": {"enum": ["verified", "disputed"]}}},

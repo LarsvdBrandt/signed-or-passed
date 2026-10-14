@@ -1,1 +1,1 @@
-iteration 10 · 2026-10-14T22:50:00+02:00 · brand v2 (intro sting, end card, watermark, title card, thumbnail template), timeline fix, voice speed 1.1
+iteration 11 · 2026-10-14T21:05:00Z · map v2 (WorldZoom) + city build-up scene

@@ -7,6 +7,7 @@ import type {Scene, VideoProps} from './types';
 import {LessonScene, RevealScene, TitleScene} from './scenes/TextScenes';
 import {ChartScene, CounterScene, TimelineScene} from './scenes/DataScenes';
 import {MapScene} from './scenes/MapScene';
+import {CityScene} from './scenes/CityScene';
 import {EvidenceScene, QuoteScene} from './scenes/QuoteEvidence';
 import {QuestionScene} from './scenes/QuestionScene';
 import {VerdictScene} from './scenes/VerdictScene';
@@ -28,6 +29,8 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
       return <TimelineScene scene={scene} ctx={ctx} />;
     case 'map':
       return <MapScene scene={scene} ctx={ctx} />;
+    case 'city':
+      return <CityScene scene={scene} ctx={ctx} />;
     case 'quote':
       return <QuoteScene scene={scene} ctx={ctx} />;
     case 'reveal':
