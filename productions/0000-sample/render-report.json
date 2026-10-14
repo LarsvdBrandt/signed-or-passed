@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "slug": "0000-sample",
+  "test": true,
+  "generatedAt": "2026-10-14T19:53:00+00:00",
+  "checks": [
+    {
+      "name": "video.mp4: resolution 1920x1080",
+      "ok": true,
+      "detail": "1920x1080"
+    },
+    {
+      "name": "video.mp4: audio present",
+      "ok": true,
+      "detail": "aac"
+    },
+    {
+      "name": "video.mp4: duration",
+      "ok": true,
+      "detail": "52.2s (TEST production: exempt from 480-720s)"
+    },
+    {
+      "name": "video.mp4: duration matches audio timing",
+      "ok": true,
+      "detail": "video 52.23s vs timing 52.23s"
+    },
+    {
+      "name": "video.mp4: loudness -14 LUFS (+/-1)",
+      "ok": true,
+      "detail": "-14.1 LUFS"
+    },
+    {
+      "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
+      "ok": true,
+      "detail": "-1.5 dBTP"
+    },
+    {
+      "name": "short-s1.mp4: resolution 1080x1920",
+      "ok": true,
+      "detail": "1080x1920"
+    },
+    {
+      "name": "short-s1.mp4: audio present",
+      "ok": true,
+      "detail": "aac"
+    },
+    {
+      "name": "short-s1.mp4: duration",
+      "ok": true,
+      "detail": "12.2s (TEST production: exempt from 45-60s)"
+    },
+    {
+      "name": "short-s1.mp4: duration matches audio timing",
+      "ok": true,
+      "detail": "video 12.23s vs timing 12.23s"
+    },
+    {
+      "name": "short-s1.mp4: loudness -14 LUFS (+/-1)",
+      "ok": true,
+      "detail": "-14.5 LUFS"
+    },
+    {
+      "name": "short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
+      "ok": true,
+      "detail": "-1.5 dBTP"
+    },
+    {
+      "name": "thumbnail.png: 1280x720",
+      "ok": true,
+      "detail": "1280x720"
+    },
+    {
+      "name": "captions.srt: present",
+      "ok": true,
+      "detail": "captions.srt"
+    },
+    {
+      "name": "every sourceId resolves",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "question scene exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "verdict scene exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "description: >= 3 chapters",
+      "ok": true,
+      "detail": "3 chapters"
+    },
+    {
+      "name": "description: synthetic voice disclosed",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "durations": {
+    "main": 52.23,
+    "short-s1": 12.23
+  },
+  "warnings": [
+    "brand/music/licenses.csv has no tracks: rendered without music"
+  ]
+}
