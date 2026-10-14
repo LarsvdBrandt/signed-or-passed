@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, FONT_HEAD, FONT_MONO} from '../constants';
+import {currentTheme} from '../themes';
 import type {Scene, Word} from '../types';
 
 export const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -40,7 +41,7 @@ export const enterStyle = (enter: string | undefined, f: number, fps: number): {
   }
 };
 
-/** Subtle paper grain over everything (no gradients: fractal noise, multiplied). */
+/** Subtle paper grain over everything (no gradients: fractal noise, multiplied). Kept for compositions without a theme overlay. */
 export const PaperGrain: React.FC<{opacity?: number}> = ({opacity = 0.07}) => (
   <AbsoluteFill style={{pointerEvents: 'none', mixBlendMode: 'multiply', opacity}}>
     <svg width="100%" height="100%">
@@ -94,7 +95,10 @@ export const DateTag: React.FC<{scenes: Scene[]}> = ({scenes}) => {
   );
 };
 
-/** Big word-by-word burned-in captions for Shorts (3 words per group, active word in ink blue). */
+/**
+ * Big word-by-word burned-in captions for Shorts (3 words per group, active word highlighted).
+ * Style follows the theme: outline (house style), box, bubble (comic) or neon.
+ */
 export const Captions: React.FC<{words: Word[]}> = ({words}) => {
   const frame = useCurrentFrame();
   const u = useUnit();
@@ -108,13 +112,36 @@ export const Captions: React.FC<{words: Word[]}> = ({words}) => {
   if (frame > words[idx].endFrame + 12) return null;
   const start = Math.floor(idx / 3) * 3;
   const chunk = words.slice(start, start + 3);
+  const cs = currentTheme().captionStyle;
+  const wrap: React.CSSProperties = {position: 'absolute', left: 50 * u, right: 50 * u, top: '66%', textAlign: 'center', fontFamily: FONT_HEAD, fontWeight: 800, fontSize: 96 * u, lineHeight: 1.08, textTransform: 'uppercase'};
+  let activeColour = C.ink;
+  let idleColour = C.paper;
+  let inner: React.CSSProperties = {display: 'inline-block'};
+  if (cs === 'outline') {
+    wrap.WebkitTextStroke = `${5 * u}px ${C.board}`;
+    wrap.textShadow = `0 ${8 * u}px 0 ${C.board}`;
+  } else if (cs === 'box') {
+    inner = {display: 'inline-block', background: C.board, padding: `${10 * u}px ${24 * u}px`, borderRadius: currentTheme().corner * u};
+    activeColour = C.stamp;
+    idleColour = C.paper;
+  } else if (cs === 'bubble') {
+    inner = {display: 'inline-block', background: '#FFFFFF', border: `${6 * u}px solid ${C.board}`, borderRadius: 48 * u, padding: `${12 * u}px ${30 * u}px`, boxShadow: `${8 * u}px ${8 * u}px 0 ${C.board}`};
+    activeColour = C.stamp;
+    idleColour = C.board;
+  } else if (cs === 'neon') {
+    wrap.textShadow = `0 0 ${10 * u}px ${C.board}, 0 0 ${26 * u}px ${C.board}`;
+    activeColour = C.ink;
+    idleColour = '#FFFFFF';
+  }
   return (
-    <div style={{position: 'absolute', left: 50 * u, right: 50 * u, top: '66%', textAlign: 'center', fontFamily: FONT_HEAD, fontWeight: 800, fontSize: 96 * u, lineHeight: 1.08, textTransform: 'uppercase', WebkitTextStroke: `${5 * u}px ${C.board}`, textShadow: `0 ${8 * u}px 0 ${C.board}`}}>
-      {chunk.map((w, i) => (
-        <span key={start + i} style={{color: start + i === idx ? C.ink : C.paper, marginRight: 22 * u, display: 'inline-block'}}>
-          {w.text}
-        </span>
-      ))}
+    <div style={wrap}>
+      <div style={inner}>
+        {chunk.map((w, i) => (
+          <span key={start + i} style={{color: start + i === idx ? activeColour : idleColour, marginRight: 22 * u, display: 'inline-block'}}>
+            {w.text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };

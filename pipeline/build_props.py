@@ -1,6 +1,8 @@
 """spec + timing (+ words, assets) -> Remotion input props per cut (build/<slug>/<cut>/props.json)."""
 from common import FPS, SIZES, cut_dir, cuts, fail, load_spec, log, read_json, slug_arg, work_dir, write_json
 
+DEFAULT_THEME = "signed-or-passed"
+
 
 def frame(t):
     return int(round(t * FPS))
@@ -12,6 +14,7 @@ def main():
     assets_path = work_dir(args.slug) / "assets.json"
     assets = read_json(assets_path) if assets_path.exists() else {}
     sources = {s["id"]: {"title": s["title"], "url": s["url"]} for s in spec.get("sources") or []}
+    theme = spec.get("theme") or DEFAULT_THEME
     for cut in cuts(spec):
         d = cut_dir(args.slug, cut["name"])
         timing = read_json(d / "timing.json")
@@ -36,6 +39,7 @@ def main():
             "cut": cut["name"],
             "format": cut["format"],
             "verdict": spec["verdict"],
+            "theme": theme,
             "fps": FPS,
             "width": w,
             "height": h,
@@ -50,7 +54,7 @@ def main():
             "title": spec["metadata"]["title"],
         }
         write_json(d / "props.json", props)
-        log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), "
+        log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), theme {theme}, "
             f"intro {props['introFrames']} / outro {props['outroFrames']} frames")
 
 

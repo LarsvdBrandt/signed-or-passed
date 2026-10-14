@@ -1,6 +1,7 @@
 import React from 'react';
 import {useCurrentFrame, useVideoConfig} from 'remotion';
 import {C, STROKE} from '../constants';
+import {themeEase} from '../themes';
 
 /** Shared helpers for the illustration library (house style: flat, 3px Board outlines, brand colours only). */
 
@@ -11,7 +12,8 @@ export const useT = (): number => {
 };
 
 export const c01 = (x: number): number => Math.max(0, Math.min(1, x));
-export const easeOut = (x: number): number => 1 - Math.pow(1 - c01(x), 3);
+/** Entrance easing: follows the current theme (cubic in the house style, overshoot in comic/kids, stepped in paper-cutout). */
+export const easeOut = (x: number): number => themeEase(c01(x));
 export const easeInOut = (x: number): number => {
   const v = c01(x);
   return v * v * (3 - 2 * v);

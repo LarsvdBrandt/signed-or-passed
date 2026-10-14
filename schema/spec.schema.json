@@ -9,6 +9,11 @@
     "slug": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,80}$"},
     "format": {"enum": ["long", "short"]},
     "verdict": {"enum": ["SIGNED", "PASSED"]},
+    "theme": {
+      "enum": ["signed-or-passed", "paper-cutout", "engraving", "blueprint", "chalkboard", "retro-comic", "synthwave", "pastel-kids", "documentary-dark"],
+      "default": "signed-or-passed",
+      "description": "visual theme (render/src/themes, docs/library/themes.md); Signed or Passed uses the default house style"
+    },
     "voice": {
       "type": "object",
       "required": ["engine", "voice"],

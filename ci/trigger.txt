@@ -1,1 +1,1 @@
-2026-10-15T00:30:00+02:00 iteration 14: theme system batch 1 (9 themes, preview-themes.mp4)
+2026-10-15T00:35:00+02:00 iteration 14b: theme system batch 1 complete (engine, 9 themes, easing, captions, spec.theme)
