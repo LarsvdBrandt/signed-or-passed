@@ -1,0 +1,6 @@
+# torch is installed first from the CPU index in CI (see .github/workflows/render.yml)
+kokoro==0.9.4
+soundfile==0.12.1
+numpy>=1.26,<3
+jsonschema==4.23.0
+requests==2.32.3
