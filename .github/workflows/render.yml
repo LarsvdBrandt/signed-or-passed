@@ -27,11 +27,12 @@ defaults:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 75
     env:
       GH_TOKEN: ${{ github.token }}
       PYTHONUNBUFFERED: '1'
       HF_HUB_DISABLE_PROGRESS_BARS: '1'
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +45,10 @@ jobs:
           : > build/ci.log
           echo "setup" > build/current_step
           echo "Run ${{ github.run_id }} for ${{ github.sha }} (${{ github.event_name }})" | tee -a build/ci.log
+
+      - name: Mark run started
+        continue-on-error: true
+        run: bash ci/started.sh
 
       - name: Determine productions
         env:
@@ -94,18 +99,22 @@ jobs:
 
       - name: Install system packages
         if: env.SLUGS != ''
+        timeout-minutes: 10
         run: bash ci/run-step.sh setup:apt bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng"
 
       - name: Install Python packages
         if: env.SLUGS != ''
+        timeout-minutes: 15
         run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt"
 
       - name: Install Remotion
         if: env.SLUGS != ''
+        timeout-minutes: 15
         run: bash ci/run-step.sh setup:npm bash -c "cd render && npm install --no-audit --no-fund && npx remotion browser ensure"
 
       - name: Render
         if: env.SLUGS != ''
+        timeout-minutes: 45
         run: |
           for slug in $SLUGS; do
             bash ci/render-slug.sh "$slug"

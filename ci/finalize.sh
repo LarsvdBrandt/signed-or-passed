@@ -34,7 +34,7 @@ for s in ${SLUGS:-}; do
 done
 git commit -m "ci: render ${job_status} for ${SLUGS:-nothing} [skip ci]" || exit 0
 for i in 1 2 3; do
-  if git pull --rebase origin main && git push origin HEAD:main; then exit 0; fi
+  if git pull --rebase --autostash origin main && git push origin HEAD:main; then exit 0; fi
   sleep $((i * 5))
 done
 echo "could not push results"
