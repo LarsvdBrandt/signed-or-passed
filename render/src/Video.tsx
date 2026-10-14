@@ -11,9 +11,11 @@ import {CityScene} from './scenes/CityScene';
 import {EvidenceScene, QuoteScene} from './scenes/QuoteEvidence';
 import {QuestionScene} from './scenes/QuestionScene';
 import {VerdictScene} from './scenes/VerdictScene';
-import {IllustrationScene} from './scenes/IllustrationScene';
+import {IllustrationScene, motionOf} from './scenes/IllustrationScene';
+import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWallScene, SplitFlapScene, VersusScene} from './scenes/MotionScenes';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
+  const v = scene.visual || {};
   switch (scene.kind) {
     case 'title':
       return <TitleScene scene={scene} ctx={ctx} />;
@@ -22,15 +24,25 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
     case 'evidence':
       return <EvidenceScene scene={scene} ctx={ctx} />;
     case 'chart':
-      return <ChartScene scene={scene} ctx={ctx} />;
+      return v.type === 'line' ? <LineChartScene scene={scene} ctx={ctx} /> : <ChartScene scene={scene} ctx={ctx} />;
     case 'counter':
-      return <CounterScene scene={scene} ctx={ctx} />;
+      return v.style === 'money' ? <MoneyCounterScene scene={scene} ctx={ctx} /> : <CounterScene scene={scene} ctx={ctx} />;
     case 'timeline':
       return <TimelineScene scene={scene} ctx={ctx} />;
     case 'map':
       return <MapScene scene={scene} ctx={ctx} />;
     case 'city':
       return <CityScene scene={scene} ctx={ctx} />;
+    case 'versus':
+      return <VersusScene scene={scene} ctx={ctx} />;
+    case 'growth':
+      return <GrowthScene scene={scene} ctx={ctx} />;
+    case 'split-flap':
+      return <SplitFlapScene scene={scene} ctx={ctx} />;
+    case 'document':
+      return <DocumentScene scene={scene} ctx={ctx} />;
+    case 'photo-wall':
+      return <PhotoWallScene scene={scene} ctx={ctx} />;
     case 'quote':
       return <QuoteScene scene={scene} ctx={ctx} />;
     case 'reveal':
@@ -53,15 +65,18 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
   }
 };
 
-const Camera: React.FC<{motion?: string | null; duration: number; children: React.ReactNode}> = ({motion, duration, children}) => {
+/** Camera move over a scene. motion: 'push-in' | 'pull-out' | 'pan-left' | 'pan-right' | 'pan' or {type, strength}. 'parallax' is handled per layer by IllustrationScene. */
+const Camera: React.FC<{motion?: any; duration: number; children: React.ReactNode}> = ({motion, duration, children}) => {
   const frame = useCurrentFrame();
   const p = interpolate(frame, [0, Math.max(1, duration)], [0, 1], clamp);
+  const m = motionOf(motion);
+  const k = m.strength;
   let t = '';
-  if (motion === 'push-in') t = `scale(${1 + 0.08 * p})`;
-  else if (motion === 'pull-out') t = `scale(${1.08 - 0.08 * p})`;
-  else if (motion === 'pan-left') t = `scale(1.06) translateX(${2.5 - 5 * p}%)`;
-  else if (motion === 'pan-right') t = `scale(1.06) translateX(${-2.5 + 5 * p}%)`;
-  return <AbsoluteFill style={{transform: t}}>{children}</AbsoluteFill>;
+  if (m.type === 'push-in') t = `scale(${1 + 0.08 * k * p})`;
+  else if (m.type === 'pull-out') t = `scale(${1 + 0.08 * k - 0.08 * k * p})`;
+  else if (m.type === 'pan-left') t = `scale(${1 + 0.06 * k}) translateX(${2.5 * k - 5 * k * p}%)`;
+  else if (m.type === 'pan-right' || m.type === 'pan') t = `scale(${1 + 0.06 * k}) translateX(${-2.5 * k + 5 * k * p}%)`;
+  return <AbsoluteFill style={{transform: t || undefined}}>{children}</AbsoluteFill>;
 };
 
 /** Paper-slide transition: a new sheet slides in over the previous one. */
@@ -80,7 +95,7 @@ const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slid
 
 const SceneFrame: React.FC<{scene: Scene; prev?: Scene; slide: boolean; ctx: VideoProps}> = ({scene, prev, slide, ctx}) => (
   <PaperSheet slide={slide}>
-    <Camera motion={scene.motion} duration={scene.durationFrames}>
+    <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
       <SceneContent scene={scene} prev={prev} ctx={ctx} />
     </Camera>
   </PaperSheet>
