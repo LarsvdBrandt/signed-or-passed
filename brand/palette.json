@@ -1,0 +1,16 @@
+{
+  "ink": "#2457E6",
+  "stamp": "#D9530B",
+  "board": "#141414",
+  "paper": "#F3F1EC",
+  "grey": "#8A8780",
+  "greyLight": "#CFCBC2",
+  "usage": {
+    "ink": "SIGNED verdicts, signature, positive accents",
+    "stamp": "PASSED verdicts, stamp, warnings, DISPUTED tag",
+    "board": "outlines (3px), text, dark backgrounds",
+    "paper": "default background",
+    "grey": "secondary text, inactive elements",
+    "greyLight": "fills, shadows, grid lines"
+  }
+}

@@ -1,0 +1,11 @@
+node_modules/
+build/
+render/out/
+render/public/work/
+render/public/assets/
+render/public/fonts/
+__pycache__/
+*.pyc
+.venv/
+.env
+client_secret*.json

@@ -1,0 +1,32 @@
+{
+  "fonts": [
+    {
+      "family": "Bricolage Grotesque",
+      "role": "headings",
+      "file": "BricolageGrotesque.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/bricolagegrotesque/BricolageGrotesque%5Bopsz%2Cwdth%2Cwght%5D.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "Mrs Saint Delafield",
+      "role": "signature (Signed)",
+      "file": "MrsSaintDelafield-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/mrssaintdelafield/MrsSaintDelafield-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "IBM Plex Mono",
+      "role": "dates and figures",
+      "file": "IBMPlexMono-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Regular.ttf",
+      "license": "OFL-1.1"
+    },
+    {
+      "family": "IBM Plex Mono Bold",
+      "role": "big figures",
+      "file": "IBMPlexMono-Bold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Bold.ttf",
+      "license": "OFL-1.1"
+    }
+  ]
+}

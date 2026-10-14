@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "slug": "0000-sample",
+  "format": "long",
+  "verdict": "PASSED",
+  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.0},
+  "music": {"mood": "tense"},
+  "scenes": [
+    {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
+    {"id": "s02", "kind": "illustration", "narration": "Every story starts with one decision, made at one desk.", "visual": {"background": "OfficeBackdrop", "layers": [
+      {"component": "Person", "props": {"pose": "sitting", "colour": "board"}, "x": 50, "y": 58, "scale": 1.0, "enter": "fade"},
+      {"component": "Desk", "props": {}, "x": 50, "y": 80, "scale": 1.2, "enter": "slide-up"},
+      {"component": "Contract", "props": {"label": "AGREEMENT"}, "x": 44, "y": 70, "scale": 0.6, "enter": "drop", "delaySec": 0.5},
+      {"component": "FountainPen", "props": {}, "x": 56, "y": 70, "scale": 0.6, "enter": "slide-right", "delaySec": 0.8},
+      {"component": "NameCard", "props": {"label": "THE FOUNDER"}, "x": 72, "y": 30, "scale": 1.0, "enter": "pop", "delaySec": 1.0}
+    ]}, "sfx": "paper", "dateTag": "TEST · 0000"},
+    {"id": "s03", "kind": "evidence", "narration": "Here is a piece of evidence, shown in a file frame.", "visual": {"assetId": "img1", "caption": "Public domain painting, used as a test image"}, "motion": "push-in", "sfx": "paper"},
+    {"id": "s04", "kind": "chart", "narration": "A bar chart shows placeholder numbers. They are not real data.", "visual": {"type": "bar", "series": [{"label": "A", "value": 12}, {"label": "B", "value": 30}, {"label": "C", "value": 21}], "unit": "units", "sourceId": "src1"}},
+    {"id": "s05", "kind": "counter", "narration": "A counter runs up to a placeholder figure.", "visual": {"from": 0, "to": 1000000, "unit": "$", "sourceId": "src1"}},
+    {"id": "s06", "kind": "timeline", "narration": "A timeline puts the test dates in order.", "visual": {"events": [{"date": "2001", "label": "Test event one"}, {"date": "2005", "label": "Test event two"}, {"date": "2010", "label": "Test event three"}]}, "sfx": "whoosh"},
+    {"id": "s07", "kind": "map", "narration": "A map pins the places in the story.", "visual": {"region": "world", "pins": [{"lat": 52.37, "lon": 4.9, "label": "Amsterdam"}, {"lat": 40.71, "lon": -74.0, "label": "New York"}], "arrows": [{"from": "Amsterdam", "to": "New York"}]}},
+    {"id": "s08", "kind": "quote", "narration": "A quote appears with its source, and with a tag when it is disputed.", "visual": {"text": "This is a placeholder quote for testing.", "speaker": "Test Speaker", "sourceId": "src1", "status": "disputed"}},
+    {"id": "s09", "kind": "question", "narration": "So. Would you sign? Or would you pass?", "visual": {"question": "Sign the test contract?", "options": ["SIGN", "PASS"], "holdSec": 3}},
+    {"id": "s10", "kind": "reveal", "narration": "Here is what happened in the test.", "visual": {"text": "The test offer was turned down."}, "sfx": "whoosh"},
+    {"id": "s11", "kind": "verdict", "narration": "The verdict. Passed.", "visual": {"verdict": "PASSED"}, "sfx": "stamp", "minDurationSec": 3},
+    {"id": "s12", "kind": "lesson", "narration": "The lesson. Test everything before you trust it.", "visual": {"text": "Test everything before you trust it."}}
+  ],
+  "assets": [
+    {"id": "img1", "url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Declaration_of_Independence_%281819%29%2C_by_John_Trumbull.jpg", "license": "Public domain", "attribution": "John Trumbull, Declaration of Independence (1819), via Wikimedia Commons", "sourcePage": "https://commons.wikimedia.org/wiki/File:Declaration_of_Independence_(1819),_by_John_Trumbull.jpg"}
+  ],
+  "sources": [
+    {"id": "src1", "title": "Factory test placeholder source", "url": "https://github.com/LarsvdBrandt/signed-or-passed"}
+  ],
+  "metadata": {
+    "title": "Signed or Passed: factory test",
+    "titleAlternatives": ["Factory test render"],
+    "description": "A test render of the Signed or Passed video factory. Not a real story.",
+    "tags": ["test"],
+    "categoryId": "27",
+    "containsSyntheticMedia": false,
+    "madeForKids": false
+  },
+  "thumbnail": {"bigText": "$1,000,000", "headline": "The test offer they passed", "verdict": "PASSED", "illustration": "Contract"},
+  "shorts": [
+    {"id": "s1", "scenes": [
+      {"id": "sh1", "kind": "illustration", "narration": "One test. One decision.", "visual": {"background": "BoardroomBackdrop", "layers": [
+        {"component": "Person", "props": {"pose": "handshake", "colour": "ink"}, "x": 38, "y": 60, "scale": 1.2, "enter": "slide-right"},
+        {"component": "Person", "props": {"pose": "handshake", "colour": "board", "flip": true}, "x": 62, "y": 60, "scale": 1.2, "enter": "slide-left"}
+      ]}, "sfx": "whoosh"},
+      {"id": "sh2", "kind": "question", "narration": "Would you sign?", "visual": {"question": "Sign the test deal?", "options": ["SIGN", "PASS"], "holdSec": 3}},
+      {"id": "sh3", "kind": "verdict", "narration": "Signed.", "visual": {"verdict": "SIGNED"}, "sfx": "pen", "minDurationSec": 3}
+    ]}
+  ]
+}
