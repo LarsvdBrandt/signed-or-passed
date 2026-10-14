@@ -1,7 +1,18 @@
-"""Generate the four house sound effects procedurally with ffmpeg (no licences needed)."""
+"""Sound effects for a production, generated procedurally (no licences needed).
+
+  python pipeline/sfx.py                 # the four house sounds only (pen, stamp, paper, whoosh)
+  python pipeline/sfx.py --slug <slug>   # house sounds + every pipeline/sfxlib.py sound the spec uses
+
+A spec can use any sfxlib name in scenes[].sfx and scenes[].sfxCues[].sfx (see docs/library/sound-usage.md).
+Everything is written to build/sfx/<name>.wav, where mix.py picks it up.
+"""
+import argparse
 import subprocess
 
-from common import ROOT, log
+import numpy as np
+import soundfile as sf
+
+from common import ROOT, cuts, fail, load_spec, log
 
 # expression, duration, extra filter. No commas inside expressions (filtergraph separator).
 SFX = {
@@ -16,9 +27,20 @@ SFX = {
 }
 
 
-def main():
-    d = ROOT / "build" / "sfx"
-    d.mkdir(parents=True, exist_ok=True)
+def used_sfx(spec):
+    """Every sound name a spec uses (scene sfx and sfxCues, main video and shorts)."""
+    names = set()
+    for cut in cuts(spec):
+        for sc in cut["scenes"]:
+            if sc.get("sfx"):
+                names.add(sc["sfx"])
+            for cue in sc.get("sfxCues") or []:
+                if cue.get("sfx"):
+                    names.add(cue["sfx"])
+    return sorted(names)
+
+
+def house(d):
     for name, (expr, dur, flt) in SFX.items():
         dest = d / f"{name}.wav"
         cmd = [
@@ -28,6 +50,31 @@ def main():
         ]
         subprocess.run(cmd, check=True)
         log(f"sfx {name} -> {dest.relative_to(ROOT)}")
+
+
+def library(d, names):
+    import sfxlib  # numpy synthesis, see pipeline/sfxlib.py
+
+    for name in names:
+        if name in SFX:
+            continue
+        if name not in sfxlib.SOUNDS:
+            fail(f"unknown sfx '{name}': use pen/stamp/paper/whoosh or a name from `python pipeline/sfxlib.py --list`")
+        x = sfxlib.generate(name)
+        dest = d / f"{name}.wav"
+        sf.write(str(dest), np.asarray(x, dtype=np.float32), sfxlib.SR, subtype="PCM_16")
+        log(f"sfx {name} (library, {len(x) / sfxlib.SR:.2f}s) -> {dest.relative_to(ROOT)}")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--slug", default=None)
+    a = ap.parse_args()
+    d = ROOT / "build" / "sfx"
+    d.mkdir(parents=True, exist_ok=True)
+    house(d)
+    if a.slug:
+        library(d, used_sfx(load_spec(a.slug)))
 
 
 if __name__ == "__main__":

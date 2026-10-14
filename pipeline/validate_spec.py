@@ -2,6 +2,10 @@
 from jsonschema import Draft202012Validator
 
 from common import ROOT, cuts, fail, load_spec, log, read_json, slug_arg
+from sfx import SFX
+from sfxlib import SOUNDS
+
+KNOWN_SFX = set(SFX) | set(SOUNDS)
 
 
 def main():
@@ -26,6 +30,10 @@ def main():
                 if sc["id"] in seen:
                     errors.append(f"{where}: duplicate scene id")
                 seen.add(sc["id"])
+                for nm in [sc.get("sfx")] + [c.get("sfx") for c in sc.get("sfxCues") or []]:
+                    if nm and nm not in KNOWN_SFX:
+                        errors.append(f"{where}: unknown sfx '{nm}' (house: pen/stamp/paper/whoosh, or a name from "
+                                      f"`python pipeline/sfxlib.py --list`)")
                 v = sc["visual"]
                 sid = v.get("sourceId")
                 if sc["kind"] in ("chart", "counter", "quote") and sid not in source_ids:

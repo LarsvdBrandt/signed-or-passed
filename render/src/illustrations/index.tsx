@@ -8,10 +8,11 @@ import {BoardroomBackdrop, CityBackdrop, OfficeBackdrop} from './Backdrops';
 import {AssemblyLine, Airplane, Bank, ContainerShip, CrumblingBuilding, Factory, FallingChart, Rocket, Ship, StockBoard, StoreFront, Train, Truck, Warehouse} from './Industry';
 import {Basketball, Computer, DVD, DigitalCamera, FilmCamera, FloppyDisk, Guitar, Laptop, Microphone, OldTelephone, Record as VinylRecord, Smartphone, Sneaker, VHSTape} from './Tech';
 import {CoinRain, Crowd, Envelope, FlipCalendar, Gavel, Handshake, Hourglass, Lightbulb, LockKey, MagnifyingGlass, MoneyBag, PriceTag, Queue, Scales, ShareCertificate, SpinningNewspaper, Telegram, Trophy} from './Symbols';
+import {ERA_BACKDROPS, ERA_ILLUSTRATIONS} from '../eras';
 
 export type IllEntry = {C: React.FC<any>; w: number; h: number; enter: string; group?: string};
 
-/** The house-style library. w/h = natural size in px at 1080p; enter = default entrance animation. */
+/** The core house-style library. w/h = natural size in px at 1080p; enter = default entrance animation. */
 export const ILLUSTRATIONS: Record<string, IllEntry> = {
   Desk: {C: Desk, w: 600, h: 260, enter: 'slide-up', group: 'office'},
   Contract: {C: Contract, w: 220, h: 290, enter: 'drop', group: 'office'},
@@ -85,7 +86,10 @@ export const ILLUSTRATIONS: Record<string, IllEntry> = {
   BoardroomBackdrop: {C: BoardroomBackdrop, w: 1920, h: 1080, enter: 'none', group: 'backdrops'},
 };
 
-export const BACKDROPS: Record<string, React.FC<any>> = {CityBackdrop, OfficeBackdrop, BoardroomBackdrop};
+/** Core library + every era pack (render/src/eras). Layers resolve components from here. */
+export const ALL_ILLUSTRATIONS: Record<string, IllEntry> = {...ILLUSTRATIONS, ...ERA_ILLUSTRATIONS};
+
+export const BACKDROPS: Record<string, React.FC<any>> = {CityBackdrop, OfficeBackdrop, BoardroomBackdrop, ...ERA_BACKDROPS};
 
 export type LayerSpec = {component: string; props?: any; x?: number; y?: number; scale?: number; enter?: string; delaySec?: number; depth?: number};
 
@@ -94,7 +98,7 @@ export const Layer: React.FC<{layer: LayerSpec}> = ({layer}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const u = useUnit();
-  const entry = ILLUSTRATIONS[layer.component];
+  const entry = ALL_ILLUSTRATIONS[layer.component];
   if (!entry) return null;
   const Backdrop = BACKDROPS[layer.component];
   if (Backdrop) return <Backdrop {...(layer.props || {})} />;

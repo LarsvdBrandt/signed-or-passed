@@ -1,4 +1,8 @@
-"""Mix voice + music bed (ducked) + sfx, then two-pass loudnorm to -14 LUFS / -1 dBTP. Writes mix.wav per cut."""
+"""Mix voice + music bed (ducked) + sfx, then two-pass loudnorm to -14 LUFS / -1 dBTP. Writes mix.wav per cut.
+
+Sound effects come from scenes[].sfx (at the scene start + the house offset) and scenes[].sfxCues
+([{sfx, atSec, gainDb}], atSec relative to the scene start), plus the brand intro / end card sounds.
+"""
 import csv
 import json
 import re
@@ -11,6 +15,7 @@ from fetch_assets import download
 TARGET_I = -14.0
 TARGET_TP = -1.5  # a little headroom so the AAC encode stays below -1 dBTP
 TARGET_LRA = 11.0
+SFX_GAIN = 0.7
 
 
 def pick_music(slug, mood):
@@ -51,39 +56,46 @@ def measure(path):
     return json.loads(m.group(0))
 
 
-def sfx_events(timing):
-    """(name, seconds) for every sound effect: scene sfx plus the brand intro / end card sounds."""
+def sfx_events(timing, cues=None):
+    """(name, seconds, gainDb) for every sound effect: scene sfx, scene sfxCues, brand intro / end card sounds."""
+    cues = cues or {}
     total = float(timing["totalSec"])
     events = []
     for sc in timing["scenes"]:
         name = sc.get("sfx")
         if name:
-            events.append((name, sc["start"] + SFX_OFFSETS.get(name, 0.0)))
+            events.append((name, sc["start"] + SFX_OFFSETS.get(name, 0.0), 0.0))
+        for cue in cues.get(sc["id"]) or []:
+            if not cue.get("sfx"):
+                continue
+            events.append((cue["sfx"], sc["start"] + float(cue.get("atSec") or 0.0), float(cue.get("gainDb") or 0.0)))
     intro = float(timing.get("introSec") or 0)
     outro = float(timing.get("outroSec") or 0)
     if intro > 0:
-        events += [(n, off) for n, off in BRAND_INTRO_SFX if off < intro]
+        events += [(n, off, 0.0) for n, off in BRAND_INTRO_SFX if off < intro]
     if outro > 0:
-        events += [(n, total - outro + off) for n, off in BRAND_OUTRO_SFX]
-    return [(n, max(0.0, t)) for n, t in events if t < total]
+        events += [(n, total - outro + off, 0.0) for n, off in BRAND_OUTRO_SFX]
+    return [(n, max(0.0, t), g) for n, t, g in events if t < total]
 
 
 def mix_cut(slug, cut, music):
     d = cut_dir(slug, cut["name"])
     timing = read_json(d / "timing.json")
     total = timing["totalSec"]
+    cues = {sc["id"]: sc.get("sfxCues") or [] for sc in cut["scenes"]}
     sfx_dir = ROOT / "build" / "sfx"
     inputs = ["-i", str(d / "voice.wav")]
     graph = [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={total},atrim=0:{total},asplit=2[vmix][vkey]"]
     mix_labels = ["[vmix]"]
     idx = 1
-    for name, at in sfx_events(timing):
+    for name, at, gain_db in sfx_events(timing, cues):
         f = sfx_dir / f"{name}.wav"
         if not f.exists():
-            fail(f"missing sfx {f}; run sfx.py first")
+            fail(f"missing sfx {f}; run sfx.py --slug {slug} first")
         ms = int(round(at * 1000))
+        vol = SFX_GAIN * (10 ** (gain_db / 20.0))
         inputs += ["-i", str(f)]
-        graph.append(f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.7,adelay={ms}:all=1[s{idx}]")
+        graph.append(f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,volume={vol:.4f},adelay={ms}:all=1[s{idx}]")
         mix_labels.append(f"[s{idx}]")
         idx += 1
     if music:

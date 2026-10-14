@@ -1,1 +1,1 @@
-iteration 15 - 2026-10-15T00:58+02:00 - theme stroke boot fix, theme contact sheets, procedural sound library + sound board
+iteration 16 · 2026-10-15T01:25:00+02:00 · SOUND-3 (library sfx + sfxCues in specs) + ERAS-1 (era framework, EraPreview) + Ancient era pack

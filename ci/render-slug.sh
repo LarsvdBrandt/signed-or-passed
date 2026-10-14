@@ -11,7 +11,7 @@ $S "validate:$slug" python pipeline/validate_spec.py --slug "$slug"
 $S "assets:$slug" python pipeline/fetch_assets.py --slug "$slug"
 $S "tts:$slug" python pipeline/tts.py --slug "$slug"
 $S "captions:$slug" python pipeline/captions.py --slug "$slug"
-$S "sfx:$slug" python pipeline/sfx.py
+$S "sfx:$slug" python pipeline/sfx.py --slug "$slug"
 $S "mix:$slug" python pipeline/mix.py --slug "$slug"
 $S "props:$slug" python pipeline/build_props.py --slug "$slug"
 
@@ -30,11 +30,13 @@ $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumb
 # The test production also ships the library previews:
 #   preview.mp4         the whole illustration library + a demo of every scene kind (silent)
 #   preview-themes.mp4  the same mini-story + a contact sheet of every component in every theme (silent)
+#   preview-eras.mp4    every era pack: backdrop, all props, a small composed scene (silent)
 #   sound-board.mp4     every sound of the procedural sfx library (pipeline/sfxlib.py), with audio
 #   sfx-library.zip     all sfx WAVs + catalogue.json + LICENCE.txt (CC0)
 if [ "$slug" = "0000-sample" ]; then
   $S "preview:$slug" bash -c "cd render && npx remotion render src/index.ts Preview ../$OUT/preview.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-themes:$slug" bash -c "cd render && npx remotion render src/index.ts ThemePreview ../$OUT/preview-themes.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+  $S "preview-eras:$slug" bash -c "cd render && npx remotion render src/index.ts EraPreview ../$OUT/preview-eras.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "sound-library:$slug" python pipeline/soundboard.py --out build/sfx-lib --zip "$OUT/sfx-library.zip"
   $S "sound-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/sfx-lib/board-silent.mp4 --props=../build/sfx-lib/soundboard-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "sound-board-mux:$slug" ffmpeg -y -hide_banner -loglevel error -i build/sfx-lib/board-silent.mp4 -i build/sfx-lib/soundboard.wav \
