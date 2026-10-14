@@ -1,0 +1,19 @@
+{
+  "name": "signed-or-passed-render",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion project of the Signed or Passed video factory",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.535",
+    "remotion": "4.0.535",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3"
+  }
+}
