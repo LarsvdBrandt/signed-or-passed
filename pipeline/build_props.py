@@ -10,6 +10,17 @@ def frame(t):
     return int(round(t * FPS))
 
 
+def breath_beats(beats, breaths, start, end):
+    """VOICE-12: a punch-in in the middle of every intentional pause >= 1 s inside a scene (no visual cut in it), unless
+    a beat already lands within 0.8 s, so a long pause feels intentional instead of dead."""
+    out = list(beats)
+    for b in breaths:
+        f = frame(float(b["at"]) + float(b["sec"]) / 2.0) - start
+        if 0 < f < end - start - 6 and not any(abs(x["frame"] - f) < int(0.8 * FPS) for x in out):
+            out.append({"do": "punch-in", "frame": f, "auto": "breath"})
+    return sorted(out, key=lambda x: x["frame"])
+
+
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
@@ -27,6 +38,10 @@ def main():
         timing = read_json(d / "timing.json")
         words = read_json(d / "words.json") if (d / "words.json").exists() else []
         by_id = {s["id"]: s for s in timing["scenes"]}
+        breaths = {}
+        for b in timing.get("breaths") or []:  # VOICE-12 intentional pauses inside a scene get a visual beat
+            if not b.get("cut"):
+                breaths.setdefault(b["sceneId"], []).append(b)
         scenes, keywords, beat_log = [], [], []
         warn = lambda m: add_warning(args.slug, f"{cut['name']}: {m}")  # noqa: E731
         for sc in cut["scenes"]:
@@ -36,6 +51,8 @@ def main():
             start, end = frame(t["start"]), frame(t["end"])
             sw = [w for w in words if w.get("sceneId") == sc["id"]]
             beats = resolve_beats(sc, sw, frame, start, warn)
+            if auto_beats:
+                beats = breath_beats(beats, breaths.get(sc["id"]) or [], start, end)
             keywords += scene_keywords(sc, sw, frame, end)
             beat_log += [{"sec": round((start + b["frame"]) / FPS, 3), "do": b.get("do"), "sceneId": sc["id"],
                           **({"sfx": b["sfx"]} if "sfx" in b else {})} for b in beats]

@@ -47,6 +47,20 @@ between sentences; each sentence keeps its natural trailing pause (+ PARA_GAP x 
 sentence-level (same format).
 timing.json and voice-qa.json record the measured pace: wpm = words / speech time (first to last word of every scene,
 pauses between sentences included; scene gaps, holds and the sting excluded), articulationWpm = words / clip time.
+
+VOICE-12 BREATHING ROOM (channel default for chatterbox; any engine with spec.voice.pauses): the pauses are laid out
+as exact speech-to-speech gaps (end of the last word -> first word of the next sentence), the voice itself is untouched:
+sentence 0.45 s (inside a paragraph / scene), paragraph 0.75 s (next paragraph clip in the same scene), scene 0.9 s,
+section 1.6 s (a new story section: chapter / question / reveal / verdict / lesson scene, scenes[].section, the end of
+a cold open), beforePunch 0.6 s, afterPunch 0.9 s (also after a big-number line), afterReveal 1.2 s (after the first
+line of the reveal scene), afterQuestion 3 s (question hold, visual.holdSec wins). spec.voice.pauses overrides each
+value (seconds) or is false (legacy RETENTION-5 pace); shortScale (0.75) scales every pause in Shorts and
+spec.voice.pauseScale multiplies all of them (default 1.0 in this model). Never inside a sentence; [pause N] markers
+add to the gap. The visual scene cut sits inside the gap (~40 % lead), timing.json 'breaths' lists every pause
+>= 1.0 s (kind, at, sec) for the auto beats (build_props), the section whoosh + music swell (mix) and qa.py, and
+timing.json pace reports overallWpm (words / whole cut) next to the in-sentence rate (articulationWpm).
+The pace guard (default on for this layout, spec.voice.paceGuard false turns it off) scales every pause x0.8-1.4
+(each capped at 1.8 s) when the overall rate of the main cut is outside 137-143 wpm (or spec.voice.targetWpm).
 """
 import collections
 import hashlib
@@ -214,6 +228,11 @@ TTS_CACHE = Path(os.path.expanduser("~/.cache/huggingface/sop-tts"))
 CB_TAG = "chatterbox-0.1.2/v1"
 PACE_FLOOR_CB = 0.97  # VOICE-10a: never stretch Chatterbox more than 3 %
 PARA_GAP = 0.06  # VOICE-10b: extra silence after a sentence inside a paragraph clip (x pauseScale)
+SECTION_KINDS = {"chapter", "question", "reveal", "verdict", "lesson"}
+BIG_NUMBER_RE = re.compile(r"\b(thousand|million|billion|trillion|percent)\b|[$€£]\s?\d|\d\s?%|\b\d+(?:[.,]\d+)?\s?(?:k|m|bn)\b",
+                           re.I)
+PAUSE_CAP_SEC = 1.8  # the pace guard never stretches a table pause beyond this (qa.py: intentional pauses <= 1.8 s)
+BREATH_MIN_SEC = 1.0  # pauses from this length on are listed in timing.json 'breaths'
 PARA_MAX_SENT, PARA_MAX_WORDS, PARA_MAX_CHARS = 4, 45, 250
 ASR_MODEL = "base.en"
 # Narrator reference (VOICE-2): our own lively text read by Kokoro bm_george; Chatterbox clones that timbre.
@@ -619,11 +638,18 @@ def chunk_plan(scenes, deliveries, intro_after=None):
 
 
 def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None, deliveries=None,
-           pace=1.0, pause_scale=1.0, chunks=None):
+           pace=1.0, pause_scale=1.0, chunks=None, pauses=None, breaths=None):
     """Scene timing. intro_after = index of the scene after which an `intro` s gap (brand sting) is inserted;
     None with intro > 0 = the gap comes first (legacy). pause_before = {scene index: seconds}: the previous scene
     holds that much longer (silence before the reveal). pace multiplies every clip's speed (VOICE-8), pause_scale
-    every sentence gap and style pause."""
+    every sentence gap and style pause. pauses = VOICE-12 pause table (pause_profile) -> layout_breathing; its breaths
+    are appended to the `breaths` list when given."""
+    if pauses:
+        out, clips, total, intro_at, br = layout_breathing(engine, scenes, speed, intro, outro, intro_after,
+                                                           pause_before, deliveries, pace, pauses, chunks)
+        if breaths is not None:
+            breaths.extend(br)
+        return out, clips, total, intro_at
     gap = SENTENCE_GAP * pause_scale
     t = snap(intro) if intro_after is None else 0.0
     intro_at = 0.0
@@ -685,8 +711,177 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
     return out, clips, total, intro_at
 
 
-def pace_stats(scenes):
-    """Measured narration pace of a laid-out cut (VOICE-8 target 145-155 wpm)."""
+def pause_profile(v, engine_name, cut_format):
+    """VOICE-12: the pause table (seconds) for a cut, or None for the legacy RETENTION-5 layout."""
+    raw = v.get("pauses")
+    if raw is False or (raw is None and engine_name != "chatterbox"):
+        return None
+    prof = {k: float(x) for k, x in dlv.CHANNEL_PAUSES.items() if isinstance(x, (int, float))}
+    if isinstance(raw, dict):
+        prof.update({k: float(x) for k, x in raw.items() if isinstance(x, (int, float)) and not isinstance(x, bool)})
+    scale = float(v.get("pauseScale") or 1.0)
+    if cut_format == "short":
+        scale *= float(prof.get("shortScale", 0.75))
+    prof["scale"] = scale
+    return prof
+
+
+def section_starts(scenes, intro_after=None):
+    """VOICE-12: indices of the scenes that open a new story section (chapter / question / reveal / verdict / lesson
+    kinds, scenes[].section, the first scene after a cold open)."""
+    out = set()
+    for i in range(1, len(scenes)):
+        sc, prev = scenes[i], scenes[i - 1]
+        if sc.get("section") or sc.get("kind") in SECTION_KINDS or (cold_open(prev) and not cold_open(sc)):
+            out.add(i)
+    return out
+
+
+def sentence_info(scenes, deliveries, chunks):
+    """VOICE-12: per scene a list of {punch, big, reveal, chunk} per sentence (None for a sentence that is only a
+    [pause] marker)."""
+    info = []
+    ri = reveal_index(scenes)
+    for i, sc in enumerate(scenes):
+        row = []
+        for j, raw in enumerate(split_sentences(sc["narration"])):
+            d = (deliveries or {}).get((i, j))
+            spoken, _ = spoken_text(raw, d)
+            if not re.search(r"\w", PAUSE_SPLIT_RE.sub(" ", strip_emphasis(spoken))):
+                row.append(None)
+                continue
+            plain = clean_text(raw)
+            ch = (chunks or {}).get((i, j))
+            row.append({"punch": bool(d and d["style"] == "punch") or bool(re.search(r"\[\s*punch\s*\]", raw, re.I)),
+                        "big": bool(BIG_NUMBER_RE.search(plain)),
+                        "reveal": i == ri and not any(x for x in row),
+                        "chunk": (tuple(ch["texts"]), ch["pos"]) if ch is not None else None})
+        info.append(row)
+    return info
+
+
+def gap_between(prof, a, b, kind):
+    """Speech-to-speech pause (s) between sentence a and the next sentence b; kind = the boundary
+    (sentence | paragraph | scene | section). The largest applicable value wins; the scale (pauseScale, Shorts,
+    pace guard) never stretches a pause beyond PAUSE_CAP_SEC. Returns (seconds, label)."""
+    g, label = prof[kind], kind
+    if a and a.get("reveal") and prof["afterReveal"] > g:
+        g, label = prof["afterReveal"], "afterReveal"
+    if a and (a.get("punch") or a.get("big")) and prof["afterPunch"] > g:
+        g, label = prof["afterPunch"], "afterPunch"
+    if b and b.get("punch") and prof["beforePunch"] > g:
+        g, label = prof["beforePunch"], "beforePunch"
+    return min(g * prof["scale"], max(g, PAUSE_CAP_SEC)), label
+
+
+def layout_breathing(engine, scenes, speed, intro, outro, intro_after, pause_before, deliveries, pace, prof, chunks):
+    """VOICE-12 layout: same output as layout() (+ breaths) with exact speech-to-speech pauses from `prof`."""
+    info = sentence_info(scenes, deliveries, chunks)
+    sections = section_starts(scenes, intro_after)
+    style_extra = {k: v[3] for k, v in dlv.STYLES.items() if k != "punch"}
+
+    def first_of(i):
+        return next((x for x in info[i] if x), None) if i < len(info) else None
+
+    def last_of(i):
+        return next((x for x in reversed(info[i]) if x), None)
+
+    t = snap(intro) if intro_after is None else 0.0
+    intro_at = 0.0
+    out, clips, breaths = [], [], []
+    prev_end = None      # end of the last spoken word so far (absolute)
+    prev_info = None
+    pending = None       # (gap, label, lead) owed before the next scene's first spoken sentence
+    for i, sc in enumerate(scenes):
+        p = float((pause_before or {}).get(i) or 0.0)
+        if p > 0 and out and not (intro > 0 and intro_after == i - 1):
+            t = snap(t + p)
+            out[-1]["end"] = round(t, 3)
+            log(f"  reveal pause      {p:.2f}s before {sc['id']}")
+        start = t
+        sp = float(sc.get("voiceSpeed") or speed) * pace
+        lead = FIRST_LEAD if i == 0 else (pending[2] if pending else SCENE_LEAD)
+        floor = start + lead     # the first word of the scene never comes before this
+        extra = 0.0              # [pause N]-only sentences
+        sents = []
+        last_d = None
+        for j, text in enumerate(split_sentences(sc["narration"])):
+            d = (deliveries or {}).get((i, j))
+            spoken, _pb = spoken_text(text, d)  # the punch beat before the clip is covered by beforePunch
+            ch = (chunks or {}).get((i, j))
+            if ch is not None:
+                a, first, last, dur = engine.chunk_part(ch, sp)
+                marker = 0.0
+            else:
+                a, first, last, dur = speak(engine, spoken, sp, d)
+                marker = first or 0.0
+            if first is None:  # only a pause marker
+                extra += dur
+                continue
+            me = info[i][j]
+            if sents:  # next sentence of the same scene
+                same_chunk = bool(me and me["chunk"] and prev_info and prev_info["chunk"]
+                                  and me["chunk"][0] == prev_info["chunk"][0])
+                g, label = gap_between(prof, prev_info, me, "sentence" if same_chunk or not chunks else "paragraph")
+                g += style_extra.get((last_d or {}).get("style"), 0.0) * prof["scale"]
+                speech = prev_end + g + extra + marker
+            elif prev_end is not None and pending:
+                g, label = pending[0], pending[1]
+                speech = max(floor + marker, prev_end + g + extra + marker)
+            else:
+                g, label = 0.0, None
+                speech = floor + extra + marker
+            if prev_end is not None and speech - prev_end >= BREATH_MIN_SEC and label:
+                breaths.append({"at": round(prev_end, 3), "sec": round(speech - marker - prev_end, 3), "kind": label,
+                                "sceneId": sc["id"], **({"cut": True} if not sents else {})})
+            at = speech - first
+            clips.append((at, a))
+            sents.append({"text": clean_text(text), "start": round(speech, 3), "end": round(at + last, 3),
+                          **({"delivery": d["style"]} if d is not None else {}),
+                          **({"paragraph": True} if ch is not None else {})})
+            prev_end, prev_info, last_d, extra = at + last, me, d, 0.0
+        # the pause owed to the next scene, split around the visual cut
+        if i + 1 < len(scenes):
+            kind = "section" if (i + 1) in sections else "scene"
+            g, label = gap_between(prof, last_of(i), first_of(i + 1), kind)
+            g += style_extra.get((last_d or {}).get("style"), 0.0) * prof["scale"]
+            nlead = min(0.6, max(SCENE_LEAD, 0.4 * g))
+            pending = (g, label, nlead)
+            tail = max(SCENE_TAIL, g - nlead)
+        else:
+            pending, tail = None, SCENE_TAIL
+        voice_end = sents[-1]["end"] if sents else start
+        end = (voice_end if sents else start + extra) + tail
+        if sc["kind"] == "question":
+            end += float(sc["visual"].get("holdSec", prof.get("afterQuestion", 3)))
+        if sc["kind"] == "verdict":
+            end = max(end, start + VERDICT_MIN)
+        if sc.get("minDurationSec"):
+            end = max(end, start + float(sc["minDurationSec"]))
+        if i == len(scenes) - 1:
+            end += END_TAIL
+        end = snap(end)
+        out.append({
+            "id": sc["id"], "kind": sc["kind"], "start": round(start, 3), "end": round(end, 3),
+            "voiceStart": sents[0]["start"] if sents else start, "voiceEnd": voice_end,
+            "sfx": sc.get("sfx"), "sentences": sents,
+            **({"coldOpen": True} if cold_open(sc) else {}),
+            **({"section": True} if i in sections else {}),
+        })
+        log(f"  scene {sc['id']:<8} {sc['kind']:<12} {start:7.2f} -> {end:7.2f}{'  (cold open)' if cold_open(sc) else ''}"
+            f"{'  [section]' if i in sections else ''}")
+        t = end
+        if intro > 0 and intro_after == i:
+            intro_at = t
+            t = snap(t + intro)
+            log(f"  brand sting       {intro_at:7.2f} -> {t:7.2f}")
+    total = snap(t + outro)
+    return out, clips, total, intro_at, breaths
+
+
+def pace_stats(scenes, total=None):
+    """Measured narration pace of a laid-out cut. VOICE-12: overallWpm = words / whole cut (target 135-145),
+    inSentenceWpm = articulationWpm = words / sentence time (unchanged by pauses)."""
     words = speech = artic = 0.0
     for sc in scenes:
         ss = sc.get("sentences") or []
@@ -695,16 +890,21 @@ def pace_stats(scenes):
         words += sum(len(s["text"].split()) for s in ss)
         speech += max(0.0, ss[-1]["end"] - ss[0]["start"])
         artic += sum(max(0.0, s["end"] - s["start"]) for s in ss)
-    return {"words": int(words), "speechSec": round(speech, 2), "wpm": round(60.0 * words / speech, 1) if speech else None,
-            "articulationWpm": round(60.0 * words / artic, 1) if artic else None}
+    res = {"words": int(words), "speechSec": round(speech, 2), "wpm": round(60.0 * words / speech, 1) if speech else None,
+           "articulationWpm": round(60.0 * words / artic, 1) if artic else None}
+    res["inSentenceWpm"] = res["articulationWpm"]
+    if total:
+        res["totalSec"] = round(float(total), 2)
+        res["overallWpm"] = round(60.0 * words / float(total), 1)
+    return res
 
 
 PAUSE_MIN, PAUSE_MAX = 1.0, 1.6
 
 
 def calibrate_pauses(engine, spec, cut, speed, plan, pace, pause_scale, band, chunks=None):
-    """VOICE-10a pace guard: re-measure the main cut's wpm with the real clips and nudge only the PAUSES
-    (pauseScale 1.0-1.6) toward `band`; the voice itself is never stretched."""
+    """VOICE-10a pace guard (legacy layout): re-measure the main cut's wpm with the real clips and nudge only the
+    PAUSES (pauseScale 1.0-1.6) toward `band`; the voice itself is never stretched."""
     lo, hi = band
     intro_after, intro = brand_intro_plan(spec, cut)
     wpm = None
@@ -728,6 +928,35 @@ def calibrate_pauses(engine, spec, cut, speed, plan, pace, pause_scale, band, ch
     return pause_scale, wpm
 
 
+def calibrate_breathing(engine, spec, cut, speed, plan, pace, prof, band, chunks=None):
+    """VOICE-12 pace guard (default on for the breathing layout; spec.voice.paceGuard false or an explicit pauseScale
+    turns it off): when the OVERALL wpm of the main cut (words / whole cut) lies outside `band`, every pause is scaled
+    (x0.8-1.4) toward the band centre. Secant on the real clips; the voice itself is never stretched."""
+    lo, hi = band
+    intro_after, intro = brand_intro_plan(spec, cut)
+    ri = reveal_index(cut["scenes"])
+    rp = sound_opts(spec)["revealPauseSec"] if ri else 0.0
+
+    def measure(scale):
+        scenes, _c, total, _i = layout(engine, cut["scenes"], speed, intro, OUTRO_SEC if branded(cut) else 0.0,
+                                       intro_after, {ri: rp} if rp > 0 else None, plan, pace, 1.0, chunks,
+                                       dict(prof, scale=prof["scale"] * scale))
+        ps = pace_stats(scenes, total)
+        return total, ps["words"], ps.get("overallWpm")
+
+    t1, words, wpm = measure(1.0)
+    if not wpm or lo <= wpm <= hi:
+        log(f"pace guard: {wpm} wpm overall is inside {lo}-{hi}: pauses as the channel table")
+        return 1.0, wpm
+    t2, _w, _x = measure(1.25)
+    want = 60.0 * words / ((lo + hi) / 2.0)
+    slope = (t2 - t1) / 0.25
+    scale = round(min(1.4, max(0.8, 1.0 + (want - t1) / slope)), 3) if slope > 0 else 1.0
+    _t, _w, wpm2 = measure(scale)
+    log(f"pace guard: {wpm} wpm overall is outside {lo}-{hi} -> pauses x{scale} -> {wpm2} wpm (no time-stretch)")
+    return scale, wpm2
+
+
 def track_qa(slug, engine, engine_name, tuning=None):
     """VOICE-4: whole-track ASR (overall WER) + liveliness of the main cut, plus the per-clip Chatterbox checks."""
     d = cut_dir(slug, "main")
@@ -736,7 +965,9 @@ def track_qa(slug, engine, engine_name, tuning=None):
     res = {"engine": engine_name}
     if hasattr(engine, "report"):
         res.update(engine.report())
-    res["pace"] = {**pace_stats(timing["scenes"]), **(tuning or {}), "tempoFilter": dict(TEMPO_USED)}
+    res["pace"] = {**pace_stats(timing["scenes"], timing.get("totalSec")), **(tuning or {}),
+                   **({"pauses": timing["pace"]["pauses"]} if (timing.get("pace") or {}).get("pauses") else {}),
+                   "tempoFilter": dict(TEMPO_USED)}
     try:
         py = cb_python()
         tf = work_dir(slug) / "voice-text.txt"
@@ -794,7 +1025,8 @@ def main():
     # VOICE-11: paragraph generation is the channel default for Chatterbox (spec.voice.paragraphs false opts out)
     paragraphs = tuned and bool(v.get("paragraphs", dlv.CHANNEL_TUNING["paragraphs"]))
     pause_scale = float(v.get("pauseScale") or (dlv.CHANNEL_TUNING["pauseScale"] if tuned else 1.0))
-    band = [float(x) for x in (v.get("targetWpm") or [145, 155])]
+    band = [float(x) for x in (v.get("targetWpm") or ([135, 145] if v.get("pauses", True) is not False and tuned
+                                                       else [145, 155]))]
     tuning = {"pace": pace, "pauseScale": pause_scale, "targetWpm": band, "paragraphs": paragraphs,
               "stretch": "none" if not tuned or abs(engine.factor() - 1.0) < 0.01 else "<=3%"}
     plans, chunks = {}, {}
@@ -820,9 +1052,22 @@ def main():
     elif shard:
         log(f"engine {engine_name} needs no fan-out: nothing to do for shard {args.shard}")
         return
-    # VOICE-11: the pace guard is opt-in (spec.voice.targetWpm); by default the natural Chatterbox speed + pauses x1.15
+    # VOICE-11: the legacy pace guard is opt-in (spec.voice.targetWpm); VOICE-12: with the breathing layout the guard
+    # is on by default and scales the pause table toward ~140 wpm over the whole main cut
     guard = bool(v.get("targetWpm")) or dlv.CHANNEL_TUNING["paceGuard"]
-    if tuned and guard and not v.get("pace") and not v.get("pauseScale") and plans:
+    guard_scale = {}
+    main_prof = pause_profile(v, engine_name, cuts(spec)[0]["format"])
+    if main_prof:
+        tuning.update({"pauseScale": main_prof["scale"], "targetOverallWpm": list(dlv.CHANNEL_PAUSES["targetOverallWpm"])})
+    if main_prof and plans and v.get("paceGuard", True) is not False and not v.get("pace") and not v.get("pauseScale"):
+        main_cut = cuts(spec)[0]
+        # default: aim for the middle of 135-145 (inner band 137-143); an explicit targetWpm is used as given
+        gband = band if v.get("targetWpm") else [137.0, 143.0]
+        guard_scale["scale"], measured = calibrate_breathing(engine, spec, main_cut, speed, plans.get(main_cut["name"]),
+                                                             pace, main_prof, gband, chunks.get(main_cut["name"]))
+        tuning.update({"pauseScale": round(main_prof["scale"] * guard_scale["scale"], 3), "paceGuardScale": guard_scale["scale"],
+                       "calibratedOverallWpm": measured})
+    elif tuned and guard and not main_prof and not v.get("pace") and not v.get("pauseScale") and plans:
         main_cut = cuts(spec)[0]
         pause_scale, measured = calibrate_pauses(engine, spec, main_cut, speed, plans.get(main_cut["name"]), pace,
                                                  pause_scale, band, chunks.get(main_cut["name"]))
@@ -835,9 +1080,13 @@ def main():
             f"(after scene #{intro_after}) outro={outro}s pace={pace} pauseScale={pause_scale}")
         ri = reveal_index(cut["scenes"])
         pause = sound_opts(spec)["revealPauseSec"] if ri else 0.0
+        prof = pause_profile(v, engine_name, cut["format"])
+        if prof and guard_scale.get("scale"):
+            prof["scale"] *= guard_scale["scale"]
+        breaths = []
         scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after,
                                                 {ri: pause} if pause > 0 else None, plans.get(cut["name"]),
-                                                pace, pause_scale, chunks.get(cut["name"]))
+                                                pace, pause_scale, chunks.get(cut["name"]), prof, breaths)
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -852,11 +1101,14 @@ def main():
             "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3),
             "introSec": intro, "introAtSec": round(intro_at, 3), "outroSec": outro, "engine": engine_name, "voice": voice, "speed": speed,
             **({"revealAtSec": scenes[ri]["start"], "revealPauseSec": pause} if ri else {}),
-            "pace": {**pace_stats(scenes), **tuning},
+            "pace": {**pace_stats(scenes, total), **tuning,
+                     **({"pauses": {k: round(x, 3) for k, x in prof.items()}} if prof else {})},
+            **({"breaths": breaths} if prof else {}),
             "scenes": scenes,
         })
-        ps = pace_stats(scenes)
-        log(f"  total {total:.2f}s -> {d / 'voice.wav'}  ({ps['words']} words, {ps['wpm']} wpm, "
+        ps = pace_stats(scenes, total)
+        log(f"  total {total:.2f}s -> {d / 'voice.wav'}  ({ps['words']} words, {ps['wpm']} wpm in-scene, "
+            f"{ps.get('overallWpm')} wpm overall, {len(breaths)} breaths >= {BREATH_MIN_SEC}s, "
             f"articulation {ps['articulationWpm']} wpm, tempo {dict(TEMPO_USED)})")
     if engine_name == "chatterbox" or os.environ.get("SOP_VOICE_QA") == "1" or v.get("qa"):
         track_qa(args.slug, engine, engine_name, tuning)

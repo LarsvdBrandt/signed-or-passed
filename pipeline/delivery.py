@@ -28,7 +28,8 @@ tts.py's Chatterbox engine applies CHANNEL_TUNING unless spec.voice overrides it
 offsets any more (the VOICE-8 +0.15 / -0.10 made the voice static), sentence gaps and style pauses x1.15 and a 0.25 s
 punch beat, paragraph generation on. VOICE-10a: NO time-stretch (pace 1.0; the style speed factors above
 apply to Kokoro/Piper only, Chatterbox is never stretched).
-Target: 145-155 spoken words per minute (tts.py reports the measured wpm).
+VOICE-12: the pauses come from CHANNEL_PAUSES (speech-to-speech table, tts.layout_breathing); target 135-145 words
+per minute over the whole video (tts.py reports the overall and the in-sentence rate).
 """
 import hashlib
 import random
@@ -56,6 +57,11 @@ PUNCH_PAUSE_SEC = 0.25
 # (+ 0.25 s punch beat); the pace guard only runs when spec.voice.targetWpm is set explicitly.
 CHANNEL_TUNING = {"exaggerationOffset": 0.0, "cfgOffset": 0.0, "pace": 1.0, "pauseScale": 1.15, "paragraphs": True,
                   "paceGuard": False}
+# VOICE-12 (Lars 2026-10-15 21:40 "the sentences themselves are fine, the pauses are too short"): channel pause table
+# in seconds, speech to speech (tts.layout_breathing); spec.voice.pauses overrides each value, false = legacy pace.
+CHANNEL_PAUSES = {"sentence": 0.45, "paragraph": 0.75, "scene": 0.9, "section": 1.6, "beforePunch": 0.6,
+                  "afterPunch": 0.9, "afterReveal": 1.2, "afterQuestion": 3.0, "shortScale": 0.75,
+                  "targetOverallWpm": (135, 145)}
 CFG_FLOOR = 0.25
 
 BIG_RE = re.compile(

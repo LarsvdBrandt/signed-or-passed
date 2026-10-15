@@ -6,6 +6,8 @@ card (FAIL > 6 s, WARN 4-6 s), the brand sting after the hook, an on-screen numb
 silence before the reveal; measured visual changes/min (target >= 20), planned beats/min and sfx/min go to
 report.retention. Checks with level 'warn'
 are listed but do not fail the gate.
+VOICE-12: intentional pauses (timing.json breaths <= 1.8 s) are exempt from the static scan; the voice pace check
+judges the overall rate (words / whole main cut, target 135-145 wpm) and the report keeps overallWpm and inSentenceWpm.
 """
 import json
 import re
@@ -23,6 +25,7 @@ FIRST_CHANGE_DIFF = 2.0     # a real cut / pop within the first 1.5 s
 FIRST_CHANGE_SEC = 1.5
 CHANGE_GAP_SEC = 0.75       # visual changes closer together than this (continuous motion) count as one
 STATIC_WARN_SEC, STATIC_FAIL_SEC = 4.0, 6.0
+BREATH_HOLD_MAX_SEC = 1.8   # VOICE-12: intentional pauses up to this length are exempt from the static / dead-air scan
 HOOK_KEYWORD_SEC = 8.0
 CHANGES_PER_MIN_TARGET = 20  # measured visual changes (cuts, beats, pops, keywords, camera punches) per minute
 REVEAL_SILENCE_DB = -35.0
@@ -99,6 +102,12 @@ def retention_checks(slug, cut, path, timing, dur, check):
         holds.append((r - float(timing["revealPauseSec"]) - 0.5, r))
     if timing.get("outroSec"):
         holds.append((dur - float(timing["outroSec"]), dur + 1))
+    # VOICE-12: intentional pauses (timing.json breaths, up to 1.8 s) are not dead air
+    holds += [(float(b["at"]) - 0.5, float(b["at"]) + float(b["sec"]) + 0.5) for b in timing.get("breaths") or []
+              if float(b.get("sec") or 0) <= BREATH_HOLD_MAX_SEC]
+    breaths = timing.get("breaths") or []
+    stats["breaths"] = len(breaths)
+    stats["sectionPauses"] = sum(1 for b in breaths if b.get("kind") == "section")
 
     scan = frame_diffs(path)
     if scan is None:
@@ -281,13 +290,17 @@ def main():
         pc = voice_qa.get("pace") or {}
         if pc.get("words") and durations.get("main"):  # conventional narration rate: words over the whole main cut
             pc["narrationWpm"] = round(60.0 * pc["words"] / durations["main"], 1)
+            pc["overallWpm"] = pc["narrationWpm"]  # VOICE-12: both rates in the report
+            pc["inSentenceWpm"] = pc.get("articulationWpm")
         wpm, nwpm = pc.get("wpm"), pc.get("narrationWpm")
         if wpm is not None:
             # PACE decision (iteration 53): the band is judged on the conventional narration rate (words over the
             # whole cut); the in-scene rate stays informative. Since VOICE-10a the pace guard only nudges the pauses
             # (pauseScale 1.0-1.6); Chatterbox audio is never time-stretched (no 0.88 floor any more).
             judged = nwpm if nwpm is not None else wpm
-            check("voice: pace 145-155 words/min (whole narration)", 135 <= judged <= 165,
+            band = pc.get("targetOverallWpm") or ([135, 145] if pc.get("pauses") else [145, 155])
+            check(f"voice: pace {band[0]:.0f}-{band[1]:.0f} words/min (whole narration)",
+                  band[0] - 2 <= judged <= band[1] + (2 if pc.get("pauses") else 10),
                   f"{nwpm if nwpm is not None else '?'} wpm over the whole cut, in-scene {wpm} wpm "
                   f"(articulation {pc.get('articulationWpm')}, pace {pc.get('pace')}, pauses x{pc.get('pauseScale')})",
                   level="warn")

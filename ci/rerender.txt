@@ -1,7 +1,7 @@
 # Pushing a change to this file renders the listed productions again without editing their files.
-# 2026-10-15T18:45Z: VOICE-11 (Lars: the voice itself back to NORMAL, keep the sentences and pauses): channel default
-#   = variant C of voice-test-2 (Chatterbox default voice, natural speed / no stretch, no VOICE-8 offsets, paragraph
-#   generation, pauses x1.15 + 0.25 s punch beat, pace guard opt-in). Both specs have no voice overrides, so the new
-#   default applies without touching their files.
+# 2026-10-15T19:55Z: VOICE-12 BREATHING ROOM (Lars: the sentences themselves are fine, the pauses are too short):
+#   channel pause table (sentence 0.45 / paragraph 0.75 / scene 0.9 / section 1.6 / punch 0.6+0.9 / reveal 1.2 /
+#   question hold 3 s) + pace guard toward ~140 wpm overall. The voice is unchanged (same clips from the cache).
+#   Both specs have no voice overrides, so the new default applies without touching their files.
 2026-10-15-blockbuster-passes-on-netflix
 2026-10-15-nike-signs-michael-jordan
