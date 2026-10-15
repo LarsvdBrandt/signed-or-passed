@@ -16,6 +16,16 @@ Music (spec.music, docs/library/music.md):
              claims, the generated beds cannot.
   none       no music and no stingers
 Stingers (musicgen.stinger) play at question scenes and verdict scenes (signed / passed) unless stingers is false.
+
+Sound dynamics (RETENTION-4b, docs/library/retention.md):
+  scenes[].musicEnergy  low | mid | high | drop | stop, sticky until the next scene that sets one ('mid' before the
+                        first). Generated beds re-arrange their layers (musicdyn.bed_energy: layers in/out, filter
+                        sweep up, 'drop' = filtered pad then the groove slams back in, 'stop' = silence); library
+                        tracks follow a gain curve (LIBRARY_ENERGY_GAIN). No musicEnergy anywhere = legacy sections.
+  spec.sound            {autoRisers: true, revealPauseSec: 0.6, verdictImpact: true}: a 2 s riser that ends at every
+                        question scene and right before the reveal (common.reveal_index), music + sfx silent for
+                        revealPauseSec before the reveal (tts.py holds the previous scene that long), impact_boom on
+                        the verdict (and a softer one on a separate reveal scene).
 """
 import csv
 import json
@@ -23,8 +33,12 @@ import re
 import subprocess
 import urllib.parse
 
+import musicdyn
 import musicgen
-from common import (BRAND_OUTRO_SFX, COLD_OPEN_SFX, brand_intro_sfx, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
+import numpy as np
+import soundfile as sf
+from common import (BRAND_OUTRO_SFX, COLD_OPEN_SFX, MUSIC_ENERGIES, RISER_LEAD_SEC, brand_intro_sfx, reveal_index,
+                    sound_opts, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
                     log, read_json, slug_arg, work_dir, write_json)
 from fetch_assets import download
 from retention import beat_sfx_events
@@ -36,6 +50,11 @@ SFX_GAIN = 0.7
 LIBRARY_MUSIC_GAIN = 0.22   # commercial-loudness tracks
 GENERATED_MUSIC_GAIN = 0.6  # musicgen beds are normalised to -20 dBFS RMS
 STINGER_GAIN = 0.4
+LIBRARY_ENERGY_GAIN = {"low": 0.55, "mid": 0.8, "high": 1.0, "drop": 0.3, "stop": 0.0}
+RISER_GAIN_DB = -4.0
+IMPACT_GAIN_DB = -2.0
+REVEAL_IMPACT_GAIN_DB = -6.0
+SILENCE_GUARD_SEC = 0.25  # sfx that would still ring into the silence before the reveal are dropped too
 
 # free-text moods of the other agents -> musicgen moods
 MOOD_ALIASES = {
@@ -160,15 +179,98 @@ def plan_music(slug, spec):
     return dict(info, stingers=stingers)
 
 
-def music_for_cut(slug, cut, plan, total):
+def energy_changes(cut, timing):
+    """[(seconds, energy)] from scenes[].musicEnergy (sticky; 'mid' before the first one), or [] when no scene sets one."""
+    by_id = {sc["id"]: sc for sc in cut["scenes"]}
+    out = []
+    for t in timing["scenes"]:
+        e = (by_id.get(t["id"]) or {}).get("musicEnergy")
+        if e in MUSIC_ENERGIES and (not out or out[-1][1] != e):
+            out.append((float(t["start"]), e))
+    if out and out[0][0] > 0:
+        out.insert(0, (0.0, "mid"))
+    return out
+
+
+def music_for_cut(slug, cut, plan, total, energies=None):
     if plan["kind"] == "library":
         return plan["path"], LIBRARY_MUSIC_GAIN
     if plan["kind"] == "generated":
         path = cut_dir(slug, cut["name"]) / "music-bed.wav"
-        musicgen.write_wav(path, musicgen.bed(plan["mood"], plan["era"], total + 0.5, seed=f"{slug}:{cut['name']}"))
-        log(f"music {cut['name']}: generated bed {plan['mood']} / {plan['era']} ({total:.1f} s)")
+        seed = f"{slug}:{cut['name']}"
+        if energies:
+            x = musicdyn.bed_energy(plan["mood"], plan["era"], total + 0.5, seed=seed, changes=energies)
+            how = "energy curve " + " ".join(f"{e}@{t:.1f}" for t, e in energies)
+        else:
+            x = musicgen.bed(plan["mood"], plan["era"], total + 0.5, seed=seed)
+            how = "sections"
+        musicgen.write_wav(path, x)
+        log(f"music {cut['name']}: generated bed {plan['mood']} / {plan['era']} ({total:.1f} s, {how})")
         return path, GENERATED_MUSIC_GAIN
     return None, 0.0
+
+
+def music_curve(kind, energies, silence):
+    """Breakpoints (xs, ys) in seconds of the music gain: library energy levels and the silence before the reveal
+    (silence = (start, end) or None)."""
+    xs, ys = [0.0], [1.0]
+    if kind == "library" and energies:
+        prev = energies[0][1]
+        xs, ys = [0.0], [LIBRARY_ENERGY_GAIN[prev]]
+        for t, e in energies[1:]:
+            t = max(t, xs[-1] + 0.001)
+            xs += [t, t + musicdyn._gain_ramp(prev, e)]
+            ys += [LIBRARY_ENERGY_GAIN[prev], LIBRARY_ENERGY_GAIN[e]]
+            prev = e
+    if not silence:
+        return xs, ys
+    a, b = silence
+    mx, my = [max(0.0, a - 0.08), a, b, b + 0.04], [1.0, 0.0, 0.0, 1.0]  # fully silent from a to b
+    ux = sorted(set(xs) | set(mx))
+    uy = [float(np.interp(x, xs, ys)) * float(np.interp(x, mx, my, left=1.0, right=1.0)) for x in ux]
+    return ux, uy
+
+
+def gain_expr(xs, ys):
+    """ffmpeg volume expression (eval=frame) of a piecewise-linear curve; None when it is 1 everywhere."""
+    if all(abs(y - 1.0) < 1e-6 for y in ys):
+        return None
+    terms = [f"{ys[0]:.4f}"]
+    for i in range(len(xs) - 1):
+        dy = ys[i + 1] - ys[i]
+        if abs(dy) < 1e-6:
+            continue
+        dx = max(0.001, xs[i + 1] - xs[i])
+        terms.append(f"{dy:+.4f}*clip((t-{xs[i]:.3f})/{dx:.3f},0,1)")
+    return "".join(terms)
+
+
+def auto_sound_events(timing, opts):
+    """(sfx name, seconds, gainDb, trim start) of the automatic risers and impacts, and the silence window (or None)."""
+    scenes = timing["scenes"]
+    ri = reveal_index(scenes)
+    pause = float(timing.get("revealPauseSec") or 0.0) if ri is not None else 0.0
+    silence = (scenes[ri]["start"] - pause, scenes[ri]["start"]) if ri is not None and pause > 0 else None
+    intro_at, intro = float(timing.get("introAtSec") or 0), float(timing.get("introSec") or 0)
+    events = []
+    if opts.get("autoRisers", True):
+        riser = ROOT / "build" / "sfx" / "riser.wav"
+        trim = max(0.0, sf.info(str(riser)).duration - RISER_LEAD_SEC) if riser.exists() else 0.0
+        for i, sc in enumerate(scenes):
+            if sc.get("coldOpen") or not (sc["kind"] == "question" or i == ri):
+                continue
+            end = sc["start"] - (pause if i == ri else 0.0)
+            st = end - RISER_LEAD_SEC
+            if st < 0.5 or (intro > 0 and st < intro_at + intro and end > intro_at):
+                continue
+            events.append(("riser", st, RISER_GAIN_DB, trim))
+    if opts.get("verdictImpact", True):
+        for sc in scenes:
+            if sc["kind"] == "verdict" and not sc.get("coldOpen"):
+                events.append(("impact_boom", sc["start"], IMPACT_GAIN_DB, 0.0))
+        if ri is not None and scenes[ri]["kind"] != "verdict":
+            events.append(("impact_boom", scenes[ri]["start"], REVEAL_IMPACT_GAIN_DB, 0.0))
+    return events, silence
 
 
 def stinger_events(cut, timing):
@@ -244,7 +346,9 @@ def mix_cut(slug, cut, plan):
     d = cut_dir(slug, cut["name"])
     timing = read_json(d / "timing.json")
     total = float(timing["totalSec"])
-    music, music_gain = music_for_cut(slug, cut, plan, total)
+    energies = energy_changes(cut, timing)
+    music, music_gain = music_for_cut(slug, cut, plan, total, energies)
+    auto, silence = auto_sound_events(timing, plan.get("sound") or {})
     cues = {sc["id"]: sc.get("sfxCues") or [] for sc in cut["scenes"]}
     sfx_dir = ROOT / "build" / "sfx"
     inputs = ["-i", str(d / "voice.wav")]
@@ -271,18 +375,33 @@ def mix_cut(slug, cut, plan):
             if at < total:
                 events.append((stinger_file(name), max(0.0, at), STINGER_GAIN))
                 n_sting += 1
-    for f, at, vol in events:
+    if silence:
+        a, b = silence[0] - SILENCE_GUARD_SEC, silence[1]
+        before = len(events)
+        events = [ev for ev in events if not (a <= ev[1] < b)]
+        log(f"  silence before the reveal {silence[0]:.2f} -> {silence[1]:.2f} s ({before - len(events)} sfx dropped)")
+    events = [(f, at, vol, 0.0) for f, at, vol in events]
+    for name, at, gain_db, trim in auto:
+        f = sfx_dir / f"{name}.wav"
+        if f.exists() and 0 <= at < total:
+            events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0)), trim))
+    if auto:
+        log(f"  {len(auto)} automatic riser / impact sound(s)")
+    for f, at, vol, trim in events:
         ms = int(round(at * 1000))
         inputs += ["-i", str(f)]
-        graph.append(f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,volume={vol:.4f},adelay={ms}:all=1[s{idx}]")
+        pre = f"atrim=start={trim:.3f},asetpts=PTS-STARTPTS," if trim > 0 else ""
+        graph.append(f"[{idx}:a]{pre}aresample=48000,aformat=channel_layouts=stereo,volume={vol:.4f},adelay={ms}:all=1[s{idx}]")
         mix_labels.append(f"[s{idx}]")
         idx += 1
     if music:
         inputs += ["-stream_loop", "-1", "-i", str(music)]
         fade_st = max(0.0, total - 2.5)
+        expr = gain_expr(*music_curve(plan["kind"], energies, silence))
+        curve = f"volume='{expr}':eval=frame," if expr else ""
         graph.append(
             f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total},asetpts=N/SR/TB,volume={music_gain},"
-            f"afade=t=in:d=1.5,afade=t=out:st={fade_st}:d=2.5[mus]")
+            f"{curve}afade=t=in:d=1.5,afade=t=out:st={fade_st}:d=2.5[mus]")
         graph.append("[mus][vkey]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=400[duck]")
         mix_labels.append("[duck]")
         idx += 1
@@ -311,7 +430,7 @@ def mix_cut(slug, cut, plan):
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
-    plan = {**plan_music(args.slug, spec), "sfxDensity": spec.get("sfxDensity") or "mid"}
+    plan = {**plan_music(args.slug, spec), "sfxDensity": spec.get("sfxDensity") or "mid", "sound": sound_opts(spec)}
     for cut in cuts(spec):
         mix_cut(args.slug, cut, plan)
 
