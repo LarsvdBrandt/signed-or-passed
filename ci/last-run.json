@@ -1,13 +1,15 @@
 {
-  "status": "success",
-  "jobStatus": "success",
+  "status": "failure",
+  "jobStatus": "failure",
   "triggerSha": "706e32162ca00199a881b0c4c471b944a7b6bbce",
-  "slug": "2026-10-15-blockbuster-passes-on-netflix",
+  "slug": "2026-10-15-nike-signs-michael-jordan",
   "slugs": [
-    "2026-10-15-blockbuster-passes-on-netflix"
+    "2026-10-15-nike-signs-michael-jordan"
   ],
-  "finishedAt": "2026-10-15T20:30:03+00:00",
-  "failedStep": null,
-  "failedSlugs": [],
+  "finishedAt": "2026-10-15T20:30:10+00:00",
+  "failedStep": "qa-gate:2026-10-15-nike-signs-michael-jordan",
+  "failedSlugs": [
+    "2026-10-15-nike-signs-michael-jordan"
+  ],
   "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38797581993"
 }
