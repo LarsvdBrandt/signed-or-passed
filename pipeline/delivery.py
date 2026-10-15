@@ -89,18 +89,33 @@ def _key_index(words):
     return None
 
 
+MARKER_RE = re.compile(r"\[[^\]]*\]")  # [pause N] markers and [style] tags: never part of the punch logic
+
+
 def punch_text(text):
-    """TTS text of a punch line with a short dramatic beat before the key word ('The price was, fifty million.').
-    Returns (text, pauseBeforeSec): when the key word opens the sentence the pause goes before the whole clip."""
-    words = text.split()
-    k = _key_index(words)
-    if k is None or k == 0:
-        return text, PUNCH_PAUSE_SEC
+    """TTS text of a punch line with a short dramatic beat before the key number/word ('The price was, fifty million.').
+    Returns (text, pauseBeforeSec): when the key word opens the sentence the pause goes before the whole clip.
+    [pause N] markers are kept intact (a comma inside '[pause 1]' made Chatterbox say 'pause, one'); a key word right
+    after a marker already has its beat."""
+    markers = []
+
+    def keep(m):
+        markers.append(m.group(0))
+        return f" \x00{len(markers) - 1}\x00 "
+    words = MARKER_RE.sub(keep, text).split()
+    spoken = [i for i, w in enumerate(words) if not w.startswith("\x00")]
+    kk = _key_index([words[i] for i in spoken])
+
+    def restore(ws):
+        return re.sub(r"\s+", " ", re.sub(r"\x00(\d+)\x00", lambda m: markers[int(m.group(1))], " ".join(ws))).strip()
+    if kk is None or kk == 0:
+        return restore(words), PUNCH_PAUSE_SEC
+    k = spoken[kk]
     prev = words[k - 1]
-    if prev.endswith((",", ".", "?", "!", ":", ";", "...")):
-        return text, 0.0
+    if prev.startswith("\x00") or prev.endswith((",", ".", "?", "!", ":", ";", "...")):
+        return restore(words), 0.0
     words[k - 1] = prev + ","  # Chatterbox turns '...' into ', ' anyway: a comma is its natural short beat
-    return " ".join(words), 0.0
+    return restore(words), 0.0
 
 
 def plan(scenes, sentences_of, seed="", hook=True):

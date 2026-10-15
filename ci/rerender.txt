@@ -1,4 +1,5 @@
 # Factory-owned re-render trigger (see .github/workflows/render.yml): one production slug per line.
 # Pushing a change to this file renders the listed productions again without editing their files.
-# 2026-10-15T08:40Z: release step failed on a missing sound-board.mp4 path (fixed in ci/render-slug.sh)
+# 2026-10-15T15:35Z: v3 failed the QA gate on a '[pause 1]' marker broken by the punch beat (spoken as 'pause, one')
+#   and on number-format WER false positives; fixed in delivery.punch_text + pipeline/textnorm.py. Renders with VOICE-8.
 2026-10-15-blockbuster-passes-on-netflix

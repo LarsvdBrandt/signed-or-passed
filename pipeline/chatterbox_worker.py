@@ -17,6 +17,9 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import textnorm  # noqa: E402  (standard library only, shared with tts.py)
+
 RETRY_WER = 0.30
 SR_ASR = 16000
 
@@ -48,45 +51,12 @@ def year_words(n):
 
 
 def normalise(text):
-    """Lower-case words for WER: digits, money, percent and years spelled out, punctuation dropped."""
-    t = text.lower().replace("**", "")
-    t = re.sub(r"\[[^\]]*\]", " ", t)
-    t = t.replace("%", " percent").replace("&", " and ")
-    t = re.sub(r"\$\s?([\d,.]+)\s*(million|billion|trillion|thousand)?",
-               lambda m: f"{m.group(1)} {m.group(2) or ''} dollars", t)
-    t = re.sub(r"(\d),(\d{3})", r"\1\2", t)
-    t = re.sub(r"(\d),(\d{3})", r"\1\2", t)
-
-    def repl(m):
-        s = m.group(0)
-        if re.fullmatch(r"\d+\.\d+", s):
-            a, b = s.split(".")
-            return num_words(a) + " point " + " ".join(ONES[int(c)] for c in b)
-        if re.fullmatch(r"\d+s", s):
-            return year_words(s[:-1]) + "s" if len(s) == 5 else num_words(s[:-1]) + "s"
-        m2 = re.fullmatch(r"(\d+)(st|nd|rd|th)", s)
-        if m2:
-            return num_words(m2.group(1)) + m2.group(2)
-        if len(s) == 4 and 1100 <= int(s) <= 2099:
-            return year_words(s)
-        return num_words(s)
-    t = re.sub(r"\d+\.\d+|\d+(?:st|nd|rd|th|s)?", repl, t)
-    t = re.sub(r"[^a-z0-9' ]+", " ", t).replace("'", "")
-    t = t.replace("-", " ")
-    return t.split()
+    """Canonical tokens for WER (pipeline/textnorm.py: spelled-out and digit numbers compare equal)."""
+    return textnorm.canon(text)
 
 
 def wer(ref, hyp):
-    r, h = normalise(ref), normalise(hyp)
-    if not r:
-        return 0.0 if not h else 1.0
-    d = list(range(len(h) + 1))
-    for i in range(1, len(r) + 1):
-        prev, d[0] = d[0], i
-        for j in range(1, len(h) + 1):
-            cur = min(d[j] + 1, d[j - 1] + 1, prev + (r[i - 1] != h[j - 1]))
-            prev, d[j] = d[j], cur
-    return d[len(h)] / len(r)
+    return textnorm.wer(ref, hyp)
 
 
 def load_asr(name):
@@ -138,7 +108,7 @@ def synth(args):
             hyp = transcribe(asr, a, model.sr) if asr else None
             w = wer(j.get("expected") or j["text"], hyp) if asr else None
             takes.append((w if w is not None else 0.0, k, a, hyp, ex))
-            if w is None or w <= RETRY_WER:
+            if w is None or not textnorm.bad_sentence(j.get("expected") or j["text"], hyp, RETRY_WER):
                 break
             print(f"[chatterbox] job {j['id']} WER {w:.2f} -> retry: {hyp!r}", flush=True)
         if not takes:
