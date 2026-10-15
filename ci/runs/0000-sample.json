@@ -1,13 +1,7 @@
 {
-  "status": "success",
-  "jobStatus": "success",
-  "triggerSha": "fad26033d0920a56e8154629299829016cde978d",
+  "status": "running",
   "slug": "0000-sample",
-  "slugs": [
-    "0000-sample"
-  ],
-  "finishedAt": "2026-10-15T08:45:41+00:00",
-  "failedStep": null,
-  "failedSlugs": [],
-  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38707055302"
+  "triggerSha": "98b79ca86b0237e3bbd0c31f3b5c3025988ef767",
+  "startedAt": "2026-10-15T11:24:09Z",
+  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38727043415"
 }
