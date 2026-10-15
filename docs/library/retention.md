@@ -70,6 +70,10 @@ punch-out every 3 s, never closer than 1.5 s to the scene start, the scene end, 
 (keywords count as marks). Only scenes that already carry beats (explicit beats or VOICE-12 breath punches) get them:
 a scene without beats keeps the renderer's own 2.5 s camera drift (`render/src/retention/beats.tsx`). Question, verdict and
 reveal scenes keep their hold; `"autoBeats": false` turns it off.
+In practice the punches only appear in long scenes: a gap needs >= 4.5 s without a beat or keyword. Verified on the
+sample render of 52565c4 (run 38819786622): 0 punches in the sample (scenes of 2-7 s), and a dry run on the real
+productions gives Nike 1 and Blockbuster 0 (their ~4-5 s scene cuts already keep 20+ changes/min). Write longer
+illustration scenes with a beat and the rhythm fills the rest.
 
 ## Emphasis and kinetic keywords
 
