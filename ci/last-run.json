@@ -1,13 +1,6 @@
 {
-  "status": "success",
-  "jobStatus": "success",
-  "triggerSha": "a2a6e63a98d5a2ffe98b8de61021da79c0067475",
-  "slug": "2026-10-15-nike-signs-michael-jordan",
-  "slugs": [
-    "2026-10-15-nike-signs-michael-jordan"
-  ],
-  "finishedAt": "2026-10-15T21:18:06+00:00",
-  "failedStep": null,
-  "failedSlugs": [],
-  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38804753804"
+  "status": "running",
+  "triggerSha": "0a419410c9dc68c80b1a08172cdd5d0815d5178e",
+  "startedAt": "2026-10-15T21:34:07Z",
+  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38810837246"
 }
