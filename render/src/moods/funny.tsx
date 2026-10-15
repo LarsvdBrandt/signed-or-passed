@@ -1,7 +1,7 @@
 import React from 'react';
 import {C, FONT_HEAD, FONT_MONO, STROKE, colourOf} from '../constants';
 import {c01, easeInOut, fitText, frac} from '../illustrations/kit';
-import {Figure, PopText, ShotSvg, TEAR, snap, starPath, type ShotProps} from './kit';
+import {Figure, PopText, ShotSvg, TEAR, pop, snap, starPath, type ShotProps} from './kit';
 
 const Floor: React.FC<{y: number}> = ({y}) => <line x1={0} y1={y} x2={1920} y2={y} stroke={C.board} strokeWidth={STROKE} />;
 

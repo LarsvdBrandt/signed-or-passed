@@ -1,1 +1,1 @@
-iteration 24 - 2026-10-15T04:45+02:00 - CHARACTERS-2/3: costumes, hats, held props, Crowd2, CharacterPreview
+2026-10-15T02:52:00Z iteration 25: fix preview-moods (pop import) + MOODS-2 sad/tension shots + schema Crowd2
