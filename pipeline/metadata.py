@@ -1,5 +1,5 @@
 """Final YouTube metadata: description with chapters, sources, credits and synthetic-voice disclosure."""
-from common import (add_warning, cut_dir, cuts, fmt_ts, is_test, load_spec, log, out_dir, read_json, slug_arg,
+from common import (ROOT, add_warning, cut_dir, cuts, fmt_ts, is_test, load_spec, log, out_dir, read_json, slug_arg,
                     work_dir, write_json)
 
 KEY_KINDS = {"title", "question", "reveal", "verdict", "lesson", "evidence", "timeline", "map", "chapter"}
@@ -17,7 +17,8 @@ def label_for(sc):
     fixed = {"question": "Would you sign?", "reveal": "What happened", "verdict": "The verdict", "lesson": "The lesson"}
     if k in fixed:
         return fixed[k]
-    return " ".join(sc["narration"].split()[:6]).rstrip(".,;:!?")
+    words = [w for w in sc["narration"].split() if not w.startswith("[") and not w.endswith("]")]
+    return " ".join(words[:6]).rstrip(".,;:!?")
 
 
 def chapters(scenes, timing):
@@ -51,6 +52,18 @@ def music_credit(slug):
     return (m.get("attribution_text") or "").strip() or f"{m.get('title')} by {m.get('artist')} ({m.get('license')})"
 
 
+def voice_credit(spec):
+    """Attribution for voices trained on CC BY data (brand/voices.json 'attribution')."""
+    v = spec.get("voice") or {}
+    path = ROOT / "brand" / "voices.json"
+    if not path.exists():
+        return ""
+    for entry in read_json(path).get("voices") or []:
+        if entry.get("id") == v.get("voice") and entry.get("engine") == (v.get("engine") or "kokoro"):
+            return (entry.get("attribution") or "").strip()
+    return ""
+
+
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
@@ -74,6 +87,9 @@ def main():
     credit = music_credit(args.slug)
     if credit:
         parts.append("Music\n" + credit)
+    vcredit = voice_credit(spec)
+    if vcredit:
+        parts.append("Voice\n" + vcredit)
     parts.append("Illustrations, music and sound effects: Signed or Passed, unless credited above. People are shown as "
                  "faceless figures; no real likenesses or logos are used.\nNarrated with a synthetic voice.")
     description = "\n\n".join(parts)
@@ -89,13 +105,14 @@ def main():
         used += len(t) + 1
 
     shorts = []
+    short_desc = md["description"].strip() + (f"\n\n{vcredit}" if vcredit else "") + "\n\nNarrated with a synthetic voice.\n#shorts"
     for cut in cuts(spec)[1:]:
         shorts.append({
             "id": cut["name"].replace("short-", "", 1),
             "file": f"{cut['name']}.mp4",
             "captions": f"{cut['name']}.srt",
             "title": (md["title"][:90] + " #shorts"),
-            "description": md["description"].strip() + "\n\nNarrated with a synthetic voice.\n#shorts",
+            "description": short_desc,
         })
 
     meta = {
