@@ -7,6 +7,8 @@ import {Breadline, CathedralRadio, CocktailGlass, DecoBackdrop, Gramophone, News
 import {DinerBackdrop, FinCar, Jukebox, Milkshake, RocketToy, RotaryPhone, TVSet, Typewriter} from './Fifties';
 import {ArcadeCabinet, Boombox, Calculator, Cassette, CRTTV, Mainframe, NeonBackdrop, PersonalStereo} from './Eighties';
 import {BeigePC, CDROM, ComputerMouse, CubicleBackdrop, DialUpModem, EarlyWebsite, Pager, ServerRack} from './Nineties';
+import {CompactCamera, FlatScreen, FlipPhone, LaptopBag, MP3Player, OpenPlanBackdrop, USBStick, WifiRouter} from './Noughties';
+import {DataCentre, Drone, EV, FutureSkylineBackdrop, RobotArm, SmartphoneGrid, SolarPanel, VRHeadset} from './Future';
 
 /**
  * ERA PACKS. Each era = a backdrop + a list of props (illustration components) + typography hints.
@@ -93,9 +95,38 @@ export const ERA_ILLUSTRATIONS: Record<string, EraIll> = {
   EarlyWebsite: {C: EarlyWebsite, w: 560, h: 420, enter: 'pop', group: 'era:nineties'},
   ServerRack: {C: ServerRack, w: 300, h: 500, enter: 'slide-up', group: 'era:nineties'},
   ComputerMouse: {C: ComputerMouse, w: 220, h: 300, enter: 'drop', group: 'era:nineties'},
+  // 2000s
+  OpenPlanBackdrop: {C: OpenPlanBackdrop, w: 1920, h: 1080, enter: 'none', group: 'era:noughties'},
+  FlipPhone: {C: FlipPhone, w: 260, h: 420, enter: 'pop', group: 'era:noughties'},
+  MP3Player: {C: MP3Player, w: 240, h: 400, enter: 'drop', group: 'era:noughties'},
+  FlatScreen: {C: FlatScreen, w: 560, h: 400, enter: 'slide-up', group: 'era:noughties'},
+  LaptopBag: {C: LaptopBag, w: 400, h: 340, enter: 'drop', group: 'era:noughties'},
+  WifiRouter: {C: WifiRouter, w: 360, h: 320, enter: 'pop', group: 'era:noughties'},
+  USBStick: {C: USBStick, w: 380, h: 200, enter: 'slide-left', group: 'era:noughties'},
+  CompactCamera: {C: CompactCamera, w: 360, h: 260, enter: 'pop', group: 'era:noughties'},
+  // near future
+  FutureSkylineBackdrop: {C: FutureSkylineBackdrop, w: 1920, h: 1080, enter: 'none', group: 'era:future'},
+  SmartphoneGrid: {C: SmartphoneGrid, w: 300, h: 520, enter: 'slide-up', group: 'era:future'},
+  Drone: {C: Drone, w: 380, h: 300, enter: 'slide-down', group: 'era:future'},
+  EV: {C: EV, w: 600, h: 320, enter: 'slide-right', group: 'era:future'},
+  DataCentre: {C: DataCentre, w: 640, h: 420, enter: 'fade', group: 'era:future'},
+  VRHeadset: {C: VRHeadset, w: 420, h: 300, enter: 'pop', group: 'era:future'},
+  RobotArm: {C: RobotArm, w: 460, h: 440, enter: 'slide-up', group: 'era:future'},
+  SolarPanel: {C: SolarPanel, w: 460, h: 380, enter: 'slide-up', group: 'era:future'},
 };
 
-export const ERA_BACKDROPS: Record<string, React.FC<any>> = {AncientBackdrop, MedievalBackdrop, GoldenAgeBackdrop, IndustrialBackdrop, DecoBackdrop, DinerBackdrop, NeonBackdrop, CubicleBackdrop};
+export const ERA_BACKDROPS: Record<string, React.FC<any>> = {
+  AncientBackdrop,
+  MedievalBackdrop,
+  GoldenAgeBackdrop,
+  IndustrialBackdrop,
+  DecoBackdrop,
+  DinerBackdrop,
+  NeonBackdrop,
+  CubicleBackdrop,
+  OpenPlanBackdrop,
+  FutureSkylineBackdrop,
+};
 
 export type EraDef = {
   id: string;
@@ -203,15 +234,37 @@ export const ERA_LIST: EraDef[] = [
     notes: 'Cubicles, dial-up, homepages, the dotcom bubble. Fictional web addresses (example.com); no real browsers, OS or company names.',
   },
   {
+    id: 'noughties',
+    name: '2000s',
+    years: '2001 - 2012',
+    backdrop: 'OpenPlanBackdrop',
+    props: ['FlipPhone', 'MP3Player', 'FlatScreen', 'LaptopBag', 'WifiRouter', 'USBStick', 'CompactCamera', 'Laptop', 'DVD', 'FallingChart'],
+    dateTag: 'Sep 2008',
+    theme: 'signed-or-passed',
+    musicEra: 'electronic',
+    notes: 'Open-plan offices, flip phones, music players, the 2008 crash. Generic devices; no real phone, player, camera or brand designs.',
+  },
+  {
     id: 'modern',
     name: 'Modern',
-    years: '2000 - today',
+    years: '2013 - today',
     backdrop: 'OfficeBackdrop',
     props: ['Smartphone', 'Laptop', 'Computer', 'DigitalCamera', 'StockBoard', 'ContainerShip', 'Airplane', 'Rocket'],
     dateTag: '2024',
     theme: 'signed-or-passed',
     musicEra: 'modern',
-    notes: 'Core components; the 2000s and future packs follow in ERAS-6.',
+    notes: 'Core components (today). The 2000s and the near future have their own packs (noughties, future).',
+  },
+  {
+    id: 'future',
+    name: 'Near future',
+    years: '2025 - 2050',
+    backdrop: 'FutureSkylineBackdrop',
+    props: ['SmartphoneGrid', 'Drone', 'EV', 'DataCentre', 'VRHeadset', 'RobotArm', 'SolarPanel', 'Rocket'],
+    dateTag: '2035',
+    theme: 'blueprint',
+    musicEra: 'modern',
+    notes: 'Speculative scenes and forecasts ("what if"). Generic cars, drones and devices; label forecasts clearly as forecasts.',
   },
 ];
 

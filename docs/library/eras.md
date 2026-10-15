@@ -16,7 +16,8 @@ music era). Era components are normal illustration components:
 
 Rules (same as the core library): flat shapes, Board outlines with the live theme stroke, brand colours only, no
 gradients, faceless people, names as typography, never logos, never real rulers, coins, seals, flags, coats of
-arms, car makes, games, browsers, operating systems or brands. All components follow the active theme (`spec.theme`).
+arms, car makes, games, browsers, operating systems, devices or brands. All components follow the active theme
+(`spec.theme`).
 
 | era id | years | backdrop | props |
 |---|---|---|---|
@@ -28,9 +29,12 @@ arms, car makes, games, browsers, operating systems or brands. All components fo
 | `fifties` | 1945 - 1969 | `DinerBackdrop` (label = blinking sign, default DINER; counter, stools, checkerboard floor) | Jukebox (label = selection panel, cycling lights, notes), TVSet (label = caption over colour bars, flicker), FinCar (label = number plate, tail fins, whitewalls), RotaryPhone (pose = ring / dial), Typewriter (label is typed onto the sheet), RocketToy (label on the band, hovers), Milkshake (level drops, cherry bounces) + core VinylRecord, StoreFront, Newspaper |
 | `eighties` | 1970 - 1989 | `NeonBackdrop` (label = flickering neon sign, default OPEN 24H; synth grid floor, block skyline, sunset) | ArcadeCabinet (label = marquee, generic falling blocks, joystick), Cassette (label = tape label, reels turn), CRTTV (label = on-screen text, scanlines, static bursts), Boombox (speakers pump), Calculator (label = number it counts up to), Mainframe (label = cabinet plate, tape reels, blinking lights), PersonalStereo (headphones, sound waves) + core VHSTape, FloppyDisk, StockBoard |
 | `nineties` | 1990 - 2001 | `CubicleBackdrop` (label = motivational poster, default SYNERGY; cubicle farm, flickering fluorescent light, wall clock) | BeigePC (label is typed into a window), DialUpModem (label on the front, default 56K; LEDs, handshake noise), CDROM (label on the disc, spins), Pager (label scrolls on the LCD, buzzes), EarlyWebsite (label = address, default http://www.example.com; UNDER CONSTRUCTION band, hit counter, loading bar), ServerRack (label = plate, blinking LEDs), ComputerMouse (clicks) + core FloppyDisk, DVD, StockBoard |
-| `modern` | 2000 - today | `OfficeBackdrop` | core components for now (Smartphone, Laptop, Computer, DigitalCamera, StockBoard, ContainerShip, Airplane, Rocket) |
+| `noughties` | 2001 - 2012 | `OpenPlanBackdrop` (label = whiteboard heading, default GROWTH; a rising arrow draws itself; window wall with skyline, swinging pendant lamps, bench desks with flat screens, beanbag) | FlipPhone (flips open; label on the outer screen, default NEW MESSAGE), MP3Player (label = track name; equaliser, progress bar, 4-way pad, earbuds, notes), FlatScreen (label scrolls in the ticker band; bar chart grows), LaptopBag (label on the swinging luggage tag), WifiRouter (label on the front; pulsing signal arcs), USBStick (label on the body, default 2GB; cap slides off), CompactCamera (label on the body; lens zooms, flash fires) + core Laptop, DVD, FallingChart |
+| `modern` | 2013 - today | `OfficeBackdrop` | core components (Smartphone, Laptop, Computer, DigitalCamera, StockBoard, ContainerShip, Airplane, Rocket) |
+| `future` | 2025 - 2050 (speculative) | `FutureSkylineBackdrop` (label = billboard, default TOMORROW; slender towers with roof gardens, wind turbines, gliding pod train, delivery drones) | SmartphoneGrid (app tiles pop in; label = notification banner), Drone (label on the swinging parcel; rotors blur), EV (label = number plate; charging post, battery fills), DataCentre (label = hall sign; racks blink, cooling air), VRHeadset (label on the visor; lens glow, orbiting pixels), RobotArm (label on the carried box; three joints move), SolarPanel (label = unit, default kWh; glint sweeps, counter) + core Rocket |
 
-Planned (factory todo ERAS-6): 2000s, future.
+Every component also takes `colour` (main body colour: brand name or hex). Future scenes are speculation: label
+forecasts clearly as forecasts in the narration or on screen.
 
 Adding an era: write `render/src/eras/<Era>.tsx` (components read `STROKE` and `C` at render time, never in a
 module-level constant; clipPath ids prefixed `era-`), register the components in `ERA_ILLUSTRATIONS`
