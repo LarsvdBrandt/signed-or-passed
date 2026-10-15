@@ -1,0 +1,41 @@
+{
+  "title": "Nike's $500K Bet on a Rookie Who Wanted Adidas",
+  "titleAlternatives": [
+    "Would you pay triple the record for a rookie?",
+    "The rookie who had never worn Nike shoes",
+    "Nike lost money, then paid $2.5M for one rookie",
+    "Who really signed Michael Jordan? Nobody agrees"
+  ],
+  "description": "In 1984, Nike had just posted its first quarterly loss ever. Reebok was closing in. And Nike was about to offer $500,000 a year, about three times the best shoe deal around, to a rookie who had never played an NBA game and who wanted Adidas.\n\nToday that bet brings in more than five billion dollars a year. But it was less crazy than it looks, and the people involved still disagree about who made the call. Sit in Nike's chair, then find out what happened.\n\nWould you have signed? Tell us in the comments.",
+  "tags": ["Michael Jordan", "Nike", "Air Jordan", "Nike Michael Jordan deal", "Phil Knight", "Sonny Vaccaro", "David Falk", "business decisions", "business case study", "business history", "1984", "Adidas", "Converse", "Jordan Brand", "sneaker history", "entrepreneurship", "signed or passed", "bold bet"],
+  "hashtags": ["#MichaelJordan", "#Nike", "#BusinessHistory"],
+  "thumbnail": {
+    "bigText": "$500K",
+    "headline": "Triple the record price",
+    "verdict": "SIGNED",
+    "illustration": "A faceless silhouette of a young basketball rookie with a name card reading Michael Jordan sits across a desk from a Nike executive silhouette, with a contract and a pen between them and a single pair of plain sneakers on the desk, no logos, 1980s palette."
+  },
+  "pinnedComment": "You're Nike in 1984: a first-ever quarterly loss, a rookie who wants Adidas, and a price three times the record. Would you have signed? SIGN or PASS, and why?",
+  "shorts": [
+    {
+      "id": "short-1",
+      "hook": "Five hundred thousand dollars a year, for a rookie who had never played a single NBA game.",
+      "question": "Nike has just posted its first quarterly loss ever, and the kid wants Adidas. Would you sign him?",
+      "reveal": "That fall, Michael Jordan signed with Nike: $500,000 a year, his own shoe, and a cut of every pair.",
+      "verdict": "SIGNED",
+      "sourceParts": ["1. HOOK", "3. SET THE SCENE", "4. THE PRESSURE (price and risk)", "6. REVEAL", "8. VERDICT"]
+    },
+    {
+      "id": "short-2",
+      "hook": "Nike's goal for the Air Jordan 1 was three million dollars in three years.",
+      "question": "Before I tell you what it sold, how much would you guess it made in the first year?",
+      "reveal": "More than a hundred million dollars in the first year, over thirty times the goal, in a third of the time.",
+      "verdict": "SIGNED",
+      "sourceParts": ["4. THE PRESSURE (escape hatch)", "7. AFTERMATH (Air Jordan One sales)", "8. VERDICT"]
+    }
+  ],
+  "publish": {
+    "suggested": "Friday 21:00 Europe/Amsterdam",
+    "playlist": "Signed"
+  }
+}
