@@ -20,22 +20,25 @@ Which free TTS could sound more human, licences, GPU options: [voice-research.md
 ```
 
 That is all the Director needs to write: the built-in Chatterbox voice (A/B winner, chosen by Lars on 15 Oct 2026)
-with the VOICE-8 channel tuning applied automatically (more emotion, more human, slightly slower):
+with the **VOICE-11 channel default** applied automatically = variant C of `voice-test-2` ("normal voice", Lars
+15 Oct 2026 evening: *the sentences and pauses are good now, the voice itself may go back to normal*): natural speed,
+moderate emotion, paragraph flow, the good pauses kept:
 
 | setting | channel default | effect |
 |---|---|---|
-| `exaggerationOffset` | +0.15 | added to every delivery style's exaggeration (cap 1.0): more emotion |
-| `cfgOffset` | -0.10 | added to every style's cfg_weight (floor 0.25): more expressive, more deliberate pacing |
+| `exaggerationOffset` | 0 | VOICE-11: no offset (the VOICE-8 +0.15 made the voice static); the VOICE-3 delivery styles alone vary the emotion around exaggeration 0.5 |
+| `cfgOffset` | 0 | VOICE-11: no offset (VOICE-8 used -0.10); cfg_weight 0.5 base per the delivery styles |
 | `pace` | 1.0 | VOICE-10a: **no time-stretch** (the 0.88 rubberband stretch of VOICE-8 made the voice drone); an explicit value is clamped to 0.97-1.0, scene `voiceSpeed` and style speed factors are ignored for Chatterbox |
 | `pauseScale` | 1.15 | pauses between sentences and after styles +15 %; punch beat 0.25 s |
-| `targetWpm` | [145, 155] | pace guard: when neither `pace` nor `pauseScale` is set, only the PAUSES of the main video are nudged (pauseScale 1.0-1.6) toward this band |
-| `paragraphs` | false | VOICE-10b: 2-4 sentences of one thought per Chatterbox call (flowing intonation), see below; becomes the default once Lars picks a `voice-test-2` variant |
+| `targetWpm` | not set | VOICE-11: the pace guard is **opt-in**: only when `targetWpm` is set (and `pace` / `pauseScale` are not) are the PAUSES of the main video nudged (pauseScale 1.0-1.6) toward this band; by default the voice speaks at its natural speed (~180-200 wpm in-scene) |
+| `paragraphs` | true | VOICE-10b/11: 2-4 sentences of one thought per Chatterbox call (flowing intonation instead of reading a list), see below; `false` = sentence by sentence |
 
-Override any of them in `spec.voice` only for a reason (e.g. `"exaggerationOffset": 0, "cfgOffset": 0, "pauseScale":
-1.0` = the untuned A/B voice). Mark the moments that matter with the
+Override any of them in `spec.voice` only for a reason (e.g. `"exaggeration": 0.65, "cfgWeight": 0.4` = variant D,
+more emotion; `"temperature": 0.9` = variant E; `"paragraphs": false` = variant B; `"exaggerationOffset": 0.15,
+"cfgOffset": -0.1` = the old VOICE-8 tuning). Mark the moments that matter with the
 delivery tags below (`[build]`, `[punch]`, `[excited]`, `[somber]`, `[warm]`, `[tense]`, `[curious]`, `[calm]`).
-The measured pace is in `render-report.json` -> `voice.pace` (`wpm`, `articulationWpm`) and QA warns outside
-135-165 wpm.
+The measured pace is in `render-report.json` -> `voice.pace` (`wpm`, `articulationWpm`) and QA warns (never fails)
+outside 135-165 wpm over the whole cut.
 
 ## Expressive narration: engine `chatterbox` (VOICE-1..10)
 
@@ -55,17 +58,17 @@ livelier at the build-up to a big number, a beat of suspense before the key word
 | `temperature` | 0.8 | sampling temperature, 0.3-1.2 |
 | `fallback` | `bm_george` | Kokoro voice for a sentence Chatterbox cannot produce |
 | `speed` | 1.0 | Kokoro / Piper only (native speed); Chatterbox is not time-stretched (VOICE-10a) |
-| `exaggerationOffset` | 0.15 | VOICE-8: added to every style's exaggeration (-0.5..0.5; 0 = untuned) |
-| `cfgOffset` | -0.10 | VOICE-8: added to every style's cfg_weight (-0.5..0.5, floor 0.25 when negative) |
+| `exaggerationOffset` | 0 | added to every style's exaggeration (-0.5..0.5); VOICE-8 used +0.15, VOICE-11 default 0 |
+| `cfgOffset` | 0 | added to every style's cfg_weight (-0.5..0.5, floor 0.25 when negative); VOICE-8 used -0.10 |
 | `pace` | 1.0 | VOICE-10a: Chatterbox clamped to 0.97-1.0 (max 3 % stretch); Kokoro / Piper: speed factor; setting it disables the pace guard |
-| `paragraphs` | false | VOICE-10b: paragraph generation (chatterbox only) |
+| `paragraphs` | true | VOICE-10b: paragraph generation (chatterbox only); default since VOICE-11 |
 | `pauseScale` | 1.15 | VOICE-8: multiplies sentence gaps and style pauses (0.5-2.0) |
-| `targetWpm` | [145, 155] | pace guard band (spoken words per minute, pauses inside scenes included); VOICE-10a: only the pauses move |
+| `targetWpm` | not set | opt-in pace guard band, e.g. [145, 155] (spoken words per minute, pauses inside scenes included); only the pauses move |
 
 ### Delivery styles (`pipeline/delivery.py`)
 
-Base values; the channel tuning above is added on top (e.g. `punch` becomes exaggeration 0.90, cfg 0.25; `excited`
-1.0 / 0.25; `calm` 0.50 / 0.40). On a retry after a bad ASR check the clip is generated with 0.2 less exaggeration.
+Base values; since VOICE-11 the channel default adds no offsets, so these are the values Chatterbox gets (an explicit
+`exaggerationOffset` / `cfgOffset` or `exaggeration` / `cfgWeight` in `spec.voice` shifts them all). On a retry after a bad ASR check the clip is generated with 0.2 less exaggeration.
 The speed column applies to Kokoro / Piper only (Chatterbox is never stretched, VOICE-10a).
 
 | style | exaggeration | cfg | speed | pause after | used for |
@@ -160,6 +163,17 @@ Result of 15 Oct 2026 (Blockbuster opening): Kokoro `bm_george` 1.15 WER 3.1 %, 
 Chatterbox `narrator` WER 6.9 %, liveliness 5.19, 10.3 s/s; Chatterbox `default` WER 3.1 %, liveliness 5.39,
 7.3 s/s. Winner and channel default: `{"engine": "chatterbox", "voice": "default", "reference": "default"}`.
 
+### VOICE-11 (iteration 57): the channel voice back to normal
+
+Lars (15 Oct, 20:25, after v4 Blockbuster / Nike): *it already sounds better but the voice itself is still too static;
+the sentences are good now with good pauses, the voice itself may go back to normal.* `voice-test-2` (run
+38779110526) measured variant C (paragraphs, no offsets, no stretch, pauses x1.15) best on intelligibility and
+naturalness: WER 0.8 %, UTMOS 4.41 (B 4.37, D 4.39, E 4.40, Kokoro 4.21), liveliness 4.96 st, in-scene 185 wpm.
+`delivery.CHANNEL_TUNING` is now `{exaggerationOffset 0, cfgOffset 0, pace 1.0, pauseScale 1.15, paragraphs true,
+paceGuard false}`: no stretch, no VOICE-8 offsets, paragraph generation by default, the pace guard only with an
+explicit `targetWpm`. Blockbuster and Nike were re-rendered with it through `ci/rerender.txt` (their specs carry no
+voice overrides). D (more emotion) and E (temperature 0.9) remain one spec field away (see the table above).
+
 ## Licence rule for Piper voices
 
 A Piper voice is allowed only when its training data is CC0, public domain or CC BY, and it was trained from
@@ -180,7 +194,7 @@ fine-tuned from it (`nl_NL-pim`, `nl_NL-ronnie`, `nl_BE-nathalie`, `en_GB-vctk`,
 "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.1}
 "voice": {"engine": "piper", "voice": "nl_NL-mls-medium", "speaker": 3, "speed": 1.0}
 "voice": {"engine": "chatterbox", "voice": "default", "reference": "default"}
-"voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "paragraphs": true, "exaggerationOffset": 0.2}
+"voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "exaggeration": 0.65, "cfgWeight": 0.4}
 ```
 
 ## Narration controls
