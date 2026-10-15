@@ -63,8 +63,13 @@ Question scenes keep their hold still. Turn it off with `"autoBeats": false` on 
 snappy, silent camera punches: punch-in 1.12x / punch-out, alternating, every 2 s, never closer than 1 s to the scene
 start, the scene end or another beat (explicit beats and VOICE-12 breath punches stay as they are). This keeps the
 vertical cuts at >= 20 measured visual changes per minute. Question and verdict scenes keep their hold; the same
-`"autoBeats": false` (scene or spec) turns it off. The long video is unchanged. In `beats.json` these beats carry
-`"auto": "rhythm"`.
+`"autoBeats": false` (scene or spec) turns it off. In `beats.json` these beats carry `"auto": "rhythm"`.
+
+**Long-format rhythm (RETENTION-9).** The long video gets the same silent punches, softer and slower: punch-in 1.07x /
+punch-out every 3 s, never closer than 1.5 s to the scene start, the scene end, another beat or a keyword pop-up
+(keywords count as marks). Only scenes that already carry beats (explicit beats or VOICE-12 breath punches) get them:
+a scene without beats keeps the renderer's own 2.5 s camera drift (`render/src/retention/beats.tsx`). Question, verdict and
+reveal scenes keep their hold; `"autoBeats": false` turns it off.
 
 ## Emphasis and kinetic keywords
 
@@ -208,7 +213,7 @@ Applies to the main video and the Shorts.
 | Static picture | longest stretch where nothing moves (difference over 0.5 s < 0.15) outside question scenes, the silence before the reveal and the end card: <= 6 s | fail (warn above 4 s) |
 | Brand sting after the hook | `timing.introAtSec > 0` when the cut has a sting | fail |
 | Number / keyword in the first 8 s | a keyword or kinetic / counter / pop beat, or a text-led scene (counter, title, kinetic-text, chart, ...) starting before 8 s | warn |
-| Visual changes per minute | measured changes (frame-to-frame difference >= 2; changes closer than 0.75 s count once: cuts, beats, pops, keywords, camera punches) >= 20 per minute | warn |
+| Visual changes per minute | measured changes (peaks of the frame-to-frame difference >= 2 that stand out >= 2x above the median of the surrounding +/-1 s, >= 0.75 s apart: cuts, beats, pops, keywords, camera punches; continuous motion does not count) >= 20 per minute; `visualChangesMerged` keeps the old count | warn |
 | Silence before the reveal | mean level in the `revealPauseSec` window < -35 dB | warn |
 
 `report.retention.<cut>` holds the numbers: `visualChanges`, `visualChangesPerMin` (measured), `beats`, `beatsPerMin`
