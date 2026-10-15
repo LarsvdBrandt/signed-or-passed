@@ -346,6 +346,9 @@ Voice QA (`pipeline/textnorm.py`): Whisper's transcript and the narration are no
 (numbers, years, ordinals, decimals, dollars) before WER/CER; a clip is re-generated when it is misheard, a >= 6-word
 sentence counts as bad only with CER > 12 %; the QA gate fails on a garbled clip (CER > 35 %) or more than two doubtful
 clips, one or two are a warning ('listen to these') in `render-report.json`. `[pause N]` markers are never spoken.
+VOICE-13 deep retry: short clips (<= 4 words) are heard with padding and beam 5; a clip still bad after 2 takes gets up
+to 4 takes (best on bad / CER / WER), and `pipeline/tts_redo.py` drops older cached clips that are still judged bad, so
+only those lines are re-generated (details in `docs/library/voices.md`).
 
 ## Local use
 `make install`, `make render SLUG=0000-sample`, `make studio` (Remotion Studio with the Preview composition).
