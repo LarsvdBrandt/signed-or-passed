@@ -1,1 +1,1 @@
-iteration 31b - 2026-10-15T05:47:00Z - INFOGRAPHICS-3 + TYPOGRAPHY-1/2/3 incl. preview-typography.mp4 in render-slug.sh
+iteration 33 · 2026-10-15T06:25:00Z · scene templates (SCENES-1/2/3) + everything since c241eca (music, voices, sample v2.2)

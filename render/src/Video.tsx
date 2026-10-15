@@ -18,6 +18,7 @@ import {InfographicScene} from './infographics';
 import {KineticTextScene} from './typography';
 import {ChapterScene, LowerThird} from './typography/overlays';
 import {StyledCaptions} from './typography/captions';
+import {TemplateScene} from './templates';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 import {EffectsStack, resolveEffects} from './effects';
@@ -31,6 +32,8 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
       return <TitleScene scene={scene} ctx={ctx} />;
     case 'illustration':
       return <IllustrationScene scene={scene} ctx={ctx} />;
+    case 'template':
+      return <TemplateScene scene={scene} ctx={ctx} />;
     case 'evidence':
       return <EvidenceScene scene={scene} ctx={ctx} />;
     case 'chart':
