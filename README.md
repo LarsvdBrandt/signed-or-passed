@@ -79,9 +79,11 @@ committed (`ci/runs/<slug>.json`): a lost render is caught up automatically, a f
 | `docs/` | privacy policy and terms (for the YouTube API audit); `docs/library/` = library catalogues |
 
 ## Brand: intro and outro
-Every long video starts with a 3 s logo sting (`BrandIntro`) and ends with a 6 s end card (`EndCard`).
-`tts.py` writes `introSec` / `outroSec` into `timing.json`; `build_props.py` turns them into `introFrames` /
-`outroFrames`; `mix.py` keeps the voice silent during both. A small watermark sits bottom-right during the story and
+Every long video gets a short logo sting (`BrandIntro`, 1.2 s) right AFTER the hook, never before it, and ends with a
+6 s end card (`EndCard`, optional "next story" teaser via `spec.nextTeaser`). `spec.brandIntro` = `{after, durationSec}`
+or `false` (docs/library/retention.md). `tts.py` writes `introSec` / `introAtSec` / `outroSec` into `timing.json`;
+`build_props.py` turns them into `introFrames` / `introAtFrame` / `outroFrames`; `mix.py` keeps the voice silent during
+both. Previews show the full 3 s sting. A small watermark sits bottom-right during the story and
 the date tag (`scene.dateTag`, IBM Plex Mono) bottom-left.
 
 ## Themes (spec.theme)
@@ -225,7 +227,7 @@ No faces, no logos, company names as typography only.
 
 Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
 is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec`, `dateTag`,
-`lowerThird`, `voiceSpeed`, `beats` and `autoBeats`.
+`lowerThird`, `voiceSpeed`, `beats`, `autoBeats` and `coldOpen`.
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
@@ -258,7 +260,9 @@ illustration, counter, swap of the visual) at a second or at a spoken word; scen
 camera beats** every 2.5 s (`autoBeats: false` turns them off). `**word**` in a narration = emphasis: shown as a big
 kinetic keyword on the word. `spec.captions.long` = `keywords` (default: emphasis + numbers, amounts and years as big
 text) | `full` (word-by-word captions) | `off`. Beats get automatic sounds under the voice (`spec.sfxDensity`
-low|mid|high, default mid).
+low|mid|high, default mid). **Cold open**: `scenes[].coldOpen` (true or `{style, label, rampSec, desaturate, flash}`)
+turns the first scene(s) into a flash-forward (speed-ramp, desaturated, flash frame + whoosh); the brand sting then
+follows the hook.
 
 ## Timing
 Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.2 s (first scene

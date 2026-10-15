@@ -14,9 +14,12 @@ The editorial rules behind this live in the workspace memory "Signed or Passed R
 | Kinetic keywords / long-form captions | `spec.captions {long, style}` | `keywords` |
 | Beat sounds | `spec.sfxDensity` | `mid` |
 | Pace | `spec.voice.speed`, `[pause N]`, `[PAUSE]` | speed 1.15, 0.25 s between sentences, 0.35 s between scenes |
+| Cold open / flash-forward | `scenes[].coldOpen` | none |
+| Brand sting after the hook | `spec.brandIntro {after, durationSec}` / `false` | 1.2 s after the first scene that is not a cold open |
+| End card teaser | `spec.nextTeaser {title, kicker, verdict}` | plain end card (6 s) |
 
-Still to come in this phase (see factory-status): cold open + brand sting after the hook, music energy per scene,
-risers / silence before the reveal, retention QA checks.
+Still to come in this phase (see factory-status): music energy per scene, risers / silence before the reveal,
+retention QA checks.
 
 ## Visual beats (`scenes[].beats`)
 
@@ -92,3 +95,47 @@ The sound plan per cut is written to `build/<slug>/<cut>/beats.json` and mixed b
 Default voice speed 1.15 (when `voice.speed` is missing). Every sentence clip is trimmed of leading and trailing
 silence; 0.25 s between sentences, 0.35 s at scene boundaries. Longer pauses only on purpose: `[pause 0.6]`, or
 `[PAUSE]` for 0.5 s.
+
+## Cold open (`scenes[].coldOpen`)
+
+Open with the payoff: the first scene(s) tease the big moment ("One million dollars. And he said no.") before the
+story starts. Mark them with `"coldOpen": true` or an object:
+
+```json
+{"id": "s00", "kind": "counter", "coldOpen": {"label": "2010", "rampSec": 0.7},
+ "narration": "Fifty million dollars. And they said **no**.", "visual": {"from": 0, "to": 50000000, "unit": "$", "style": "money"}}
+```
+
+| Field | Default | Effect |
+|---|---|---|
+| `style` | `flash-forward` | `flash-forward`: desaturated + vignette, back to full colour in the last 0.4 s; `clean`: full colour |
+| `label` | none | small tag top-left (`▶▶ 2010`, `▶▶ LATER`) |
+| `rampSec` | 0.7 | speed-ramp: the content plays fast and settles to normal speed (with a zoom punch-in), in sync with the voice afterwards; 0 = off |
+| `desaturate` | 0.85 / 0 | 0..1 |
+| `flash` | true | white flash frame on the cut to the next scene |
+
+Sounds: `whoosh_fast` at the start, `whoosh_long` into the flash (`pipeline/common.py` `COLD_OPEN_SFX`). Works on
+every scene kind; beats, keywords and `**emphasis**` work inside a cold open too.
+
+## Brand sting after the hook (`spec.brandIntro`)
+
+The logo sting never plays before the hook. By default it is a 1.2 s version (rules, pen, PASSED stamp; no tagline)
+right after the first scene that is not a cold open, so the order is: cold open (optional) -> hook -> sting -> story.
+
+| Spec | Result |
+|---|---|
+| absent or `{}` | 1.2 s after the first non-cold-open scene |
+| `{"after": "s02"}` | after scene `s02` |
+| `{"durationSec": 0.8}` | 0.6..1.5 s |
+| `false` or `{"enabled": false}` | no sting |
+
+`tts.py` inserts the silent gap and writes `introSec` / `introAtSec` to `timing.json`; `build_props.py` turns them into
+`introFrames` / `introAtFrame`; `mix.py` puts the pen and stamp sounds on the compressed sting
+(`common.brand_intro_sfx`). The scene before the sting hard-cuts into it; the scene after it enters with its normal
+transition. Shorts never get a sting. Old timing files without `introAtSec` keep the sting at the start.
+
+## End card teaser (`spec.nextTeaser`)
+
+The end card stays 6 s. With `"nextTeaser": {"title": "The man who turned down the Beatles", "kicker": "Next story",
+"verdict": "PASSED"}` it shows a smaller logo on top and a "NEXT STORY ->" card on the left half; the right half stays
+free for the YouTube end-screen video element. Without it the classic centred end card is shown.
