@@ -102,9 +102,15 @@ generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper 
 ### Voice QA (`pipeline/qa.py`, `build/<slug>/voice-qa.json`)
 - pace: `wpm` = words / speech time (first to last word of each scene, pauses inside a scene included; scene gaps,
   question holds and the sting excluded), `articulationWpm` = words / clip time; warning outside 135-165 wpm;
-- every Chatterbox clip is transcribed with faster-whisper `base.en`; a clip with a word error rate > 30 % is
-  generated once more with a lower exaggeration and another seed, the better take is kept;
-- whole-track ASR word error rate <= 8 % (gate), no sentence > 30 % (gate), Kokoro fallback sentences (warning);
+- every Chatterbox clip is transcribed with faster-whisper `base.en` and compared with `pipeline/textnorm.py`: both
+  sides are mapped to one canonical form first (spelled-out and digit numbers, years, ordinals, decimals and
+  dollars compare equal: 'eighty-two and a half million' == '$82.5 million', 'twenty-third of September, two
+  thousand and ten' == '23rd of September 2010'). A clip is BAD when its WER > 30 % AND (character error rate > 20 %,
+  or >= 6 words, or >= 2 words missing); one misheard word in a 2-4 word sentence ('lifer' / 'life-er') is only
+  counted (`misheardShortClips`). A bad clip is generated once more with a lower exaggeration and another seed, the
+  better take is kept; cached clips are re-scored on every render;
+- whole-track ASR word error rate <= 8 % (gate), no bad sentence (gate), Kokoro fallback sentences (warning);
+- `[pause N]` markers are never spoken: the punch-line beat (a comma before the key word) skips markers;
 - liveliness = standard deviation of the pitch (F0, semitones, librosa pyin) per minute (info: higher = less
   monotone). `voice.qa: true` runs the same QA for Kokoro / Piper.
 
