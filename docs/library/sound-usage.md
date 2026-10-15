@@ -1,6 +1,6 @@
 # Using the sound library in a production
 
-Every sound of the procedural library (`pipeline/sfxlib.py`, listen to `sound-board.mp4` in the `sample`
+Every sound of the procedural library (`pipeline/sfxlib.py`, listen to `sound-board.mp4` in the `library`
 release; list with `python pipeline/sfxlib.py --list`) can be used in a spec. Everything is generated in CI, so
 there are no licences to track (CC0 by construction).
 

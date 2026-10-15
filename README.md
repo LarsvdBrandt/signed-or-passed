@@ -13,7 +13,12 @@ effects, generated music, mix, loudness). No paid APIs, no API keys.
    `remotion render` (LongVideo / ShortVideo, muted) > ffmpeg mux > `remotion still` (Thumbnail) > `metadata` > `qa`.
 3. The results are published as a **GitHub Release** with tag = slug (`sample` for the test production):
    `video.mp4`, `short-*.mp4`, `thumbnail.png`, `captions.srt`, `short-*.srt`, `metadata.json`, `render-report.json`.
-   The test production also ships the library previews:
+   Every production renders in its own job (concurrency group `render-<slug>`), so productions run in parallel
+   and never wait for the test production or the library. A production whose spec.json is newer than its
+   render-report.json (and whose render has not started since, see `ci/runs/<slug>.json`) is caught up on the
+   next render run; so is a production that has no GitHub release yet (once). Per-production status: `ci/runs/<slug>.json`; the latest finished job: `ci/last-run.json`.
+4. The library is rendered separately by `.github/workflows/library.yml` (`ci/render-library.sh`; Actions tab or
+   push `ci/library-trigger.txt`) into the release **`library`**:
    - **`preview.mp4`**: contact sheets of the whole illustration library + a demo of every scene kind and brand component (silent)
    - **`preview-themes.mp4`**: the same mini-story in every theme, each followed by a contact sheet of every component in that theme (silent)
    - **`preview-eras.mp4`**: every era pack: backdrop, all props and a small composed scene (silent)
@@ -24,23 +29,26 @@ effects, generated music, mix, loudness). No paid APIs, no API keys.
    - **`preview-infographics.mp4`**: every infographic and diagram type with placeholder data (silent)
    - **`preview-typography.mp4`**: every kinetic-text preset, lower thirds, chapter card, Shorts caption styles (silent)
    - **`preview-templates.mp4`**: every scene template in its default era + two others (silent)
+   - **`library-reel.mp4`**: a 2.5 minute showcase of the whole library (a title card + 3 excerpts per preview) on a generated CC0 music bed (`LibraryReel` composition); catalogue: `docs/library/README.md`
    - **`sound-board.mp4`**: every sound of the sound library, with its name and category (with audio)
    - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + licence information
    - **`music-board.mp4`** / **`music-library.zip`**: every generated mood bed, era flavour and stinger (CC0)
    - **`voice-samples.mp4`** / **`voice-samples.zip`**: one sample sentence per voice of `brand/voices.json`
-4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`
+5. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`
    (via `ci/push-results.sh`: a plumbing commit on top of the current `main`, so concurrent pushes never conflict).
-5. Uploading to YouTube is **manual**: Actions > `upload` > Run workflow (slug, privacy, optional publishAt).
+6. Uploading to YouTube is **manual**: Actions > `upload` > Run workflow (slug, privacy, optional publishAt).
 
 ## Re-render
 - Edit and push a spec, or
 - Actions > `render` > Run workflow with a slug, or
 - change `ci/trigger.txt` to re-render the test production `0000-sample`.
 
-Only one run waits in the queue: a newer push replaces a pending run. So every push run also renders each real
-production whose `spec.json` was committed after its `render-report.json` (or that has none yet): a lost render is
-caught up automatically. Real productions render first, `0000-sample` last; a failing production does not stop the
-others (`ci/render-all.sh`, `failedSlugs` in `ci/last-run.json`).
+A `plan` job picks the productions (changed specs, `0000-sample` for `ci/trigger.txt`, plus catch-ups) and starts
+one `render <slug>` job per production (max 4 in parallel, `fail-fast: false`). Per production only one job waits
+in the queue: a newer push of the same production replaces its pending job, which then renders the newest spec.
+Every push run also renders each real production whose `spec.json` was committed after its `render-report.json`
+(or that has none yet) or that has no release yet, unless a render of it already started after its spec was
+committed (`ci/runs/<slug>.json`): a lost render is caught up automatically, a failed one is not looped.
 
 ## Repo layout
 | Path | What |
@@ -257,13 +265,14 @@ with the YouTube Data API v3 enabled; scopes `youtube.upload` and `youtube.force
 phone-verified channel.
 
 ## Music
-`spec.music = {mood, era, source, stingers}`. Default source `auto`: a library track with that mood if one exists,
+`spec.music = {mood, era, source, track?, stingers}`. Default source `auto`: a library track with that mood if one exists,
 otherwise a bed **generated** by `pipeline/musicgen.py` (numpy oscillators, fixed seed `<slug>:<cut>`, no samples:
 CC0 by construction, cannot match Content ID, no credit needed). 8 moods (tense, curious, triumphant, somber, playful,
 epic, mysterious, upbeat) x 6 era flavours (modern, baroque, jazz-age, fifties, eighties, future); stingers at
 question and verdict scenes. Library tracks: `brand/music/licenses.csv`
 (`file,url,title,artist,source,license,attribution_text,mood`), only CC0 / Public Domain; credits go into the
-description automatically. `source: none` renders without music. Catalogue: `docs/library/music.md`; listen in
+description automatically. `source: library` (or `track: <file or title>`) can also pick one of the verified CC0 / PD
+recordings of `brand/music/manifest.csv`. `source: none` renders without music. Catalogue: `docs/library/music.md`; listen in
 `music-board.mp4`.
 
 ## Voices

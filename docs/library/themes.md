@@ -23,7 +23,7 @@ sheet-transition shadow, the entrance easing (`kit.easeOut`) and the Shorts capt
 
 All fonts are OFL-1.1 from github.com/google/fonts, downloaded at render time (`brand/fonts.json`).
 
-Preview: `preview-themes.mp4` in the `sample` release shows the same mini-story (illustration, bar chart,
+Preview: `preview-themes.mp4` in the `library` release shows the same mini-story (illustration, bar chart,
 verdict) in every theme. Render locally with `cd render && npx remotion render src/index.ts ThemePreview out.mp4`.
 
 Adding a theme: copy an entry in `presets.ts`, add it to `THEME_LIST`, add the id to the `theme` enum in

@@ -7,8 +7,8 @@ monetised YouTube (no Content ID risk).
 - 48 kHz mono WAV, loudness-normalised to about -18 dBFS active RMS, peaks at or below -1 dBFS.
 - `python pipeline/sfxlib.py --list` prints the catalogue; `--out build/sfx-lib` writes `wav/<name>.wav` + `catalogue.json`.
 - `python pipeline/soundboard.py` also builds the sound board (`soundboard.wav` + Remotion props) and `sfx-library.zip`.
-- The sample render publishes `sound-board.mp4` (every sound in a row with its name) and `sfx-library.zip` in the
-  release `sample`.
+- The library workflow (`.github/workflows/library.yml`) publishes `sound-board.mp4` (every sound in a row with its
+  name) and `sfx-library.zip` in the release `library`.
 
 ## Catalogue (52 sounds)
 | category | sounds |
@@ -29,8 +29,8 @@ monetised YouTube (no Content ID risk).
 | music | drum_roll, cymbal_crash |
 
 ## Production use
-The four house sounds used by `spec.scenes[].sfx` (`pen`, `stamp`, `paper`, `whoosh`) are still made by
-`pipeline/sfx.py`. Next step (SOUND-3): let `sfx` and per-scene cues name any library sound.
+The four house sounds (`pen`, `stamp`, `paper`, `whoosh`) are made by `pipeline/sfx.py`; `scenes[].sfx` and
+`scenes[].sfxCues` can also name any library sound above (see `docs/library/sound-usage.md`).
 
 ## Adding a sound
 Write a function `s_<name>()` in `pipeline/sfxlib.py` that returns a numpy array at `SR` and register it in `SOUNDS`

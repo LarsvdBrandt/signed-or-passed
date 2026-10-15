@@ -1,7 +1,7 @@
 # Voice library
 
 Catalogue: `brand/voices.json` (id, engine, language, gender, grade, licence, attribution). Listen to every voice in
-`voice-samples.mp4` / `voice-samples.zip` (release `sample`, built by `pipeline/voice_samples.py`).
+`voice-samples.mp4` / `voice-samples.zip` (release `library`, built by `pipeline/voice_samples.py`).
 
 ## Engines
 
