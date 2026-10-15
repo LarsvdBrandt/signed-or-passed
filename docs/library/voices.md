@@ -100,7 +100,8 @@ first) and uploads the clips as artifact `tts-<slug>-<i>`; the render job downlo
 generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper productions get no fan-out jobs.
 
 ### Voice QA (`pipeline/qa.py`, `build/<slug>/voice-qa.json`)
-- pace: `wpm` = words / speech time (first to last word of each scene, pauses inside a scene included; scene gaps,
+- pace: `narrationWpm` = words / whole main cut duration (the conventional narration rate, computed by qa.py; the
+  QA band 135-165 wpm is judged on it), `wpm` = words / speech time (first to last word of each scene, pauses inside a scene included; scene gaps,
   question holds and the sting excluded), `articulationWpm` = words / clip time; warning outside 135-165 wpm;
 - every Chatterbox clip is transcribed with faster-whisper `base.en` and compared with `pipeline/textnorm.py`: both
   sides are mapped to one canonical form first (spelled-out and digit numbers, years, ordinals, decimals and
@@ -115,6 +116,13 @@ generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper 
 - `[pause N]` markers are never spoken: the punch-line beat (a comma before the key word) skips markers;
 - liveliness = standard deviation of the pitch (F0, semitones, librosa pyin) per minute (info: higher = less
   monotone). `voice.qa: true` runs the same QA for Kokoro / Piper.
+
+### Pace decision (iteration 53)
+Chatterbox articulates fast (~190-215 wpm raw). The pace guard slows it to its floor `pace` 0.88 (the slowest
+tempo without rubberband/atempo artifacts), which gives ~183 wpm inside scenes and ~146 wpm over the whole video
+(Nike, 8662039). Lars asked for "slightly slower": that is what 0.88 delivers, so the guard is kept as is and is
+never pushed below 0.88. QA judges the 145-155 band on `narrationWpm` (whole main cut) so the report no longer
+warns on the in-scene rate; `wpm` / `articulationWpm` stay in the report for comparison.
 
 ### Voice A/B (`.github/workflows/voice-test.yml`)
 Push `ci/voice-test.txt` (or start it in the Actions tab): the opening ~100 words + question / reveal / verdict of

@@ -278,11 +278,19 @@ def main():
                 check("voice: doubtful sentences (listen to these)", False, detail, level="warn")
             fb = voice_qa.get("fallbackSentences") or []
             check("voice: no Kokoro fallback sentences", not fb, f"{len(fb)}: " + " | ".join(fb)[:600], level="warn")
-        wpm = (voice_qa.get("pace") or {}).get("wpm")
-        if wpm is not None:  # VOICE-8: target 145-155 spoken words per minute (warn outside 135-165)
-            check("voice: pace 145-155 words/min", 135 <= wpm <= 165,
-                  f"{wpm} wpm (articulation {voice_qa['pace'].get('articulationWpm')}, pace {voice_qa['pace'].get('pace')}, "
-                  f"pauses x{voice_qa['pace'].get('pauseScale')})", level="warn")
+        pc = voice_qa.get("pace") or {}
+        if pc.get("words") and durations.get("main"):  # conventional narration rate: words over the whole main cut
+            pc["narrationWpm"] = round(60.0 * pc["words"] / durations["main"], 1)
+        wpm, nwpm = pc.get("wpm"), pc.get("narrationWpm")
+        if wpm is not None:
+            # PACE decision (iteration 53): the band is judged on the conventional narration rate (words over the
+            # whole cut); the in-scene rate stays informative. The pace guard keeps nudging the in-scene rate
+            # (floor 0.88 = slowest artifact-free tempo), so the voice stays as slow as Lars asked.
+            judged = nwpm if nwpm is not None else wpm
+            check("voice: pace 145-155 words/min (whole narration)", 135 <= judged <= 165,
+                  f"{nwpm if nwpm is not None else '?'} wpm over the whole cut, in-scene {wpm} wpm "
+                  f"(articulation {pc.get('articulationWpm')}, pace {pc.get('pace')}, pauses x{pc.get('pauseScale')})",
+                  level="warn")
         lv = (voice_qa.get("liveliness") or {}).get("mean")
         if lv is not None:
             check("voice: liveliness (F0 std, semitones)", True, f"{lv} st (per minute {voice_qa['liveliness'].get('perMinute')})",
