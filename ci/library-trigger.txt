@@ -1,1 +1,2 @@
 iteration 38 · 2026-10-15T08:20:00Z · SHOWCASE-1: first library.yml run (all previews, boards, zips, library-reel.mp4 -> release library)
+iteration 40 · 2026-10-15T09:15:00Z · LibraryReel: excerpts framed with a section strip (labels no longer overlap)

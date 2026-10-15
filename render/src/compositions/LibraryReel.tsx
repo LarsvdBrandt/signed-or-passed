@@ -66,16 +66,25 @@ const Card: React.FC<{kicker: string; title: string; subtitle: string; len: numb
   );
 };
 
-/** Plays frames [start, start + CLIP) of a preview composition, with a small section label. */
-const Excerpt: React.FC<{Comp: React.FC; start: number; label: string}> = ({Comp, start, label}) => {
+/** Section label strip under the excerpt (the previews keep their own corner labels visible). */
+const STRIP = 64;
+const SCALE = (1080 - STRIP - 16) / 1080;
+
+/** Plays frames [start, start + CLIP) of a preview composition, scaled into a frame with a section label strip. */
+const Excerpt: React.FC<{Comp: React.FC; start: number; label: string; index: number}> = ({Comp, start, label, index}) => {
   applyTheme(null);
   return (
-    <AbsoluteFill style={{background: C.paper}}>
-      <Sequence from={-start}>
-        <Comp />
-      </Sequence>
-      <div style={{position: 'absolute', right: 28, top: 24, fontFamily: FONT_MONO, fontSize: 22, color: C.paper, background: C.board, padding: '6px 14px'}}>
-        {label}
+    <AbsoluteFill style={{background: C.board}}>
+      <div style={{position: 'absolute', left: (1920 * (1 - SCALE)) / 2, top: 8, width: 1920, height: 1080, transform: `scale(${SCALE})`, transformOrigin: 'top left', overflow: 'hidden'}}>
+        <AbsoluteFill style={{background: C.paper}}>
+          <Sequence from={-start}>
+            <Comp />
+          </Sequence>
+        </AbsoluteFill>
+      </div>
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: STRIP, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', fontFamily: FONT_MONO, fontSize: 26, color: C.paper}}>
+        <span>{label}</span>
+        <span style={{color: C.greyLight}}>{`${String(index + 1).padStart(2, '0')} / ${SECTIONS.length}`}</span>
       </div>
     </AbsoluteFill>
   );
@@ -93,7 +102,7 @@ export const LibraryReel: React.FC = () => (
         </Series.Sequence>,
         ...clipStarts(s.total).map((st, k) => (
           <Series.Sequence key={`s${i}-${k}`} durationInFrames={CLIP}>
-            <Excerpt Comp={s.Comp} start={st} label={s.title} />
+            <Excerpt Comp={s.Comp} start={st} label={s.title} index={i} />
           </Series.Sequence>
         )),
       ])}
