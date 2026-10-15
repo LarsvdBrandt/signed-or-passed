@@ -1,6 +1,6 @@
 # Script: Nike signs Michael Jordan (1984)
 
-Slug: 2026-10-15-nike-signs-michael-jordan · Format: long · Verdict: SIGNED · Version: v1 (2026-10-15)
+Slug: 2026-10-15-nike-signs-michael-jordan · Format: long · Verdict: SIGNED · Version: v2 (2026-10-15, revision after fact check)
 
 Delivery tags in [brackets] are stripped before TTS and captions. **Bold** = on-screen kinetic emphasis. Visual rule for this production (Lars): faceless silhouettes with name cards only, company names in plain typography, NO Nike or Jordan logos (no swoosh, no jumpman, no wings logo).
 
@@ -118,17 +118,17 @@ Comment SIGN or PASS before I tell you.
 
 > claims: c28, c24, c4, c8
 
-## 6. REVEAL (4:46-5:30)
+## 6. REVEAL (4:46-5:33)
 
 [PAUSE 1s]
 
-[calm] Jordan gave Adidas one last chance. "I was very loyal," he later told ESPN. He took Nike's offer back to Adidas and said: "This is the Nike contract, if you come anywhere close, I'll sign with you guys."
+[calm] Jordan gave Adidas one last chance. "I was very loyal," Jordan said, as quoted by ESPN. He took Nike's offer back to Adidas and said: "This is the Nike contract, if you come anywhere close, I'll sign with you guys."
 
-> claims: c24; quote Q2 (research §8: Jordan to ESPN's Rovell, s2)
+> claims: c24; quote Q2 (research §8: Jordan, said at the time, as quoted in ESPN 2013 by Rovell, s2)
 
-[tense] Here's the strange part. By Falk's account, Adidas had shown almost no interest. And Adidas didn't come close.
+[tense] Here's the strange part. According to ESPN's reporting, Adidas had shown almost no interest. And Adidas didn't come close.
 
-> claims: c7 (disputed; Falk's version, attributed; N5)
+> claims: c7 (ESPN's own reporting, attributed to ESPN; N5)
 
 [build] Nike had the shoe. The royalties. The plan. [punch] That fall, Michael Jordan **signed** with Nike. [excited] Five hundred thousand a year. His own shoe. A cut of every pair.
 
@@ -142,13 +142,13 @@ Comment SIGN or PASS before I tell you.
 
 > claims: none (re-hook)
 
-## 7. AFTERMATH (5:30-8:18)
+## 7. AFTERMATH (5:33-8:27)
 
 The NBA banned his red and black Nike shoes. The reported fine: **five thousand dollars** a game.
 
 > claims: c18, c21 (wording per research myth 7: "red and black Nike shoes", not "the Air Jordan I")
 
-[build] Nike could have backed down. Instead, it paid. [excited] Then it turned the ban into an ad. Its punchline: "Fortunately, the NBA can't keep you from wearing them."
+[build] Nike could have backed down. Instead, by most accounts, it paid. [excited] Then it turned the ban into an ad. Its punchline: "Fortunately, the NBA can't keep you from wearing them."
 
 > claims: c19, c20
 
@@ -192,9 +192,9 @@ Jordan later put it this way: "Would the brand have been as strong if it was adi
 
 > claims: quote Q3 (research §8: Jordan, ESPN 2013, s2)
 
-[curious] So who actually made the call? Back to that fight. Vaccaro says he picked Jordan and urged Nike to spend its budget on him. Knight and Jordan dispute his role. The twenty twenty-three movie goes further: Nike's whole basketball budget, on one rookie. Our research found no primary source for that.
+[curious] So who actually made the call? Back to that fight. Vaccaro says he picked Jordan and urged Nike to spend its whole allotted budget on him. Knight and Jordan dispute his role. [build] The twenty twenty-three movie goes further: Vaccaro bets his job, and the whole basketball division, on one **rookie**. For that version, we found no source beyond Vaccaro's own account.
 
-> claims: c41, c39, c42
+> claims: c41 (Vaccaro, USA Today 2015: "all of its allotted budget"), c39, c42 (film's version: Slate 2023, s5)
 
 [calm] Phil Knight credits Strasser and designer Peter Moore. About Vaccaro, Knight said: "Sonny helped, but he wasn't the MVP in that process." Jordan credits Strasser and coach George Raveling.
 
@@ -204,13 +204,13 @@ Jordan later put it this way: "Would the brand have been as strong if it was adi
 
 > claims: c45 (1991 part, verified); quote Q4 (research §8: Knight, USA Today 2015, s4)
 
-## 8. VERDICT (8:18-8:24)
+## 8. VERDICT (8:27-8:33)
 
 [build] A losing quarter. A rookie with zero NBA games. Three times the best deal around. [punch] **Signed.**
 
 > claims: c28, c1 (N1), c4
 
-## 9. LESSON (8:24-8:38)
+## 9. LESSON (8:33-8:47)
 
 [warm] When you're behind, copying the leader is the real risk. Bet big on what only you can offer, but write yourself an exit.
 
@@ -222,37 +222,44 @@ Jordan later put it this way: "Would the brand have been as strong if it was adi
 
 ## Notes
 
-**Word count:** about 1,290 spoken words (excluding headings, delivery tags, pause markers and claims lines; the CTA is included).
+**Changes in v2 (fact check verdict: revise):**
+1. REVEAL, Q2 attribution: "he later told ESPN" -> "Jordan said, as quoted by ESPN" (ESPN 2013 introduces it with "Jordan said at the time"). Quote text unchanged (verbatim).
+2. REVEAL, Adidas interest: "By Falk's account" -> "According to ESPN's reporting" (ESPN 2016 says it in the reporter's own voice).
+3. AFTERMATH, credit fight: rewritten per the fact checker's fix. The "whole allotted budget" is now Vaccaro's own claim (USA Today 2015); what the 2023 movie adds is Vaccaro betting his job and the whole basketball division, for which we found no source beyond Vaccaro's own account. Removed the contradictory "no primary source" line. Added one [build] tag and **rookie** emphasis.
+4. Optional fix applied: "Instead, it paid" -> "Instead, by most accounts, it paid" (Slate shows the ban story is messier).
+Everything else unchanged.
 
-**Estimated duration:** about 8:38 at 150 spoken words per minute (Chatterbox default voice, pace 0.93-0.95, target 145-155 wpm), including the 3 s freeze hold and the 1 s pre-reveal silence. Range 8:20-8:55.
+**Word count:** about 1,305 spoken words (excluding headings, delivery tags, pause markers and claims lines; the CTA is included). v1 was about 1,290; the fixes add about 15 words.
+
+**Estimated duration:** about 8:47 at 150 spoken words per minute (pace 0.93-0.95, target 145-155 wpm), including the 3 s freeze hold and the 1 s pre-reveal silence. Range 8:30-9:05.
 
 **Timestamps (estimated at 150 wpm):**
 - Hook: 0:00-0:07 ("Five hundred thousand dollars a year...")
-- Promise: 0:07-0:31 (open loops: "why it was less crazy than it looks" -> paid off in THE PRESSURE; "who made the call" -> paid off at 7:35)
+- Promise: 0:07-0:31 (open loops: "why it was less crazy than it looks" -> paid off in THE PRESSURE; "who made the call" -> paid off at ~7:42)
 - Brand sting: after the promise, ~0:31 (max 1.5 s)
-- Re-hooks: 1:26 ("He had never even worn a pair"), 1:50 ("Remember those names. The credit fight lasts for decades."), 1:53 ("Nike is about to smash the record. By a lot."), 2:42 ("Remember that number."), 2:48 ("a twist most retellings skip": Spot-Bilt), 4:00 ("But first, Nike had to get him on a plane."), 5:30 ("But signing him was the easy part."), 6:22 ("Most people stop the story here."), 6:48 ("Remember the contract?"), 7:35 ("So who actually made the call?")
+- Re-hooks: 1:26 ("He had never even worn a pair"), 1:50 ("Remember those names. The credit fight lasts for decades."), 1:53 ("Nike is about to smash the record. By a lot."), 2:42 ("Remember that number."), 2:48 ("a twist most retellings skip": Spot-Bilt), 4:00 ("But first, Nike had to get him on a plane."), 5:33 ("But signing him was the easy part."), 6:27 ("Most people stop the story here."), 6:53 ("Remember the contract?"), 7:42 ("So who actually made the call?")
 - Freeze: 4:23 start, question "Would you sign him?" ~4:36, CTA + [PAUSE 3s] to ~4:45
-- Reveal: 4:46 (after [PAUSE 1s]); "That fall, Michael Jordan signed with Nike" ~5:14
-- Biggest numbers: $70M ~5:58, "more than a hundred million" ~6:02, $5.1B ~6:56, "two thousand times" ~7:00
-- Verdict: 8:18 · Lesson: 8:24 · Teaser: 8:33
+- Reveal: 4:46 (after [PAUSE 1s]); "That fall, Michael Jordan signed with Nike" ~5:16
+- Biggest numbers: $70M ~6:02, "more than a hundred million" ~6:06, $5.1B ~7:01, "two thousand times" ~7:05
+- Verdict: 8:27 · Lesson: 8:33 · Teaser: 8:42
 
 **Conservative figure choices (per Lars):**
 - Deal: "about two and a half million dollars over five years" (c2/c3). One source (Wikipedia) says six years; at $500K a year that would be ~$3M cash and the ratio ~1,700x, so "about two thousand times" still holds as a round figure.
 - First-year Air Jordan sales: "more than a hundred million" (low end of the $100M-$126M range, c15). Not used: the film's $162M.
-- Jordan Brand: $5.1B in 2022 (c33, verified). Not stated: ~$7.3B FY2025 (c34, single secondary source).
+- Jordan Brand: $5.1B in 2022 (c33, verified). "More than five billion a year today" confirmed by Nike's FY2026 earnings release ($7,034M FY2026).
 - Jordan's earnings: stated as the reported range $150M-$256M (c35). Not used: Sportico's ~$300M estimate.
 - Royalty rate: not stated (never made public). Not used: the "25%" / "5%" numbers online.
 
-**For the fact-checker (open points):**
-- N1: "had never played a single NBA game" / "never played a pro minute" is not its own row in the claims table. It follows from c1 (drafted June 19, 1984), the offer timing (summer-autumn 1984, research §5) and research §4 ("He had not played one pro game"). Please confirm the offer was made before his first regular-season game.
-- N2: "Today, that bet brings in more than five billion dollars a year" rests on c33 ($5.1B, 2022) plus c34 (~$7.3B FY2025, unverified). Please confirm the latest fiscal year is above $5B (10-K lead in research §12: $7,034M FY2026).
-- N3: Roles (Knight co-founder and CEO, Strasser marketing chief, Moore designer, Raveling coach) and "Nike's headquarters in Oregon" come from research §2 and §5, not from numbered claims.
-- N4: c3 is disputed (5 vs 6 years). The script says "five years", following the majority of sources (s2, s3, s6, s14).
-- N5: "Adidas had shown almost no interest" is attributed to Falk (c7, disputed; s6 says ~$100K). "Adidas didn't come close" follows research §5 (Jordan took Nike's numbers to Adidas, and Adidas did not match).
-- N6: Signing date given only as "that fall" (Oct 26, 1984 is Wikipedia only, unconfirmed).
-- c8, c9, c10, c11 and c47 are single-source Falk/ESPN claims. Each is attributed on air ("According to ESPN's reporting", "by Falk's count/account/telling").
-- c21 (letter date) is not stated on air. The ban is worded as "his red and black Nike shoes" (myth 7).
+**Fact-check points (resolved in v1 check):**
+- N1: offer came before his NBA debut (confirmed).
+- N2: latest Jordan Brand revenue well above $5B (confirmed, SEC FY2026 release).
+- N3: roles and Oregon HQ confirmed by ESPN.
+- N4: c3 disputed (5 vs 6 years); script says "five years", following the majority (s2, s3, s6, s14).
+- N5: "Adidas had shown almost no interest" is now attributed to ESPN's reporting (ESPN 2016: "By all accounts, Adidas had almost no interest"), not to Falk. "Adidas didn't come close" is supported ("It wasn't happening").
+- N6: signing date given only as "that fall" (Oct 26, 1984 is Wikipedia only).
+- c8, c9, c10, c11 and c47 are single-source Falk/ESPN claims, each attributed on air.
+- c21 (letter date) is not stated on air. The ban is worded as "his red and black Nike shoes" (myth 7); Nike paying is hedged "by most accounts".
 
-**Deliberately left out:** Falk's "Phil almost had a heart attack" (single-source anecdote); "Red... the color of the devil" (apocryphal); Shoe Dog "five-star general" (unverified); Vaccaro's "We bet it all" and "savior of Nike" (disputed/heated); the $250,000 "whole budget" figure as a fact (only mentioned as the film's version, with no primary source); the Mercedes as a real car (it was a toy); Jordan's 28.2 ppg (c23 unverified); Strasser leaving in 1987 (c45 1987 part unverified).
+**Deliberately left out:** Falk's "Phil almost had a heart attack" (single-source anecdote); "Red... the color of the devil" (apocryphal); Shoe Dog "five-star general" (unverified); Vaccaro's "We bet it all" and "savior of Nike" (disputed/heated); the $250,000 budget figure (no primary source; not stated on air); the Mercedes as a real car (it was a toy); Jordan's 28.2 ppg (c23 unverified); Strasser leaving in 1987 (c45 1987 part unverified).
 
 **Fairness to the decision-maker:** the case for walking away (first quarterly loss, Reebok rising, no NBA game played, Jordan preferred Adidas and wore Converse, three times the record, a higher cash bid elsewhere) comes before the case for signing (you can't beat the leader by copying it, a downside under 0.1% of sales, profit still above $40M, the performance exit). Converse and Adidas are not mocked.
