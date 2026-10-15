@@ -1,6 +1,7 @@
 import React from 'react';
 import {C, FONT_MONO, STROKE, colourOf} from '../constants';
 import {c01, easeInOut, fitText, frac, useT} from '../illustrations/kit';
+import {COSTUMES, Hat, HeldProp, type RigGeo, resolveCostume, resolveHat, resolveHold} from './Costumes';
 
 /**
  * Faceless character rig (house style: flat silhouette, 3px outlines, no face, no likeness).
@@ -8,6 +9,7 @@ import {c01, easeInOut, fitText, frac, useT} from '../illustrations/kit';
  * Angles in degrees. Limbs: 0 = pointing straight down, +90 = pointing to the right ("forward"), 180 = up.
  * Elbow / knee angles are relative to the upper bone. torso / head: lean, positive = to the right.
  * y moves the pelvis down (+) or up (-) in px; sh raises the shoulders (shrug) in px.
+ * Costumes, hats and held props are overlay groups from Costumes.tsx (docs/library/characters.md).
  */
 export type Joints = {
   torso: number;
@@ -104,6 +106,8 @@ export const POSES: Record<string, PoseDef> = {
   },
   wave: {description: 'waving hello', dur: 0.8, loop: true, keys: [J({rsh: 150, rel: 25}), J({rsh: 150, rel: -25})]},
   talk: {description: 'talking with one hand gesturing', dur: 1.4, loop: true, keys: [J({rsh: 40, rel: 50}), J({rsh: 52, rel: 72, head: 3}), J({rsh: 44, rel: 58})]},
+  phone: {description: 'on the phone: hand at the ear (holds a handset unless hold is set)', dur: 2.6, loop: true, armsFront: true, keys: [J({rsh: 132, rel: 119, head: -4}), J({rsh: 132, rel: 119, head: -1, lsh: -12, lel: 20})]},
+  protest: {description: 'holding a placard up (holds placard + holdText unless hold is set)', dur: 1.2, loop: true, keys: [J({rsh: 170, rel: -6, lsh: -8}), J({rsh: 166, rel: -10, lsh: -8, y: -3})]},
 };
 
 const ALIASES: Record<string, string> = {
@@ -118,6 +122,10 @@ const ALIASES: Record<string, string> = {
   surprised: 'shock',
   'walk-cycle': 'walk',
   'run-cycle': 'run',
+  'on-phone': 'phone',
+  call: 'phone',
+  'hold-sign': 'protest',
+  sign: 'protest',
 };
 
 export const POSE_NAMES = Object.keys(POSES);
@@ -163,10 +171,21 @@ const Limb: React.FC<{d: string; c: string; edge: string; w?: number}> = ({d, c,
 export type CharacterProps = {
   pose?: string;
   colour?: string;
+  /** costume id (plain | suit | toga | tunic | merchant | victorian | twenties | fifties | dress | eighties | casual | hoodie | future | worker | labcoat | royal | trenchcoat) or an era alias */
   costume?: string;
+  /** era alias used when costume is not set (ancient, medieval, golden-age, industrial, deco, diner, neon, cubicle, open-plan, modern, future ...) */
+  era?: string;
+  /** 'auto' (default: the costume's hat) | 'none' | a hat id */
+  hat?: string;
+  /** prop in the right hand: briefcase | phone | smartphone | newspaper | coffee | moneybag | pen | contract | placard | none */
+  hold?: string;
+  /** prop in the left hand (same ids) */
+  holdLeft?: string;
+  /** text on a placard */
+  holdText?: string;
   label?: string;
   flip?: boolean;
-  /** animation speed multiplier (1 = normal) */
+  /** animation speed multiplier (1 = normal, 0 = frozen) */
   speed?: number;
   /** time offset in seconds, so a crowd of characters does not move in sync */
   phase?: number;
@@ -179,9 +198,9 @@ export type CharacterProps = {
 /**
  * Character: the animated faceless figure. 200x400 like Person, feet at y=386.
  * pose: stand | walk | run | sit | type | point | shrug | facepalm | celebrate | slump | arms-crossed | handshake |
- * applause | thinking | shock | wave | talk. costume: plain | suit (more in CHARACTERS-2). flip mirrors it.
+ * applause | thinking | shock | wave | talk | phone | protest. flip mirrors it (placard text stays readable).
  */
-export const Character: React.FC<CharacterProps> = ({pose, colour, costume = 'plain', label, flip, speed = 1, phase = 0, blendSec = 0.4, joints}) => {
+export const Character: React.FC<CharacterProps> = ({pose, colour, costume, era, hat, hold, holdLeft, holdText, label, flip, speed = 1, phase = 0, blendSec = 0.4, joints}) => {
   const t = useT();
   const name = resolvePose(pose);
   const def = POSES[name];
@@ -192,6 +211,10 @@ export const Character: React.FC<CharacterProps> = ({pose, colour, costume = 'pl
   const c = colourOf(colour, C.board);
   const edge = c === C.board ? C.grey : C.board;
   const legC = c === C.board ? C.grey : C.board;
+  const cos = COSTUMES[resolveCostume(costume, era)];
+  const hatId = resolveHat(hat === undefined || hat === 'auto' ? cos.hat : hat);
+  const holdR = resolveHold(hold !== undefined ? hold : name === 'phone' ? 'phone' : name === 'protest' ? 'placard' : cos.hold);
+  const holdL = resolveHold(holdLeft);
 
   const P: Pt = [100, 250 + j.y];
   const S0 = addUp(P, j.torso, 130);
@@ -213,34 +236,36 @@ export const Character: React.FC<CharacterProps> = ({pose, colour, costume = 'pl
   const H = addUp(S0, j.torso + j.head, 62);
 
   const top = P[1] - 138 - j.sh * 0.7;
+  const g: RigGeo = {P, top, torso: j.torso, head: j.head, H, haL, haR, c, edge, sitting: j.lhip > 45 && j.rhip > 45, flip: !!flip};
+  const rot = `rotate(${j.torso.toFixed(2)} ${P[0]} ${P[1].toFixed(1)})`;
+
+  const behind = cos.behind ? <g transform={rot}>{cos.behind(g)}</g> : null;
   const torso = (
-    <g transform={`rotate(${j.torso.toFixed(2)} ${P[0]} ${P[1].toFixed(1)})`}>
+    <g transform={rot}>
       <path d={`M58 ${top.toFixed(1)} Q100 ${(top - 20).toFixed(1)} 142 ${top.toFixed(1)} L150 ${(P[1] + 8).toFixed(1)} L50 ${(P[1] + 8).toFixed(1)} Z`} fill={c} stroke={edge} strokeWidth={STROKE} strokeLinejoin="round" />
-      {costume === 'suit' ? (
-        <g>
-          <path d={`M84 ${(top - 2).toFixed(1)} L100 ${(top + 30).toFixed(1)} L116 ${(top - 2).toFixed(1)} Z`} fill={C.paper} stroke={edge} strokeWidth={STROKE} strokeLinejoin="round" />
-          <path
-            d={`M95 ${(top + 6).toFixed(1)} L105 ${(top + 6).toFixed(1)} L103 ${(top + 22).toFixed(1)} L109 ${(top + 72).toFixed(1)} L100 ${(top + 84).toFixed(1)} L91 ${(top + 72).toFixed(1)} L97 ${(top + 22).toFixed(1)} Z`}
-            fill={c === C.ink ? C.stamp : C.ink}
-            stroke={C.board}
-            strokeWidth={STROKE}
-            strokeLinejoin="round"
-          />
-        </g>
-      ) : null}
+      {cos.torso ? cos.torso(g) : null}
     </g>
   );
   const arms = (
     <g>
       <Limb d={path([shL, elL, haL])} c={c} edge={edge} />
       <Limb d={path([shR, elR, haR])} c={c} edge={edge} />
+      {holdL ? <HeldProp id={holdL} at={haL} g={g} text={holdText} /> : null}
+      {holdR ? <HeldProp id={holdR} at={haR} g={g} text={holdText} /> : null}
     </g>
   );
-  const head = <circle cx={H[0]} cy={H[1]} r={36} fill={c} stroke={edge} strokeWidth={STROKE} />;
+  const head = (
+    <g>
+      {cos.headBack ? cos.headBack(g) : null}
+      <circle cx={H[0]} cy={H[1]} r={36} fill={c} stroke={edge} strokeWidth={STROKE} />
+      {hatId ? <Hat id={hatId} g={g} /> : null}
+    </g>
+  );
 
   return (
     <svg width={200} height={400} viewBox="0 0 200 400" overflow="visible">
       <g transform={flip ? 'translate(200 0) scale(-1 1)' : undefined}>
+        {behind}
         <Limb d={path([hipL, knL, ftL])} c={legC} edge={C.board} w={30} />
         <Limb d={path([hipR, knR, ftR])} c={legC} edge={C.board} w={30} />
         {torso}

@@ -1,1 +1,1 @@
-iteration 23b - 2026-10-15T04:12:00+02:00 - MOODS-1 (shot framework + 9 funny shots, scene kind 'shot', preview-moods.mp4) + schema/render wiring
+iteration 24 - 2026-10-15T04:45+02:00 - CHARACTERS-2/3: costumes, hats, held props, Crowd2, CharacterPreview
