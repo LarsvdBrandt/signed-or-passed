@@ -7,7 +7,10 @@
   "music": {"mood": "tense", "era": "modern", "source": "generated", "stingers": true},
   "captionStyle": "bold-pop",
   "captions": {"long": "keywords"},
+  "brandIntro": {"durationSec": 1.2},
+  "nextTeaser": {"title": "The test offer that nobody signed", "kicker": "Next story", "verdict": "PASSED"},
   "scenes": [
+    {"id": "s00", "kind": "counter", "coldOpen": {"label": "LATER", "rampSec": 0.7}, "narration": "One test offer. **One million** placeholder dollars. And somebody said no.", "visual": {"from": 0, "to": 1000000, "unit": "$", "style": "money", "label": "Flash-forward test", "sourceId": "src1"}, "beats": [{"do": "punch-in", "at": "no"}]},
     {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory, version two.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test · v2.2"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
     {"id": "s01b", "kind": "chapter", "narration": "Chapter one. The test offer.", "visual": {"number": 1, "title": "The test offer", "label": "Chapter"}, "sfx": "paper"},
     {"id": "s02", "kind": "map", "narration": "The globe turns and zooms into a test country, then draws a test route to a second port.", "visual": {"focus": "NLD", "focusLabel": "Netherlands", "zoomTo": "city", "city": {"name": "Amsterdam", "lat": 52.37, "lon": 4.9}, "pins": [{"lat": 52.37, "lon": 4.9, "label": "Amsterdam"}, {"lat": -6.2, "lon": 106.8, "label": "Jakarta"}], "arrows": [{"from": "Amsterdam", "to": "Jakarta"}]}, "transition": "whip-pan", "sfx": "whoosh", "sfxCues": [{"sfx": "ship_horn", "atSec": 6.0, "gainDb": -4}], "minDurationSec": 9},
@@ -67,7 +70,7 @@
       ]}, "sfx": "whoosh"},
       {"id": "sh2", "kind": "question", "narration": "Would you sign?", "visual": {"question": "Sign the test deal?", "options": ["SIGN", "PASS"], "holdSec": 3}, "sfxCues": [{"sfx": "drum_roll", "atSec": 0.8, "gainDb": -6}]},
       {"id": "sh3", "kind": "document", "narration": "The test contract is written up, and signed.", "visual": {"title": "TEST DEAL", "lines": ["Test terms.", "Test price.", "Test date."], "verdict": "SIGNED", "party": "Test Company"}, "sfx": "pen", "minDurationSec": 4},
-      {"id": "sh4", "kind": "verdict", "narration": "Signed.", "visual": {"verdict": "SIGNED"}, "effects": ["confetti"], "sfx": "pen", "sfxCues": [{"sfx": "applause", "atSec": 1.2, "gainDb": -10}], "minDurationSec": 3}
+      {"id": "sh4", "kind": "verdict", "narration": "Signed.", "visual": {"verdict": "SIGNED"}, "effects": ["paper-scraps"], "sfx": "pen", "sfxCues": [{"sfx": "applause", "atSec": 1.2, "gainDb": -10}], "minDurationSec": 3}
     ]}
   ]
 }

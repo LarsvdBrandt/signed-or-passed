@@ -27,6 +27,14 @@
     "captions": {"type": "object", "description": "long-form captions (docs/library/retention.md); Shorts keep their word-by-word captions", "properties": {"long": {"enum": ["keywords", "full", "off"], "description": "keywords (default): numbers, amounts, years and **emphasis** as big kinetic text; full: word-by-word captions; off"}, "style": {"type": ["string", "null"], "description": "keywords: stamp | ink | board (default: stamp for emphasis, board for numbers); full: a captionStyle"}}, "additionalProperties": false},
     "autoBeats": {"type": "boolean", "description": "auto camera beats for scenes without beats (default true)"},
     "sfxDensity": {"enum": ["low", "mid", "high"], "description": "automatic beat sounds (whoosh on punch/whip, pop on kinetic/pop/emphasis, tick on counters), well under the voice; default mid (docs/library/retention.md)"},
+    "brandIntro": {
+      "description": "RETENTION-3: the logo sting of the main video. Default (absent or {}) = 1.2 s right AFTER the hook (the first scene that is not coldOpen), never before it. false = no sting (docs/library/retention.md).",
+      "oneOf": [
+        {"const": false},
+        {"type": "object", "additionalProperties": false, "properties": {"enabled": {"type": "boolean", "description": "false = no sting"}, "after": {"type": ["string", "null"], "description": "scene id after which the sting plays; null/absent = after the first scene that is not coldOpen"}, "durationSec": {"type": "number", "minimum": 0.6, "maximum": 1.5, "description": "sting length, default 1.2 s"}}}
+      ]
+    },
+    "nextTeaser": {"type": "object", "additionalProperties": false, "required": ["title"], "description": "RETENTION-3: 'next story' teaser on the 6 s end card of the main video", "properties": {"title": {"type": "string", "minLength": 1, "maxLength": 90, "description": "title of the next video"}, "kicker": {"type": "string", "maxLength": 40, "description": "small label above the title; default 'NEXT STORY'"}, "verdict": {"enum": ["SIGNED", "PASSED"], "description": "optional stamp next to the title"}}},
     "captionStyle": {
       "enum": ["bold-pop", "karaoke-highlight", "boxed", "minimal", null],
       "description": "burned-in Shorts captions (render/src/typography/captions.tsx, docs/library/typography.md); omit for the theme's own caption style"
@@ -213,6 +221,13 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
+        "coldOpen": {
+          "description": "RETENTION-3: cold open / flash-forward (the payoff teased before the story starts; put it FIRST, the brand sting follows the hook after it). true or {style, label, rampSec, desaturate, flash}: speed-ramp in, desaturated look that returns to colour, flash frame + whoosh at the end.",
+          "oneOf": [
+            {"type": "boolean"},
+            {"type": "object", "additionalProperties": false, "properties": {"style": {"enum": ["flash-forward", "clean"], "description": "flash-forward (default): desaturated, back to colour before the flash; clean: full colour"}, "label": {"type": "string", "maxLength": 24, "description": "small tag top-left, e.g. '2010' or 'LATER'"}, "rampSec": {"type": "number", "minimum": 0, "maximum": 2, "description": "speed-ramp at the start (fast -> normal), default 0.7 s; 0 = off"}, "desaturate": {"type": "number", "minimum": 0, "maximum": 1, "description": "0..1, default 0.85 (flash-forward) / 0 (clean)"}, "flash": {"type": "boolean", "description": "white flash frame at the end, default true"}}}
+          ]
+        },
         "kind": {"enum": ["title", "illustration", "template", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1, "description": "spoken text; '[pause 0.5]' inserts 0.5 s of silence ('[PAUSE]' = 0.5 s; not spoken, not captioned); '**word**' marks an emphasised word or phrase: spoken normally, shown as a big kinetic keyword timed to the word (docs/library/retention.md)"},
         "voiceSpeed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "overrides voice.speed for this scene"},
