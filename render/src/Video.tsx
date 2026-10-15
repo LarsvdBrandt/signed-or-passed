@@ -15,6 +15,9 @@ import {IllustrationScene, motionOf} from './scenes/IllustrationScene';
 import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWallScene, SplitFlapScene, VersusScene} from './scenes/MotionScenes';
 import {ShotScene} from './scenes/ShotScene';
 import {InfographicScene} from './infographics';
+import {KineticTextScene} from './typography';
+import {ChapterScene, LowerThird} from './typography/overlays';
+import {StyledCaptions} from './typography/captions';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 import {EffectsStack, resolveEffects} from './effects';
@@ -36,6 +39,10 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
       return v.style === 'money' ? <MoneyCounterScene scene={scene} ctx={ctx} /> : <CounterScene scene={scene} ctx={ctx} />;
     case 'infographic':
       return <InfographicScene scene={scene} ctx={ctx} />;
+    case 'kinetic-text':
+      return <KineticTextScene scene={scene} ctx={ctx} />;
+    case 'chapter':
+      return <ChapterScene scene={scene} ctx={ctx} />;
     case 'timeline':
       return <TimelineScene scene={scene} ctx={ctx} />;
     case 'map':
@@ -107,7 +114,8 @@ export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> =
 
 /**
  * One scene on its paper sheet: entering transition (scenes[].transition / spec.transition, render/src/transitions),
- * the exit move of the next scene's transition, theme filter, camera move, then the effects (spec.look + scenes[].effects).
+ * the exit move of the next scene's transition, theme filter, camera move, the lower third (scenes[].lowerThird,
+ * not moved by the camera), then the effects (spec.look + scenes[].effects).
  */
 const SceneFrame: React.FC<{scene: Scene; prev?: Scene; enter: ResolvedTransition | null; exit: ResolvedTransition | null; ctx: VideoProps}> = ({scene, prev, enter, exit, ctx}) => (
   <TransitionLayer enter={enter} exit={exit} exitAt={scene.durationFrames} seed={scene.id}>
@@ -116,6 +124,7 @@ const SceneFrame: React.FC<{scene: Scene; prev?: Scene; enter: ResolvedTransitio
         <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
           <SceneContent scene={scene} prev={prev} ctx={ctx} />
         </Camera>
+        {scene.lowerThird ? <LowerThird lt={scene.lowerThird} duration={scene.durationFrames} /> : null}
       </AbsoluteFill>
     </EffectsStack>
   </TransitionLayer>
@@ -165,7 +174,7 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
       <ThemeOverlay />
       {inBody ? <DateTag scenes={scenes} /> : null}
       {inBody ? <Watermark /> : null}
-      {props.format === 'short' ? <Captions words={props.words} /> : null}
+      {props.format === 'short' ? props.captionStyle ? <StyledCaptions words={props.words} captionStyle={props.captionStyle} /> : <Captions words={props.words} /> : null}
     </AbsoluteFill>
   );
 };
