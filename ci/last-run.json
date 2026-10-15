@@ -1,13 +1,6 @@
 {
-  "status": "success",
-  "jobStatus": "success",
-  "triggerSha": "0d36871b6f1881f9d5708542ee64151bbec5327b",
-  "slug": "voice-test-vt2",
-  "slugs": [
-    "voice-test-2"
-  ],
-  "finishedAt": "2026-10-15T18:20:05+00:00",
-  "failedStep": null,
-  "failedSlugs": [],
-  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38779110526"
+  "status": "running",
+  "triggerSha": "f613804fca43f9f77bb4de7958687603519fffef",
+  "startedAt": "2026-10-15T18:57:29Z",
+  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38787668468"
 }
