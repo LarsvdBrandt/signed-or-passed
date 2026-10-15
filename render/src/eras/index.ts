@@ -5,6 +5,8 @@ import {CanalHouse, Compass, Fluyt, Globe, GoldenAgeBackdrop, Ledger, SpiceSacks
 import {FactoryGate, GasLamp, IndustrialBackdrop, PennyFarthing, PocketWatch, SteamEngine, TelegraphKey, TopHat} from './Industrial';
 import {Breadline, CathedralRadio, CocktailGlass, DecoBackdrop, Gramophone, NewsboyCap, TickerTape, VintageCar} from './Twenties';
 import {DinerBackdrop, FinCar, Jukebox, Milkshake, RocketToy, RotaryPhone, TVSet, Typewriter} from './Fifties';
+import {ArcadeCabinet, Boombox, Calculator, Cassette, CRTTV, Mainframe, NeonBackdrop, PersonalStereo} from './Eighties';
+import {BeigePC, CDROM, ComputerMouse, CubicleBackdrop, DialUpModem, EarlyWebsite, Pager, ServerRack} from './Nineties';
 
 /**
  * ERA PACKS. Each era = a backdrop + a list of props (illustration components) + typography hints.
@@ -73,9 +75,27 @@ export const ERA_ILLUSTRATIONS: Record<string, EraIll> = {
   Typewriter: {C: Typewriter, w: 420, h: 320, enter: 'pop', group: 'era:fifties'},
   RocketToy: {C: RocketToy, w: 260, h: 400, enter: 'slide-up', group: 'era:fifties'},
   Milkshake: {C: Milkshake, w: 200, h: 340, enter: 'drop', group: 'era:fifties'},
+  // 1970s - 80s
+  NeonBackdrop: {C: NeonBackdrop, w: 1920, h: 1080, enter: 'none', group: 'era:eighties'},
+  ArcadeCabinet: {C: ArcadeCabinet, w: 320, h: 520, enter: 'slide-up', group: 'era:eighties'},
+  Cassette: {C: Cassette, w: 360, h: 240, enter: 'pop', group: 'era:eighties'},
+  CRTTV: {C: CRTTV, w: 380, h: 340, enter: 'pop', group: 'era:eighties'},
+  Boombox: {C: Boombox, w: 520, h: 300, enter: 'slide-left', group: 'era:eighties'},
+  Calculator: {C: Calculator, w: 240, h: 360, enter: 'pop', group: 'era:eighties'},
+  Mainframe: {C: Mainframe, w: 520, h: 420, enter: 'slide-up', group: 'era:eighties'},
+  PersonalStereo: {C: PersonalStereo, w: 260, h: 320, enter: 'drop', group: 'era:eighties'},
+  // 1990s dotcom
+  CubicleBackdrop: {C: CubicleBackdrop, w: 1920, h: 1080, enter: 'none', group: 'era:nineties'},
+  BeigePC: {C: BeigePC, w: 420, h: 420, enter: 'slide-up', group: 'era:nineties'},
+  DialUpModem: {C: DialUpModem, w: 380, h: 230, enter: 'pop', group: 'era:nineties'},
+  CDROM: {C: CDROM, w: 320, h: 320, enter: 'pop', group: 'era:nineties'},
+  Pager: {C: Pager, w: 280, h: 210, enter: 'drop', group: 'era:nineties'},
+  EarlyWebsite: {C: EarlyWebsite, w: 560, h: 420, enter: 'pop', group: 'era:nineties'},
+  ServerRack: {C: ServerRack, w: 300, h: 500, enter: 'slide-up', group: 'era:nineties'},
+  ComputerMouse: {C: ComputerMouse, w: 220, h: 300, enter: 'drop', group: 'era:nineties'},
 };
 
-export const ERA_BACKDROPS: Record<string, React.FC<any>> = {AncientBackdrop, MedievalBackdrop, GoldenAgeBackdrop, IndustrialBackdrop, DecoBackdrop, DinerBackdrop};
+export const ERA_BACKDROPS: Record<string, React.FC<any>> = {AncientBackdrop, MedievalBackdrop, GoldenAgeBackdrop, IndustrialBackdrop, DecoBackdrop, DinerBackdrop, NeonBackdrop, CubicleBackdrop};
 
 export type EraDef = {
   id: string;
@@ -161,6 +181,28 @@ export const ERA_LIST: EraDef[] = [
     notes: 'Post-war boom: diners, TV, suburbs, the space race. Generic cars and TV sets; no real brands or logos.',
   },
   {
+    id: 'eighties',
+    name: '1970s - 80s',
+    years: '1970 - 1989',
+    backdrop: 'NeonBackdrop',
+    props: ['ArcadeCabinet', 'Cassette', 'CRTTV', 'Boombox', 'Calculator', 'Mainframe', 'PersonalStereo', 'VHSTape', 'FloppyDisk', 'StockBoard'],
+    dateTag: 'Oct 1987',
+    theme: 'synthwave',
+    musicEra: 'synth',
+    notes: 'Arcades, mixtapes, mainframes, Black Monday. Screens show generic pixel blocks; no real games, consoles or brands.',
+  },
+  {
+    id: 'nineties',
+    name: '1990s dotcom',
+    years: '1990 - 2001',
+    backdrop: 'CubicleBackdrop',
+    props: ['BeigePC', 'DialUpModem', 'CDROM', 'Pager', 'EarlyWebsite', 'ServerRack', 'ComputerMouse', 'FloppyDisk', 'DVD', 'StockBoard'],
+    dateTag: 'Mar 2000',
+    theme: 'signed-or-passed',
+    musicEra: 'electronic',
+    notes: 'Cubicles, dial-up, homepages, the dotcom bubble. Fictional web addresses (example.com); no real browsers, OS or company names.',
+  },
+  {
     id: 'modern',
     name: 'Modern',
     years: '2000 - today',
@@ -169,7 +211,7 @@ export const ERA_LIST: EraDef[] = [
     dateTag: '2024',
     theme: 'signed-or-passed',
     musicEra: 'modern',
-    notes: 'Core components; the 1970s-90s, 2000s and future packs follow in ERAS-5/6.',
+    notes: 'Core components; the 2000s and future packs follow in ERAS-6.',
   },
 ];
 
