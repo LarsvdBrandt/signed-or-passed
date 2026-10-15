@@ -271,11 +271,11 @@
       }
     },
     "vCounter": {"type": "object", "required": ["from", "to", "sourceId"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}, "style": {"enum": ["plain", "money"], "description": "money = banknotes pile up while the number runs"}, "label": {"type": "string"}}},
-    "infographicType": {"enum": ["bar-race", "line-annotated", "pie", "donut", "stacked-area", "ranking", "ticker", "percent-ring"]},
+    "infographicType": {"enum": ["bar-race", "line-annotated", "pie", "donut", "stacked-area", "ranking", "ticker", "percent-ring", "bubble", "comparison-table", "calendar-heatmap", "map-choropleth", "money-stacks", "what-could-buy"]},
     "vInfographic": {
       "type": "object",
       "required": ["type", "data"],
-      "description": "animated infographic from render/src/infographics (docs/library/infographics.md). Data types need a sourceId (validate_spec.py). data per type: bar-race {periods[], series[{label, values[], colour?}], top?}; line-annotated {points[{label, value}], annotations?[{at: index|label, text}]}; pie / donut {slices[{label, value, colour?}], highlight?, centerText?, centerLabel?, showValues?}; stacked-area {labels[], series[{label, values[], colour?}]}; ranking {items[{label, value?, note?}], order?: top-down|countdown}; ticker {from, to, decimals?, label?}; percent-ring {rings[{label, value 0-100, colour?}]} or {value, label}",
+      "description": "animated infographic from render/src/infographics (docs/library/infographics.md). Data types need a sourceId (validate_spec.py). data per type: bar-race {periods[], series[{label, values[], colour?}], top?}; line-annotated {points[{label, value}], annotations?[{at: index|label, text}]}; pie / donut {slices[{label, value, colour?}], highlight?, centerText?, centerLabel?, showValues?}; stacked-area {labels[], series[{label, values[], colour?}]}; ranking {items[{label, value?, note?}], order?: top-down|countdown}; ticker {from, to, decimals?, label?}; percent-ring {rings[{label, value 0-100, colour?}]} or {value, label}; bubble {bubbles[{label, value, colour?}]}; comparison-table {columns[], rows[{label, values[number|string|true|false|null]}], highlight?}; calendar-heatmap {start: YYYY-MM-DD, values[]} or {days[{date, value}]}, colour?, showTotal?; map-choropleth {values[{country: ISO3|name, value}], region?, bins?, colour?, legend?, showValues?}; money-stacks {items[{label, value, colour?}]}; what-could-buy {amount, price, item, icon?: box|house|car|person|coin|bag, max?, colour?}",
       "properties": {
         "type": {"$ref": "#/$defs/infographicType"},
         "title": {"type": "string", "description": "kicker top-left (default scene.onScreenText)"},

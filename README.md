@@ -18,6 +18,8 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
    - **`preview-eras.mp4`**: every era pack: backdrop, all props and a small composed scene (silent)
    - **`preview-characters.mp4`**: the character rig: poses, costumes, hats, held props and Crowd2 (silent)
    - **`preview-moods.mp4`**: every mood shot with its id and mood (silent)
+   - **`preview-effects.mp4`**: every effect, look preset and particle overlay (silent)
+   - **`preview-transitions.mp4`**: every transition and the parallax rig (silent)
    - **`sound-board.mp4`**: every sound of the sound library, with its name and category (with audio)
    - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + licence information
 4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`
@@ -36,12 +38,16 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
 | `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library |
-| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `SoundBoard` |
+| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `EffectPreview`, `TransitionPreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
 | `render/src/characters/` | the character rig: poses, era costumes, hats, held props, Crowd2 |
 | `render/src/eras/` | era packs (backdrop + props per period, see Eras) |
 | `render/src/moods/` | mood shots (scene kind `shot`, see Mood shots) |
+| `render/src/effects/` | overlay effects, look presets and seeded particles (see Effects) |
+| `render/src/transitions/` | scene transitions and the parallax rig (see Effects) |
+| `render/src/infographics/` | animated infographics (scene kind `infographic`, see Infographics) |
+| `render/src/geo/` | shared Natural Earth helpers (country lookup, region boxes) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
 | `render/src/themes/` | theme engine and presets (see Themes) |
 | `ci/` | step runner, per-production render script, start marker, finalize script, result push, last-run files, trigger |
@@ -102,6 +108,29 @@ newspaper, coffee, moneybag, pen, contract, placard with `holdText`). `Crowd2` g
 (`count`, `seed`, `costumes`, `era`, `colours`, `poses`, `rows`). No likeness of real people: identity comes from a
 NameCard and typography only. Full prop list: `docs/library/characters.md`; preview: `preview-characters.mp4`.
 
+## Effects, looks and transitions
+All overlays are code (SVG filters, seeded particles): no stock footage, nothing to license. Catalogue with params:
+`docs/library/effects.md`; previews: `preview-effects.mp4` and `preview-transitions.mp4`.
+- **Effects** (`scenes[].effects`, or globally via `spec.look`): film-grain, old-film, vignette, light-leaks, vhs,
+  glitch, chromatic-aberration, ink-bleed, paper-texture, camera-shake, gate-weave, depth-of-field, zoom-blur.
+  Each takes `{id, intensity 0-3, params}`; intensity 0 switches a look effect off for one scene.
+- **Particles** (same field): confetti, dust, smoke, rain, snow, embers (+ fire), sparkles, money-rain,
+  paper-scraps. Seeded, so every render is identical.
+- **Looks** (`spec.look`): clean, archival, newsreel, documentary, cinematic, vhs, glitchy, print, handmade, dreamy,
+  winter, rainy, celebration, smoky (presets of the effects above).
+- **Transitions** (`spec.transition` default, `scenes[].transition` into one scene; string or
+  `{id, durationSec, params}`): paper-slide (house default), cut, fade, push, page-curl, whip-pan, iris-in, iris-out,
+  wipe-left/right/up/down, diagonal-wipe, clock-wipe, barn-door, ink-splash, stamp-cut, film-burn, glitch-cut,
+  zoom-through, flash.
+- **Parallax rig** (`scene.motion` on illustration scenes): parallax, parallax-left/right/up/down, parallax-dolly,
+  parallax-orbit; each layer moves by its `depth`.
+
+## Infographics (scene kind `infographic`)
+14 animated data graphics: bar-race, line-annotated, pie, donut, stacked-area, ranking, ticker (odometer),
+percent-ring, bubble, comparison-table, calendar-heatmap, map-choropleth (Natural Earth, public domain), money-stacks
+and what-could-buy. `visual = {type, title?, unit?, sourceId, data}`; every data type needs a `sourceId` and shows
+"Source: ...". Data per type and how to add one: `docs/library/infographics.md`.
+
 ## Sound library
 - **Procedural**: 52 sound effects synthesised with numpy/ffmpeg (office, money, transitions, UI, impacts, crowd,
   tech, ambience, transport, cartoon, music), CC0 by construction, loudness-normalised (`pipeline/sfxlib.py`).
@@ -131,6 +160,7 @@ No faces, no logos, company names as typography only.
 | `evidence` | `{assetId, caption}` public-domain image in a file frame, Ken Burns |
 | `chart` | `{type: bar\|line, series[{label,value}], unit, sourceId}`; `line` draws itself with a moving value label |
 | `counter` | `{from, to, unit, sourceId, style?: plain\|money, label?}`; `money` piles up banknotes |
+| `infographic` | `{type, title?, unit?, sourceId, data}` (see Infographics) |
 | `timeline` | `{events[{date,label}]}` |
 | `map` | WorldZoom v2: `{focus (ISO3), focusLabel, zoomTo: country\|city\|none, city{name,lat,lon}, highlight[], globe, pins[], arrows[{from,to}]}` - globe spin, zoom to country/city, great-circle arrows |
 | `city` | `{era: 1900s\|1950s\|modern, density: low\|medium\|high, label?, night?}` - skyline builds itself |
@@ -145,13 +175,15 @@ No faces, no logos, company names as typography only.
 | `reveal`, `lesson` | `{text}` |
 | `verdict` | `{verdict}` - SIGNED signature (pen sfx) or PASSED stamp (stamp sfx) |
 
-Every chart, counter, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId` is set.
+Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
+is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec` and `dateTag`.
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
 `enter` = pop | fade | slide-up | slide-down | slide-left | slide-right | drop | none.
-`scene.motion` = `push-in` | `pull-out` | `pan` | `pan-left` | `pan-right` | `parallax`, or `{type, strength (0-3)}`.
-`parallax` (illustration scenes) moves each layer by its `depth` (0 = far, 1 = foreground; default by layer order).
+`scene.motion` = `push-in` | `pull-out` | `pan` | `pan-left` | `pan-right` | `parallax` (+ variants, see Effects), or
+`{type, strength (0-3)}`. `parallax` (illustration scenes) moves each layer by its `depth` (0 = far, 1 = foreground;
+default by layer order).
 
 ### Components (render/src/illustrations)
 Every component has an entrance animation (via `enter`) and small idle animations. Colours: brand names
@@ -174,8 +206,8 @@ Every component has an entrance animation (via `enter`) and small idle animation
 ## Timing
 Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.35 s, 0.25 s between
 sentences, 0.45 s tail; question scenes add `holdSec` (3-2-1 countdown); verdict scenes last at least 2.8 s;
-`minDurationSec` extends a scene (use it for map, city, growth, photo-wall and document scenes). Each new scene
-slides in like a sheet of paper (12 frames).
+`minDurationSec` extends a scene (use it for map, city, growth, photo-wall, document and infographic scenes). Each new
+scene slides in like a sheet of paper (12 frames) unless a `transition` is set.
 
 ## QA (render-report.json)
 Duration (long 8-12 min, short 45-60 s; `0000-*` test productions are exempt), resolution, audio present,
@@ -190,7 +222,7 @@ phone-verified channel.
 ## Music
 Add tracks to `brand/music/licenses.csv` (`file,url,title,artist,source,license,attribution_text,mood`). Only use
 licences that allow monetised YouTube use; credits are added to the description automatically. Without tracks, videos
-are rendered without music (warning in render-report.json).
+are rendered without music (warning in render-report.json). (Generated CC0 music beds are planned: MUSIC-1..3.)
 
 ## Local use
 `make install`, `make render SLUG=0000-sample`, `make studio` (Remotion Studio with the Preview composition).
