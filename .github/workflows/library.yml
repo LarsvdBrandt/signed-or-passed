@@ -1,0 +1,99 @@
+name: library
+
+# Renders the whole motion-graphics + audio library (every preview video, the sound / music / voice boards and
+# their zips: ci/render-library.sh) into the release 'library'. Separate from render.yml so that productions
+# never wait for it. Start it from the Actions tab or by pushing ci/library-trigger.txt.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ci/library-trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: library
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SLUGS: library
+      PYTHONUNBUFFERED: '1'
+      HF_HUB_DISABLE_PROGRESS_BARS: '1'
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare log
+        run: |
+          mkdir -p build
+          : > build/ci.log
+          echo "setup" > build/current_step
+          echo library > build/current_slug
+          echo "Library run ${{ github.run_id }} for ${{ github.sha }} (${{ github.event_name }})" | tee -a build/ci.log
+
+      - name: Mark run started
+        continue-on-error: true
+        run: bash ci/started.sh
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: Cache npm and Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/huggingface
+          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt') }}
+          restore-keys: |
+            deps-${{ runner.os }}-
+
+      - name: Install system packages
+        timeout-minutes: 10
+        run: bash ci/run-step.sh setup:apt bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng"
+
+      - name: Install Python packages
+        timeout-minutes: 15
+        run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt"
+
+      - name: Install Remotion
+        timeout-minutes: 15
+        run: bash ci/run-step.sh setup:npm bash -c "cd render && npm install --no-audit --no-fund && npx remotion browser ensure"
+
+      - name: Render library
+        timeout-minutes: 95
+        run: bash ci/render-library.sh build/library/out
+
+      - name: Release 'library'
+        run: |
+          shopt -s nullglob
+          files=(build/library/out/*.mp4 build/library/out/*.zip build/library/out/*.json)
+          ls -la build/library/out | tee -a build/ci.log
+          bash ci/run-step.sh release:library bash ci/release.sh library "Library: every preview, board and sample" "${files[@]}"
+
+      - name: Finalize (always)
+        if: always()
+        run: bash ci/finalize.sh "${{ job.status }}"

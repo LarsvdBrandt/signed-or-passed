@@ -26,7 +26,7 @@ export const loadFonts = () => {
       return face
         .load()
         .then((loaded) => {
-          document.fonts.add(loaded);
+          (document.fonts as unknown as {add: (f: FontFace) => void}).add(loaded);
         })
         .catch((err) => console.warn('Font failed to load: ' + f.file, err));
     }),

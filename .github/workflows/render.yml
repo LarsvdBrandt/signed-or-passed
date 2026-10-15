@@ -16,48 +16,34 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: render-${{ github.ref }}
-  cancel-in-progress: false
-
+# No workflow-level concurrency: every production renders in its own matrix job with its own concurrency group
+# (render-<slug>), so a real production never waits for the test production or the library, and a newer push
+# can only replace a pending run of the SAME production (which then renders the newer spec).
 defaults:
   run:
     shell: bash
 
 jobs:
-  render:
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      GH_TOKEN: ${{ github.token }}
-      PYTHONUNBUFFERED: '1'
-      HF_HUB_DISABLE_PROGRESS_BARS: '1'
-      DEBIAN_FRONTEND: noninteractive
+    timeout-minutes: 5
+    outputs:
+      slugs: ${{ steps.plan.outputs.slugs }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Prepare log
-        run: |
-          mkdir -p build
-          : > build/ci.log
-          echo "setup" > build/current_step
-          echo "Run ${{ github.run_id }} for ${{ github.sha }} (${{ github.event_name }})" | tee -a build/ci.log
-
-      - name: Mark run started
-        continue-on-error: true
-        run: bash ci/started.sh
-
       - name: Determine productions
+        id: plan
         env:
+          GH_TOKEN: ${{ github.token }}
           EVENT: ${{ github.event_name }}
           INPUT_SLUG: ${{ inputs.slug }}
           BEFORE: ${{ github.event.before }}
           SHA: ${{ github.sha }}
         run: |
-          echo "determine" > build/current_step
           if [ "$EVENT" = "workflow_dispatch" ]; then
             slugs="$INPUT_SLUG"
           else
@@ -78,6 +64,16 @@ jobs:
               [ "$s" = "0000-sample" ] && continue
               st=$(git log -1 --format=%ct -- "$spec")
               rt=$(git log -1 --format=%ct -- "productions/$s/render-report.json")
+              # ci/runs/<slug>.json is committed when a render of that production starts: skip it when a
+              # render already started after the spec was committed (it is running or has already failed)
+              mt=$(git log -1 --format=%ct -- "ci/runs/$s.json")
+              if [ -n "$mt" ] && [ -n "$st" ] && [ "$mt" -ge "$st" ]; then continue; fi
+              # a production that never got its release (e.g. its release step failed) is rendered again once
+              if [ -n "$st" ] && ! gh release view "$s" >/dev/null 2>&1; then
+                echo "Catch-up: $s (no release '$s' yet)"
+                slugs="$slugs $s"
+                continue
+              fi
               if [ -n "$st" ] && { [ -z "$rt" ] || [ "$st" -gt "$rt" ]; }; then
                 echo "Catch-up: $s (spec newer than its render report)"
                 slugs="$slugs $s"
@@ -85,8 +81,46 @@ jobs:
             done
           fi
           slugs=$(for s in $slugs; do echo "$s"; done | sort -u | tr '\n' ' ' | sed 's/ *$//')
-          echo "Productions to render: ${slugs:-none}" | tee -a build/ci.log
-          echo "SLUGS=$slugs" >> "$GITHUB_ENV"
+          echo "Productions to render: ${slugs:-none}"
+          json=$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1:]))' $slugs)
+          echo "slugs=$json" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: plan
+    if: needs.plan.outputs.slugs != '[]' && needs.plan.outputs.slugs != ''
+    name: render ${{ matrix.slug }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        slug: ${{ fromJSON(needs.plan.outputs.slugs) }}
+    concurrency:
+      group: render-${{ matrix.slug }}
+      cancel-in-progress: false
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SLUGS: ${{ matrix.slug }}
+      PYTHONUNBUFFERED: '1'
+      HF_HUB_DISABLE_PROGRESS_BARS: '1'
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare log
+        run: |
+          mkdir -p build
+          : > build/ci.log
+          echo "setup" > build/current_step
+          echo "Run ${{ github.run_id }} for ${{ github.sha }} (${{ github.event_name }})" | tee -a build/ci.log
+
+      - name: Mark run started
+        continue-on-error: true
+        run: bash ci/started.sh
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -111,22 +145,18 @@ jobs:
             deps-${{ runner.os }}-
 
       - name: Install system packages
-        if: env.SLUGS != ''
         timeout-minutes: 10
         run: bash ci/run-step.sh setup:apt bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng"
 
       - name: Install Python packages
-        if: env.SLUGS != ''
         timeout-minutes: 15
         run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt"
 
       - name: Install Remotion
-        if: env.SLUGS != ''
         timeout-minutes: 15
         run: bash ci/run-step.sh setup:npm bash -c "cd render && npm install --no-audit --no-fund && npx remotion browser ensure"
 
       - name: Render
-        if: env.SLUGS != ''
         timeout-minutes: 100
         run: bash ci/render-all.sh
 

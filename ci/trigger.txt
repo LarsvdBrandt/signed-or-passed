@@ -1,1 +1,1 @@
-iteration 34 · 2026-10-15T06:45:00Z · catch-up render of 2026-10-15-blockbuster-passes-on-netflix (lost pending run) + sample with everything since c241eca (templates, music, voices, sample v2.2)
+iteration 38 · 2026-10-15T08:20:00Z · first run of the per-production matrix workflow: sample re-verify (true-peak limiter, dead-air QA, release update in place) + catch-up of 2026-10-15-blockbuster-passes-on-netflix (no release yet)
