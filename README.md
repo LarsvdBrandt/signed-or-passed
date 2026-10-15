@@ -41,10 +41,13 @@ effects, generated music, mix, loudness). No paid APIs, no API keys.
 ## Re-render
 - Edit and push a spec, or
 - Actions > `render` > Run workflow with a slug, or
-- change `ci/trigger.txt` to re-render the test production `0000-sample`.
+- change `ci/trigger.txt` to re-render the test production `0000-sample`, or
+- change `ci/rerender.txt` (one slug per line, `#` comments) to re-render real productions without touching
+  their files (used by the factory after a factory fix; add a new dated comment line to trigger again).
 
-A `plan` job picks the productions (changed specs, `0000-sample` for `ci/trigger.txt`, plus catch-ups) and starts
-one `render <slug>` job per production (max 4 in parallel, `fail-fast: false`). Per production only one job waits
+A `plan` job picks the productions (changed specs, `0000-sample` for `ci/trigger.txt`, the slugs in
+`ci/rerender.txt` when it changed, plus catch-ups) and starts one `render <slug>` job per production (max 4 in
+parallel, `fail-fast: false`). Per production only one job waits
 in the queue: a newer push of the same production replaces its pending job, which then renders the newest spec.
 Every push run also renders each real production whose `spec.json` was committed after its `render-report.json`
 (or that has none yet) or that has no release yet, unless a render of it already started after its spec was
@@ -256,8 +259,9 @@ scene slides in like a sheet of paper (12 frames) unless a `transition` is set.
 
 ## QA (render-report.json)
 Duration (long 8-12 min, short 45-60 s; `0000-*` test productions are exempt), resolution, audio present,
-loudness -14 LUFS +/-1, true peak <= -1 dBTP (0.3 dB codec tolerance), audio/video length match, thumbnail size,
-captions, all sourceIds resolve, question + verdict scenes, >= 3 chapters, synthetic-voice disclosure.
+loudness -14 LUFS +/-1, true peak <= -1 dBTP (0.3 dB codec tolerance), no dead air (silence below -50 dBFS:
+longest < 4 s, total < 5%), audio/video length match, thumbnail size, captions, all sourceIds resolve, question +
+verdict scenes, >= 3 chapters, synthetic-voice disclosure.
 
 ## YouTube upload setup (once)
 Add repository secrets `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` (OAuth client of a Google Cloud project
