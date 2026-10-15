@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "0000-sample",
   "test": true,
-  "generatedAt": "2026-10-15T04:44:45+00:00",
+  "generatedAt": "2026-10-15T05:33:19+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,12 +17,12 @@
     {
       "name": "video.mp4: duration",
       "ok": true,
-      "detail": "106.6s (TEST production: exempt from 480-720s)"
+      "detail": "137.9s (TEST production: exempt from 480-720s)"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 106.57s vs timing 106.57s"
+      "detail": "video 137.87s vs timing 137.87s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -62,7 +62,7 @@
     {
       "name": "short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.5 dBTP"
+      "detail": "-1.4 dBTP"
     },
     {
       "name": "thumbnail.png: 1280x720",
@@ -101,7 +101,7 @@
     }
   ],
   "durations": {
-    "main": 106.57,
+    "main": 137.87,
     "short-s1": 16.0
   },
   "warnings": [
