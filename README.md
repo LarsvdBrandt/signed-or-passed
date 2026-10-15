@@ -16,9 +16,12 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
    - **`preview.mp4`**: contact sheets of the whole illustration library + a demo of every scene kind and brand component (silent)
    - **`preview-themes.mp4`**: the same mini-story in every theme, each followed by a contact sheet of every component in that theme (silent)
    - **`preview-eras.mp4`**: every era pack: backdrop, all props and a small composed scene (silent)
-   - **`sound-board.mp4`**: every sound of the procedural sound library, with its name and category (with audio)
-   - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + `LICENCE.txt` (CC0)
-4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`.
+   - **`preview-characters.mp4`**: the character rig: poses, costumes, hats, held props and Crowd2 (silent)
+   - **`preview-moods.mp4`**: every mood shot with its id and mood (silent)
+   - **`sound-board.mp4`**: every sound of the sound library, with its name and category (with audio)
+   - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + licence information
+4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`
+   (via `ci/push-results.sh`: a plumbing commit on top of the current `main`, so concurrent pushes never conflict).
 5. Uploading to YouTube is **manual**: Actions > `upload` > Run workflow (slug, privacy, optional publishAt).
 
 ## Re-render
@@ -29,17 +32,19 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 ## Repo layout
 | Path | What |
 |---|---|
-| `brand/` | palette, fonts (URLs, OFL), music licences (`licenses.csv`) |
+| `brand/` | palette, fonts (URLs, OFL), music licences (`licenses.csv`), recorded sound manifest (`sfx/manifest.csv`) |
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
-| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py` + `soundboard.py` = sound library |
-| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `SoundBoard` |
+| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library |
+| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
+| `render/src/characters/` | the character rig: poses, era costumes, hats, held props, Crowd2 |
 | `render/src/eras/` | era packs (backdrop + props per period, see Eras) |
+| `render/src/moods/` | mood shots (scene kind `shot`, see Mood shots) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
 | `render/src/themes/` | theme engine and presets (see Themes) |
-| `ci/` | step runner, per-production render script, finalize script, last-run files, trigger |
+| `ci/` | step runner, per-production render script, start marker, finalize script, result push, last-run files, trigger |
 | `docs/` | privacy policy and terms (for the YouTube API audit); `docs/library/` = library catalogues |
 
 ## Brand: intro and outro
@@ -89,10 +94,29 @@ backdrop as `visual.background` and the props as illustration layers.
 
 Props per component (labels, poses, animations) and the rules for adding an era: `docs/library/eras.md`.
 
+## Characters
+The `Character` illustration layer is a faceless rig with 19 animated poses (stand, walk, run, sit, type, point,
+shrug, facepalm, celebrate, slump, arms-crossed, handshake, applause, thinking, shock, wave, talk, phone, protest),
+era costumes (17, or an era alias such as `1920s`), hats (14) and held props (briefcase, phone, smartphone,
+newspaper, coffee, moneybag, pen, contract, placard with `holdText`). `Crowd2` generates a seeded crowd
+(`count`, `seed`, `costumes`, `era`, `colours`, `poses`, `rows`). No likeness of real people: identity comes from a
+NameCard and typography only. Full prop list: `docs/library/characters.md`; preview: `preview-characters.mp4`.
+
 ## Sound library
-52 procedurally synthesised sound effects (office, money, transitions, UI, impacts, crowd, tech, ambience,
-transport, cartoon, music), CC0 by construction, loudness-normalised. Catalogue and usage: `docs/library/sound.md`.
-Productions currently use the four house sounds `pen`, `stamp`, `paper`, `whoosh` via `scenes[].sfx`.
+- **Procedural**: 52 sound effects synthesised with numpy/ffmpeg (office, money, transitions, UI, impacts, crowd,
+  tech, ambience, transport, cartoon, music), CC0 by construction, loudness-normalised (`pipeline/sfxlib.py`).
+- **Recorded**: 17 CC0 / public-domain field recordings from Wikimedia Commons, listed in
+  `brand/sfx/manifest.csv` (file, url, source page, licence, author, attribution). `pipeline/fetch_sfx.py`
+  downloads them in CI and verifies every licence via the MediaWiki API (extmetadata); anything that is not CC0 /
+  Public Domain is rejected and logged (`recorded sfx: N accepted`).
+- Catalogue and usage in specs (`scenes[].sfx`, `scenes[].sfxCues`): `docs/library/sound.md`,
+  `docs/library/sound-usage.md`; listen to everything in `sound-board.mp4`, download it as `sfx-library.zip`.
+
+## Mood shots (scene kind `shot`)
+28 short animated beats (2-5 s) that set an emotion between story scenes, in five moods: funny (9), sad (6),
+tension (5), triumph (5), mystery (3). Example:
+`{"kind": "shot", "visual": {"shot": "Tumbleweed", "props": {"text": "GRAND OPENING"}, "label": "Opening day"}}`.
+Catalogue with props per shot and how to add one: `docs/library/moods.md`; preview: `preview-moods.mp4`.
 
 ## Thumbnail rules
 1280x720. Dark left half: `thumbnail.bigText` (max 16 chars, IBM Plex Mono) + a 3-5 word `headline` + the verdict
@@ -115,6 +139,7 @@ No faces, no logos, company names as typography only.
 | `split-flap` | `{rows[] (max 5 x 18 chars), accentRow?}` - departure board for dates and amounts |
 | `document` | `{title, lines[], verdict: SIGNED\|PASSED, party?, signature?}` - contract writes itself, then signed or stamped |
 | `photo-wall` | `{cards[{label, component?, props?}], links?[[i,j]]}` - evidence cards with red string |
+| `shot` | `{shot, props?, label?}` - mood shot (see Mood shots) |
 | `quote` | `{text, speaker, sourceId, status: verified\|disputed}` |
 | `question` | `{question, options: [SIGN, PASS], holdSec}` - freeze + desaturate + 3-2-1 |
 | `reveal`, `lesson` | `{text}` |
@@ -132,7 +157,8 @@ Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), s
 Every component has an entrance animation (via `enter`) and small idle animations. Colours: brand names
 (`ink`, `stamp`, `board`, `paper`, `grey`, `greyLight`) or hex.
 - Office: Desk, Contract, FountainPen, Stamp, DecisionChair, Phone, Newspaper, SpinningNewspaper, Briefcase
-- People: Person (`pose` standing, sitting, arms-crossed, pointing, handshake; `flip`), NameCard, Crowd (`highlight`), Queue
+- People: Person (`pose` standing, sitting, arms-crossed, pointing, handshake; `flip`), Character (see Characters),
+  NameCard, Crowd (`highlight`), Crowd2, Queue
 - Places: Building (`type` office, factory, store), Factory (conveyor + smoke), StoreFront (door opens), Warehouse,
   Bank, CrumblingBuilding, AssemblyLine (`colour` = paint)
 - Transport: Ship (VOC era), ContainerShip, Train, Truck, Airplane (`from`, `to`), Rocket (`launch: true`)

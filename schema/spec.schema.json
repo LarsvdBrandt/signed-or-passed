@@ -158,9 +158,11 @@
         "shot": {"enum": [
           "CartoonBonk", "SweatDrop", "QuestionMarks", "DotsBubble", "BananaSlip", "RecordScratch", "ExaggeratedZoom", "Tumbleweed", "Crickets",
           "RainCloud", "WiltingPlant", "ClosedSign", "LightsOut", "EmptyOffice", "FallingLeaf",
-          "TickingClockCloseUp", "HeartbeatLine", "InterrogationSpotlight", "SlowPushIn", "RedAlert"
+          "TickingClockCloseUp", "HeartbeatLine", "InterrogationSpotlight", "SlowPushIn", "RedAlert",
+          "Confetti", "Fireworks", "RisingRocket", "TrophyShine", "CheeringCrowd",
+          "Fog", "SilhouetteReveal", "MagnifierSweep"
         ]},
-        "props": {"type": "object", "description": "per shot (see render/src/moods/index.ts): text, colour; CartoonBonk object anvil | book; DotsBubble revealSec; ClosedSign front, shop; TickingClockCloseUp startSec; HeartbeatLine bpmFrom, bpmTo; SlowPushIn figureColour; RedAlert sub"},
+        "props": {"type": "object", "description": "per shot (see docs/library/moods.md): text, colour, caption; CartoonBonk object anvil | book; DotsBubble revealSec; ClosedSign front, shop; TickingClockCloseUp startSec; HeartbeatLine bpmFrom, bpmTo; SlowPushIn figureColour; RedAlert sub; RisingRocket value; MagnifierSweep title"},
         "label": {"type": "string", "description": "optional small caption at the top (IBM Plex Mono)"}
       }
     },
