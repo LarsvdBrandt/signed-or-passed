@@ -1,0 +1,41 @@
+{
+  "title": "Blockbuster Passed on Netflix for $50M. Would You?",
+  "titleAlternatives": [
+    "Would You Have Bought Netflix for $50 Million?",
+    "Netflix Lost More Than Its Price. Would You Buy It?",
+    "The Blockbuster CEO Who Passed on Netflix",
+    "From 9,094 Stores to One: Blockbuster's $50M No"
+  ],
+  "description": "In 2000, a money-losing start-up that mailed DVDs to people's homes named its price: $50 million. The company across the table had thousands of stores and close to $5 billion in yearly revenue. Blockbuster did not buy Netflix.\n\nToday Netflix is worth hundreds of billions of dollars, and Blockbuster is down to one franchised store in Bend, Oregon. But the story is more complicated than the legend. Three people remember that meeting in Dallas in three different ways. Sit in John Antioco's chair and decide for yourself.\n\nWould you have signed? Tell us in the comments.",
+  "tags": ["blockbuster", "netflix", "blockbuster netflix", "blockbuster passed on netflix", "john antioco", "reed hastings", "marc randolph", "business decisions", "business history", "business case study", "why blockbuster failed", "blockbuster bankruptcy", "netflix history", "$50 million", "dvd by mail", "startup lessons", "signed or passed", "biggest business mistakes"],
+  "hashtags": ["#Blockbuster", "#Netflix", "#BusinessHistory"],
+  "thumbnail": {
+    "bigText": "$50M",
+    "headline": "Would you buy Netflix?",
+    "verdict": "PASSED",
+    "illustration": "A desk with a contract and pen in the foreground, a Blockbuster building silhouette behind it, and a DVD-in-mailbox envelope on the right, in the 2000 era style."
+  },
+  "pinnedComment": "Netflix lost more in 2000 than the $50M it was asking, while Blockbuster's own stores were still growing. Honest answer: would you have signed?",
+  "shorts": [
+    {
+      "id": "short-1",
+      "hook": "Fifty million dollars was the price on a money-losing start-up that mailed DVDs to people's homes.",
+      "question": "Netflix lost more than $50 million that year, and your own stores are still growing. Would you sign?",
+      "reveal": "Blockbuster said no. Today Netflix is worth hundreds of billions, and Blockbuster has one franchised store left, in Bend, Oregon.",
+      "verdict": "PASSED",
+      "sourceParts": ["1. Cold open", "3. The pressure", "4. Freeze", "5. Reveal", "7. Verdict"]
+    },
+    {
+      "id": "short-2",
+      "hook": "One of the most famous rejections in business history rests on three memories that don't match.",
+      "question": "Randolph says Blockbuster laughed them out of the room. Antioco says there were never serious talks. Who do you believe?",
+      "reveal": "Everyone agrees on three things: a meeting in Dallas, a $50 million number, and no deal. Even Hastings reportedly recalls more curiosity than a serious pitch.",
+      "verdict": "PASSED",
+      "sourceParts": ["2. Set the scene (the price)", "5. Reveal", "7. Verdict"]
+    }
+  ],
+  "publish": {
+    "suggested": "Friday 21:00 Europe/Amsterdam",
+    "playlist": "Passed"
+  }
+}
