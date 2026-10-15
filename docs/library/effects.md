@@ -6,7 +6,7 @@ particles in `particles.tsx`) and `render/src/transitions/` (registry `TRANSITIO
 Everything is self-made code (SVG, CSS, seeded randomness): no external files, no licences needed.
 Everything is deterministic (seeded by scene id + effect id), so re-renders are identical.
 
-Previews in the release `sample`: `preview-effects.mp4` (every effect, particle, paper variant and look) and
+Previews in the release `library`: `preview-effects.mp4` (every effect, particle, paper variant and look) and
 `preview-transitions.mp4` (every transition A -> B, param variants, every parallax move).
 
 ## Using effects
