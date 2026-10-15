@@ -1,4 +1,6 @@
 """Final YouTube metadata: description with chapters, sources, credits and synthetic-voice disclosure."""
+import re
+
 from common import (ROOT, add_warning, cut_dir, cuts, fmt_ts, is_test, load_spec, log, out_dir, read_json, slug_arg,
                     work_dir, write_json)
 
@@ -6,7 +8,41 @@ KEY_KINDS = {"title", "question", "reveal", "verdict", "lesson", "evidence", "ti
 MIN_CHAPTER = 10.0
 
 
+MAX_LABEL_WORDS = 6
+MAX_LABEL_CHARS = 60
+SOURCES_HEADING = re.compile(r"^\s*sources\s*:?\s*$", re.I | re.M)
+
+
+def clean_label(text):
+    """Plain-text chapter label: no markdown emphasis / code / [tags], one line, at most MAX_LABEL_CHARS."""
+    t = re.sub(r"\[[^\]]*\]", " ", str(text or ""))
+    t = re.sub(r"(\*\*|__|\*|`|~~)", "", t)
+    t = re.sub(r"^\s*#+\s*", "", t)
+    t = " ".join(t.split())
+    if len(t) > MAX_LABEL_CHARS:
+        t = t[:MAX_LABEL_CHARS].rsplit(" ", 1)[0]
+    return t.rstrip(".,;:!-–— ")
+
+
+def narration_label(narration):
+    """Whole leading sentences while they fit in MAX_LABEL_WORDS words, else the first words."""
+    text = " ".join(re.sub(r"\[[^\]]*\]", " ", narration or "").split())
+    sentences = [x for x in re.split(r"(?<=[.!?])\s+", text) if x]
+    out = []
+    for sent in sentences:
+        if len(out) + len(sent.split()) > MAX_LABEL_WORDS:
+            break
+        out += sent.split()
+    if not out:
+        out = text.split()[:MAX_LABEL_WORDS]
+    return " ".join(out)
+
+
 def label_for(sc):
+    return clean_label(raw_label(sc)) or "Chapter"
+
+
+def raw_label(sc):
     v, k = sc["visual"], sc["kind"]
     if sc.get("onScreenText"):
         return sc["onScreenText"]
@@ -17,8 +53,7 @@ def label_for(sc):
     fixed = {"question": "Would you sign?", "reveal": "What happened", "verdict": "The verdict", "lesson": "The lesson"}
     if k in fixed:
         return fixed[k]
-    words = [w for w in sc["narration"].split() if not w.startswith("[") and not w.endswith("]")]
-    return " ".join(words[:6]).rstrip(".,;:!?")
+    return narration_label(sc["narration"])
 
 
 def chapters(scenes, timing):
@@ -77,7 +112,9 @@ def main():
     if ch:
         parts.append("Chapters\n" + "\n".join(f"{fmt_ts(t)} {label}" for t, label in ch))
     sources = spec.get("sources") or []
-    if sources:
+    if sources and SOURCES_HEADING.search(md["description"]):
+        log("metadata: description already has a Sources block; not appending the spec sources again")
+    elif sources:
         parts.append("Sources\n" + "\n".join(f"- {s['title']}: {s['url']}" for s in sources))
     assets_path = work_dir(args.slug) / "assets.json"
     assets = read_json(assets_path) if assets_path.exists() else {}

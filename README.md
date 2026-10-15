@@ -286,6 +286,13 @@ number/keyword in the first 8 s, < 20 measured visual changes/min and a missing 
 `report.retention` holds changes/min, beats/min, sfx/min, the longest static stretch and the reveal silence level.
 Warnings do not fail the gate.
 
+## Metadata (metadata.json)
+`pipeline/metadata.py` builds the final description: `metadata.description` + Chapters + Sources (from `sources[]`)
++ image / music / voice credits + the faceless-figures and synthetic-voice lines. Chapter labels are plain text
+(markdown `**`, `_`, backticks and `[tags]` stripped, max 60 chars): `onScreenText`, else the title of a title/chapter
+scene, fixed labels for question/reveal/verdict/lesson, else the leading narration sentences that fit in 6 words.
+If `metadata.description` already contains its own `Sources` heading, the spec sources are not appended a second time.
+
 ## YouTube upload setup (once)
 Add repository secrets `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` (OAuth client of a Google Cloud project
 with the YouTube Data API v3 enabled; scopes `youtube.upload` and `youtube.force-ssl`). Custom thumbnails require a
