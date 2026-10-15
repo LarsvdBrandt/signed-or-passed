@@ -258,8 +258,9 @@ Every component has an entrance animation (via `enter`) and small idle animation
 ## Retention: beats, keywords, pace (docs/library/retention.md)
 Something changes on screen every 2-3 s: `scenes[].beats` (punch-in/out, shake, whip, flash, kinetic text, pop-in
 illustration, counter, swap of the visual) at a second or at a spoken word; scenes without beats get subtle **auto
-camera beats** every 2.5 s (`autoBeats: false` turns them off). `**word**` in a narration = emphasis: shown as a big
-kinetic keyword on the word. `spec.captions.long` = `keywords` (default: emphasis + numbers, amounts and years as big
+camera beats** every 2.5 s; scenes with beats get silent **rhythm punches** in their gaps (Shorts 1.12x every 2 s,
+long video 1.07x every 3 s, not in question / verdict / reveal holds; `autoBeats: false` turns all of it off).
+`**word**` in a narration = emphasis: shown as a big kinetic keyword on the word. `spec.captions.long` = `keywords` (default: emphasis + numbers, amounts and years as big
 text) | `full` (word-by-word captions) | `off`. Beats get automatic sounds under the voice (`spec.sfxDensity`
 low|mid|high, default mid). **Cold open**: `scenes[].coldOpen` (true or `{style, label, rampSec, desaturate, flash}`)
 turns the first scene(s) into a flash-forward (speed-ramp, desaturated, flash frame + whoosh); the brand sting then
