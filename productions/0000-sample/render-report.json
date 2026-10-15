@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "0000-sample",
   "test": true,
-  "generatedAt": "2026-10-15T12:21:42+00:00",
+  "generatedAt": "2026-10-15T12:32:09+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -32,12 +32,45 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.2 dBTP"
+      "detail": "-1.0 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
       "ok": true,
       "detail": "0 silence(s), longest 0.0s, 0.0% silent"
+    },
+    {
+      "name": "video.mp4: first visual change <= 1.5 s",
+      "ok": true,
+      "detail": "0.00s"
+    },
+    {
+      "name": "video.mp4: no static picture > 6 s (outside question holds)",
+      "ok": true,
+      "detail": "2.2s at 78.0s"
+    },
+    {
+      "name": "video.mp4: brand sting after the hook",
+      "ok": true,
+      "detail": "sting at 9.4s"
+    },
+    {
+      "name": "video.mp4: on-screen number/keyword in the first 8 s",
+      "ok": true,
+      "detail": "keyword-emphasis@1.8s, counter s00@0.0s, title s01@5.5s",
+      "level": "warn"
+    },
+    {
+      "name": "video.mp4: beats/min >= 20",
+      "ok": false,
+      "detail": "4.9 beats/min, 16.9 sfx/min",
+      "level": "warn"
+    },
+    {
+      "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
+      "ok": true,
+      "detail": "-91.0 dB at 129.1s",
+      "level": "warn"
     },
     {
       "name": "short-s1.mp4: resolution 1080x1920",
@@ -67,12 +100,40 @@
     {
       "name": "short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-3.0 dBTP"
+      "detail": "-2.8 dBTP"
     },
     {
       "name": "short-s1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
       "ok": true,
       "detail": "0 silence(s), longest 0.0s, 0.0% silent"
+    },
+    {
+      "name": "short-s1.mp4: first visual change <= 1.5 s",
+      "ok": true,
+      "detail": "0.00s"
+    },
+    {
+      "name": "short-s1.mp4: no static picture > 6 s (outside question holds)",
+      "ok": true,
+      "detail": "none"
+    },
+    {
+      "name": "short-s1.mp4: on-screen number/keyword in the first 8 s",
+      "ok": true,
+      "detail": "document sh3@7.0s",
+      "level": "warn"
+    },
+    {
+      "name": "short-s1.mp4: beats/min >= 20",
+      "ok": false,
+      "detail": "0.0 beats/min, 39.0 sfx/min",
+      "level": "warn"
+    },
+    {
+      "name": "short-s1.mp4: silence before the reveal (0.6 s, < -35 dB)",
+      "ok": true,
+      "detail": "-91.0 dB at 11.0s",
+      "level": "warn"
     },
     {
       "name": "thumbnail.png: 1280x720",
@@ -117,19 +178,41 @@
   "audio": {
     "video.mp4": {
       "lufs": -14.22,
-      "truePeakDb": -1.17,
-      "lra": 3.9,
+      "truePeakDb": -0.97,
+      "lra": 4.0,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-s1.mp4": {
-      "lufs": -14.2,
-      "truePeakDb": -2.96,
+      "lufs": -14.19,
+      "truePeakDb": -2.84,
       "lra": 3.6,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
+    }
+  },
+  "retention": {
+    "main": {
+      "beats": 12,
+      "beatsPerMin": 4.9,
+      "sfx": 41,
+      "sfxPerMin": 16.9,
+      "firstVisualChangeSec": 0.0,
+      "longestStaticSec": 2.25,
+      "longestStaticAtSec": 78.0,
+      "revealSilenceDb": -91.0
+    },
+    "short-s1": {
+      "beats": 0,
+      "beatsPerMin": 0.0,
+      "sfx": 10,
+      "sfxPerMin": 39.0,
+      "firstVisualChangeSec": 0.0,
+      "longestStaticSec": 0.0,
+      "longestStaticAtSec": null,
+      "revealSilenceDb": -91.0
     }
   },
   "warnings": []
