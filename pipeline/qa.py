@@ -284,8 +284,8 @@ def main():
         wpm, nwpm = pc.get("wpm"), pc.get("narrationWpm")
         if wpm is not None:
             # PACE decision (iteration 53): the band is judged on the conventional narration rate (words over the
-            # whole cut); the in-scene rate stays informative. The pace guard keeps nudging the in-scene rate
-            # (floor 0.88 = slowest artifact-free tempo), so the voice stays as slow as Lars asked.
+            # whole cut); the in-scene rate stays informative. Since VOICE-10a the pace guard only nudges the pauses
+            # (pauseScale 1.0-1.6); Chatterbox audio is never time-stretched (no 0.88 floor any more).
             judged = nwpm if nwpm is not None else wpm
             check("voice: pace 145-155 words/min (whole narration)", 135 <= judged <= 165,
                   f"{nwpm if nwpm is not None else '?'} wpm over the whole cut, in-scene {wpm} wpm "
