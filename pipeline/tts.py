@@ -5,8 +5,11 @@ Engines (brand/voices.json, docs/library/voices.md):
   piper   spec.voice.voice = a Piper voice id listed in brand/voices.json (nl_BE-rdh-medium, ...); piper-tts is
           installed on first use and the model is downloaded from Hugging Face (rhasspy/piper-voices)
 
-Narration controls: '[pause 0.5]' anywhere in a narration inserts 0.5 s of silence (the marker is never spoken and
-never shown in captions); scenes[].voiceSpeed overrides spec.voice.speed for one scene.
+Narration controls: '[pause 0.5]' anywhere in a narration inserts 0.5 s of silence ('[PAUSE]' = 0.5 s; the marker is
+never spoken and never shown in captions); '**word**' marks an emphasised word (the asterisks are stripped before TTS,
+build_props turns it into a kinetic keyword); scenes[].voiceSpeed overrides spec.voice.speed for one scene.
+Pace (RETENTION-5): default speed 1.15, every clip is trimmed of leading/trailing silence, 0.25 s between sentences,
+0.35 s at scene boundaries (common.SCENE_TAIL + SCENE_LEAD); longer pauses only with [pause N].
 
 Long main cuts get INTRO_SEC of silence before the first scene (brand intro sting) and OUTRO_SEC after the last
 scene (end card); both are recorded in timing.json as introSec / outroSec.
@@ -23,11 +26,12 @@ import soundfile as sf
 
 from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, INTRO_SEC, OUTRO_SEC, ROOT, SCENE_LEAD, SCENE_TAIL,
                     SENTENCE_GAP, VERDICT_MIN, branded, cut_dir, cuts, fail, load_spec, log, slug_arg,
-                    split_sentences, write_json)
+                    split_sentences, strip_emphasis, write_json)
 
 SR = 24000
-PAUSE_RE = re.compile(r"\[\s*pause\s+([0-9]*\.?[0-9]+)\s*s?\s*\]", re.I)
-PAUSE_SPLIT_RE = re.compile(r"\[\s*pause\s+(?:[0-9]*\.?[0-9]+)\s*s?\s*\]", re.I)
+PAUSE_RE = re.compile(r"\[\s*pause(?:\s+([0-9]*\.?[0-9]+)\s*s?)?\s*\]", re.I)
+PAUSE_SPLIT_RE = re.compile(r"\[\s*pause(?:\s+(?:[0-9]*\.?[0-9]+)\s*s?)?\s*\]", re.I)
+BARE_PAUSE_SEC = 0.5
 PIPER_PACKAGE = "piper-tts==1.3.0"
 PIPER_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main/{path}/{id}.onnx"
 PIPER_CACHE = Path(os.path.expanduser("~/.cache/huggingface/piper"))
@@ -40,7 +44,7 @@ def catalogue():
 
 def clean_text(text):
     """Narration without [pause N] markers (for captions and timing)."""
-    return re.sub(r"\s+", " ", PAUSE_SPLIT_RE.sub(" ", text or "")).strip()
+    return re.sub(r"\s+", " ", PAUSE_SPLIT_RE.sub(" ", strip_emphasis(text))).strip()
 
 
 def to_numpy(audio):
@@ -167,11 +171,11 @@ def speak(engine, text, speed):
     first = last = None
     for j, part in enumerate(parts):
         if j % 2 == 1:
-            n = int(float(part) * SR)
+            n = int(float(part if part else BARE_PAUSE_SEC) * SR)
             pieces.append(np.zeros(n, dtype=np.float32))
             t += n / SR
             continue
-        part = part.strip()
+        part = strip_emphasis(part or "").strip()
         if not re.search(r"\w", part):
             continue
         a = engine.synth(part, speed)

@@ -10,15 +10,16 @@ FPS = 30
 USER_AGENT = "SignedOrPassedFactory/1.0 (https://github.com/LarsvdBrandt/signed-or-passed)"
 
 # Timing layout (seconds)
-FIRST_LEAD = 0.6
-SCENE_LEAD = 0.35
+# RETENTION-5 pace: inter-sentence pause 0.25 s, scene boundary SCENE_TAIL + SCENE_LEAD = 0.35 s
+FIRST_LEAD = 0.3
+SCENE_LEAD = 0.2
 SENTENCE_GAP = 0.25
-SCENE_TAIL = 0.45
+SCENE_TAIL = 0.15
 END_TAIL = 0.8
 VERDICT_MIN = 2.8
 
 # Default narration speed (Kokoro), used when spec.voice.speed is missing.
-DEFAULT_SPEED = 1.1
+DEFAULT_SPEED = 1.15
 
 # Brand intro sting and end card: long videos, main cut only (render/src/components/brand.tsx).
 INTRO_SEC = 3.0
@@ -108,6 +109,18 @@ def branded(cut):
 
 def is_test(slug):
     return slug.startswith("0000-")
+
+
+# '**word**' in a narration = an emphasised word: spoken normally, shown as a big kinetic keyword (RETENTION-1)
+EMPHASIS_RE = re.compile(r"\*\*(.+?)\*\*")
+
+
+def strip_emphasis(text):
+    return (text or "").replace("**", "")
+
+
+def emphasis_phrases(text):
+    return [m.strip() for m in EMPHASIS_RE.findall(text or "") if m.strip()]
 
 
 def split_sentences(text):

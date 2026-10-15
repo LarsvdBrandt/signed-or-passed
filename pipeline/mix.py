@@ -27,6 +27,7 @@ import musicgen
 from common import (BRAND_INTRO_SFX, BRAND_OUTRO_SFX, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
                     log, read_json, slug_arg, work_dir, write_json)
 from fetch_assets import download
+from retention import beat_sfx_events
 
 TARGET_I = -14.0
 TARGET_TP = -1.5  # a little headroom so the AAC encode stays below -1 dBTP
@@ -252,6 +253,14 @@ def mix_cut(slug, cut, plan):
         if not f.exists():
             fail(f"missing sfx {f}; run sfx.py --slug {slug} first")
         events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0))))
+    beats_path = d / "beats.json"
+    beat_events = beat_sfx_events(read_json(beats_path), plan.get("sfxDensity")) if beats_path.exists() else []
+    for name, at, gain_db in beat_events:
+        f = sfx_dir / f"{name}.wav"
+        if f.exists() and at < total:
+            events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0))))
+    if beat_events:
+        log(f"  {len(beat_events)} automatic beat sounds (sfxDensity {plan.get('sfxDensity') or 'mid'})")
     n_sting = 0
     if plan.get("stingers"):
         for name, at in stinger_events(cut, timing):
@@ -298,7 +307,7 @@ def mix_cut(slug, cut, plan):
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
-    plan = plan_music(args.slug, spec)
+    plan = {**plan_music(args.slug, spec), "sfxDensity": spec.get("sfxDensity") or "mid"}
     for cut in cuts(spec):
         mix_cut(args.slug, cut, plan)
 

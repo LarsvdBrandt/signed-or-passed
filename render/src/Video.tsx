@@ -24,6 +24,8 @@ import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 import {EffectsStack, resolveEffects} from './effects';
 import {TransitionLayer, resolveTransition, type ResolvedTransition} from './transitions';
 import {isParallax} from './transitions/parallax';
+import {BeatCamera, BeatOverlays, swapsOf} from './retention/beats';
+import {KeywordLayer} from './retention/keywords';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
   const v = scene.visual || {};
@@ -115,6 +117,28 @@ export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> =
   );
 };
 
+/** The scene content; 'swap' beats replace it with another visual layer (hard cut) from their frame on. */
+const SwappableContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
+  const swaps = swapsOf(scene);
+  if (!swaps.length) return <SceneContent scene={scene} prev={prev} ctx={ctx} />;
+  const parts = [{from: 0, sc: scene}, ...swaps.map((b) => ({from: b.frame, sc: {...scene, kind: b.kind || scene.kind, visual: b.visual, onScreenText: b.onScreenText ?? scene.onScreenText}}))];
+  return (
+    <>
+      {parts.map((p, i) => {
+        const until = i + 1 < parts.length ? parts[i + 1].from : scene.durationFrames + 30;
+        const shifted = {...p.sc, sentences: (scene.sentences || []).map((x) => ({...x, startFrame: x.startFrame - p.from, endFrame: x.endFrame - p.from}))};
+        return (
+          <Sequence key={i} name={i ? `swap:${i}` : 'visual'} from={p.from} durationInFrames={Math.max(1, until - p.from)}>
+            <AbsoluteFill style={{backgroundColor: C.paper}}>
+              <SceneContent scene={shifted} prev={prev} ctx={ctx} />
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+    </>
+  );
+};
+
 /**
  * One scene on its paper sheet: entering transition (scenes[].transition / spec.transition, render/src/transitions),
  * the exit move of the next scene's transition, theme filter, camera move, the lower third (scenes[].lowerThird,
@@ -124,9 +148,12 @@ const SceneFrame: React.FC<{scene: Scene; prev?: Scene; enter: ResolvedTransitio
   <TransitionLayer enter={enter} exit={exit} exitAt={scene.durationFrames} seed={scene.id}>
     <EffectsStack effects={resolveEffects(ctx.look, scene.effects)} seed={scene.id} duration={scene.durationFrames}>
       <AbsoluteFill style={themeContentStyle()}>
-        <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
-          <SceneContent scene={scene} prev={prev} ctx={ctx} />
-        </Camera>
+        <BeatCamera scene={scene} ctx={ctx}>
+          <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
+            <SwappableContent scene={scene} prev={prev} ctx={ctx} />
+          </Camera>
+        </BeatCamera>
+        <BeatOverlays scene={scene} />
         {scene.lowerThird ? <LowerThird lt={scene.lowerThird} duration={scene.durationFrames} /> : null}
       </AbsoluteFill>
     </EffectsStack>
@@ -177,6 +204,7 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
       <ThemeOverlay />
       {inBody ? <DateTag scenes={scenes} /> : null}
       {inBody ? <Watermark /> : null}
+      {inBody ? <KeywordLayer ctx={props} /> : null}
       {props.format === 'short' ? props.captionStyle ? <StyledCaptions words={props.words} captionStyle={props.captionStyle} /> : <Captions words={props.words} /> : null}
     </AbsoluteFill>
   );

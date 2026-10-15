@@ -13,6 +13,7 @@ import numpy as np
 import soundfile as sf
 
 from common import ROOT, cuts, fail, load_spec, log
+from retention import beat_sfx_names
 
 # expression, duration, extra filter. No commas inside expressions (filtergraph separator).
 SFX = {
@@ -37,6 +38,7 @@ def used_sfx(spec):
             for cue in sc.get("sfxCues") or []:
                 if cue.get("sfx"):
                     names.add(cue["sfx"])
+    names |= beat_sfx_names(spec)  # automatic beat sounds (pipeline/retention.py)
     return sorted(names)
 
 

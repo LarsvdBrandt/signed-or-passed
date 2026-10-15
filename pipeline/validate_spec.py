@@ -1,7 +1,7 @@
 """Validate productions/<slug>/spec.json against schema/spec.schema.json plus semantic checks."""
 from jsonschema import Draft202012Validator
 
-from common import ROOT, cuts, fail, load_spec, log, read_json, slug_arg
+from common import ROOT, cuts, fail, load_spec, log, read_json, slug_arg, strip_emphasis
 from sfx import SFX
 from sfxlib import SOUNDS
 
@@ -36,6 +36,12 @@ def main():
                     if nm and nm not in KNOWN_SFX:
                         errors.append(f"{where}: unknown sfx '{nm}' (house: pen/stamp/paper/whoosh, or a name from "
                                       f"`python pipeline/sfxlib.py --list`)")
+                spoken = strip_emphasis(sc.get("narration")).lower()
+                for b in sc.get("beats") or []:
+                    if isinstance(b.get("at"), str) and b["at"].lower().strip() not in spoken:
+                        log(f"  WARNING {where}: beat word '{b['at']}' does not occur in the narration (beat dropped)")
+                if sc.get("narration", "").count("**") % 2:
+                    errors.append(f"{where}: unbalanced '**' emphasis markers in the narration")
                 v = sc["visual"]
                 sid = v.get("sourceId")
                 needs_source = sc["kind"] in ("chart", "counter", "quote") or (

@@ -1,6 +1,11 @@
 export type Sentence = {text: string; startFrame: number; endFrame: number};
 export type Word = {text: string; startFrame: number; endFrame: number};
 
+/** A visual beat (scenes[].beats, docs/library/retention.md); frame is relative to the scene start (build_props). */
+export type Beat = {do: string; frame: number; at?: number | string; [k: string]: any};
+/** A kinetic keyword (numbers / **emphasis**), absolute frames (pipeline/retention.py). */
+export type Keyword = {text: string; kind: 'emphasis' | 'number'; startFrame: number; endFrame: number; sceneId?: string};
+
 export type Scene = {
   id: string;
   kind: string;
@@ -18,6 +23,10 @@ export type Scene = {
   transition?: any;
   /** lower third overlay (render/src/typography/overlays): {style, title, subtitle?, atSec?, durationSec?} */
   lowerThird?: any;
+  /** visual beats (RETENTION-1) */
+  beats?: Beat[];
+  /** false = no auto beats for this scene */
+  autoBeats?: boolean;
   startFrame: number;
   durationFrames: number;
   sentences: Sentence[];
@@ -36,6 +45,12 @@ export type VideoProps = {
   transition?: any;
   /** Shorts caption style (spec.captionStyle): bold-pop | karaoke-highlight | boxed | minimal; default = theme style. */
   captionStyle?: string | null;
+  /** Long-form captions (spec.captions): {long: keywords | full | off, style?}; default keywords. */
+  captions?: {long?: string; style?: string | null} | null;
+  /** Auto camera beats for scenes without beats (spec.autoBeats); default true. */
+  autoBeats?: boolean;
+  /** Kinetic keywords (absolute frames) for captions.long = keywords. */
+  keywords?: Keyword[];
   fps: number;
   width: number;
   height: number;

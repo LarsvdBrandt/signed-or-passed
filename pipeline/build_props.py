@@ -1,5 +1,7 @@
 """spec + timing (+ words, assets) -> Remotion input props per cut (build/<slug>/<cut>/props.json)."""
-from common import FPS, SIZES, cut_dir, cuts, fail, load_spec, log, read_json, slug_arg, work_dir, write_json
+from common import (FPS, SIZES, add_warning, cut_dir, cuts, fail, load_spec, log, read_json, slug_arg, strip_emphasis,
+                    work_dir, write_json)
+from retention import resolve_beats, scene_keywords, space_keywords
 
 DEFAULT_THEME = "signed-or-passed"
 
@@ -18,24 +20,37 @@ def main():
     look = spec.get("look")
     transition = spec.get("transition")
     caption_style = spec.get("captionStyle")
+    captions = {"long": "keywords", **(spec.get("captions") or {})}
+    auto_beats = spec.get("autoBeats", True) is not False
     for cut in cuts(spec):
         d = cut_dir(args.slug, cut["name"])
         timing = read_json(d / "timing.json")
         words = read_json(d / "words.json") if (d / "words.json").exists() else []
         by_id = {s["id"]: s for s in timing["scenes"]}
-        scenes = []
+        scenes, keywords, beat_log = [], [], []
+        warn = lambda m: add_warning(args.slug, f"{cut['name']}: {m}")  # noqa: E731
         for sc in cut["scenes"]:
             t = by_id.get(sc["id"])
             if not t:
                 fail(f"no timing for scene {sc['id']} in {cut['name']}")
             start, end = frame(t["start"]), frame(t["end"])
+            sw = [w for w in words if w.get("sceneId") == sc["id"]]
+            beats = resolve_beats(sc, sw, frame, start, warn)
+            keywords += scene_keywords(sc, sw, frame, end)
+            beat_log += [{"sec": round((start + b["frame"]) / FPS, 3), "do": b.get("do"), "sceneId": sc["id"],
+                          **({"sfx": b["sfx"]} if "sfx" in b else {})} for b in beats]
             scenes.append({
                 **sc,
+                "narration": strip_emphasis(sc.get("narration")),
+                "beats": beats,
                 "startFrame": start,
                 "durationFrames": max(1, end - start),
                 "sentences": [{"text": s["text"], "startFrame": frame(s["start"]) - start,
                                "endFrame": frame(s["end"]) - start} for s in t["sentences"]],
             })
+        keywords = space_keywords(keywords) if cut["format"] == "long" and captions["long"] == "keywords" else []
+        beat_log += [{"sec": round(k["startFrame"] / FPS, 3), "do": f"keyword-{k['kind']}", "sceneId": k["sceneId"]}
+                     for k in keywords]
         w, h = SIZES[cut["format"]]
         props = {
             "slug": args.slug,
@@ -46,6 +61,9 @@ def main():
             "look": look,
             "transition": transition,
             "captionStyle": caption_style,
+            "captions": captions,
+            "autoBeats": auto_beats,
+            "keywords": keywords,
             "fps": FPS,
             "width": w,
             "height": h,
@@ -60,6 +78,7 @@ def main():
             "title": spec["metadata"]["title"],
         }
         write_json(d / "props.json", props)
+        write_json(d / "beats.json", sorted(beat_log, key=lambda b: b["sec"]))
         n_fx = sum(1 for s in scenes if s.get("effects"))
         n_tr = sum(1 for s in scenes if s.get("transition"))
         n_lt = sum(1 for s in scenes if s.get("lowerThird"))
@@ -67,7 +86,8 @@ def main():
         log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), theme {theme}, "
             f"look {look if isinstance(look, str) else ('custom' if look else 'none')}, {n_fx} scenes with effects, "
             f"transition {tr_name} ({n_tr} scene overrides), {n_lt} lower thirds, captions {caption_style or 'theme'}, "
-            f"intro {props['introFrames']} / outro {props['outroFrames']} frames")
+            f"intro {props['introFrames']} / outro {props['outroFrames']} frames, {len(beat_log)} beats "
+            f"(auto {'on' if auto_beats else 'off'}), {len(props['keywords'])} keywords (captions.long {captions['long']})")
 
 
 if __name__ == "__main__":
