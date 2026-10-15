@@ -96,7 +96,7 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
@@ -139,6 +139,7 @@
         {"if": {"properties": {"kind": {"const": "split-flap"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vSplitFlap"}}}},
         {"if": {"properties": {"kind": {"const": "document"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vDocument"}}}},
         {"if": {"properties": {"kind": {"const": "photo-wall"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vPhotoWall"}}}},
+        {"if": {"properties": {"kind": {"const": "shot"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vShot"}}}},
         {"if": {"properties": {"kind": {"const": "quote"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuote"}}}},
         {"if": {"properties": {"kind": {"const": "question"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vQuestion"}}}},
         {"if": {"properties": {"kind": {"const": "reveal"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vText"}}}},
@@ -149,6 +150,16 @@
     "vTitle": {"type": "object", "required": ["title"], "properties": {"title": {"type": "string"}, "subtitle": {"type": "string"}}},
     "vText": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string"}}},
     "vVerdict": {"type": "object", "required": ["verdict"], "properties": {"verdict": {"enum": ["SIGNED", "PASSED"]}}},
+    "vShot": {
+      "type": "object",
+      "required": ["shot"],
+      "description": "mood shot from render/src/moods (docs/library/moods.md): a short animated beat that sets an emotion",
+      "properties": {
+        "shot": {"enum": ["CartoonBonk", "SweatDrop", "QuestionMarks", "DotsBubble", "BananaSlip", "RecordScratch", "ExaggeratedZoom", "Tumbleweed", "Crickets"]},
+        "props": {"type": "object", "description": "per shot: text, colour, object (CartoonBonk: anvil | book), revealSec (DotsBubble)"},
+        "label": {"type": "string", "description": "optional small caption at the top (IBM Plex Mono)"}
+      }
+    },
     "vIllustration": {
       "type": "object",
       "required": ["layers"],
