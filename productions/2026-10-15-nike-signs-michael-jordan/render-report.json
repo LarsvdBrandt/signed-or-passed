@@ -1,8 +1,8 @@
 {
-  "ok": false,
+  "ok": true,
   "slug": "2026-10-15-nike-signs-michael-jordan",
   "test": false,
-  "generatedAt": "2026-10-15T20:30:01+00:00",
+  "generatedAt": "2026-10-15T21:17:58+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,12 +17,12 @@
     {
       "name": "video.mp4: duration 480-720s",
       "ok": true,
-      "detail": "559.6s"
+      "detail": "559.7s"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 559.57s vs timing 559.57s"
+      "detail": "video 559.67s vs timing 559.67s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -32,7 +32,7 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.4 dBTP"
+      "detail": "-2.1 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -42,7 +42,7 @@
     {
       "name": "video.mp4: visual changes/min >= 20",
       "ok": false,
-      "detail": "19.4 changes/min (measured), 6.5 planned beats/min, 17.0 sfx/min",
+      "detail": "18.4 changes/min (measured), 6.5 planned beats/min, 17.0 sfx/min",
       "level": "warn"
     },
     {
@@ -53,12 +53,12 @@
     {
       "name": "video.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "2.2s at 314.2s"
+      "detail": "2.2s at 108.2s"
     },
     {
       "name": "video.mp4: brand sting after the hook",
       "ok": true,
-      "detail": "sting at 29.4s"
+      "detail": "sting at 29.5s"
     },
     {
       "name": "video.mp4: on-screen number/keyword in the first 8 s",
@@ -69,7 +69,7 @@
     {
       "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 331.1s",
+      "detail": "-91.0 dB at 330.8s",
       "level": "warn"
     },
     {
@@ -90,17 +90,17 @@
     {
       "name": "short-short-1.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 51.53s vs timing 51.53s"
+      "detail": "video 51.47s vs timing 51.47s"
     },
     {
       "name": "short-short-1.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.4 LUFS"
+      "detail": "-14.3 LUFS"
     },
     {
       "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.8 dBTP"
+      "detail": "-2.7 dBTP"
     },
     {
       "name": "short-short-1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -110,7 +110,7 @@
     {
       "name": "short-short-1.mp4: visual changes/min >= 20",
       "ok": false,
-      "detail": "18.6 changes/min (measured), 0.0 planned beats/min, 17.5 sfx/min",
+      "detail": "17.5 changes/min (measured), 0.0 planned beats/min, 17.5 sfx/min",
       "level": "warn"
     },
     {
@@ -121,7 +121,7 @@
     {
       "name": "short-short-1.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "0.8s at 42.8s"
+      "detail": "1.0s at 42.5s"
     },
     {
       "name": "short-short-1.mp4: on-screen number/keyword in the first 8 s",
@@ -148,12 +148,12 @@
     {
       "name": "short-short-2.mp4: duration 45-60s",
       "ok": true,
-      "detail": "51.1s"
+      "detail": "51.0s"
     },
     {
       "name": "short-short-2.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 51.13s vs timing 51.13s"
+      "detail": "video 51.00s vs timing 51.00s"
     },
     {
       "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
@@ -173,7 +173,7 @@
     {
       "name": "short-short-2.mp4: visual changes/min >= 20",
       "ok": false,
-      "detail": "16.4 changes/min (measured), 2.3 planned beats/min, 16.4 sfx/min",
+      "detail": "14.1 changes/min (measured), 2.4 planned beats/min, 16.5 sfx/min",
       "level": "warn"
     },
     {
@@ -195,7 +195,7 @@
     {
       "name": "short-short-2.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 29.1s",
+      "detail": "-91.0 dB at 29.0s",
       "level": "warn"
     },
     {
@@ -226,12 +226,12 @@
     {
       "name": "voice: ASR word error rate <= 8 %",
       "ok": true,
-      "detail": "3.9 % (base.en, 1237 words)"
+      "detail": "4.7 % (base.en, 1237 words)"
     },
     {
       "name": "voice: no garbled sentence (WER > 30 % and CER > 35 %, max 2 doubtful)",
-      "ok": false,
-      "detail": "0.50/0.56 'You're Nike.' heard 'Clear Nike.'; 1.00/0.33 'Signed.' heard 'sign'"
+      "ok": true,
+      "detail": "all clips ok"
     },
     {
       "name": "voice: no Kokoro fallback sentences",
@@ -242,13 +242,13 @@
     {
       "name": "voice: pace 135-145 words/min (whole narration)",
       "ok": true,
-      "detail": "140.0 wpm over the whole cut, in-scene 229.3 wpm (articulation 254.2, pace 1.0, pauses x1.269)",
+      "detail": "140.0 wpm over the whole cut, in-scene 229.0 wpm (articulation 253.9, pace 1.0, pauses x1.268)",
       "level": "warn"
     },
     {
       "name": "voice: liveliness (F0 std, semitones)",
       "ok": true,
-      "detail": "5.47 st (per minute [5.67, 5.45, 5.15, 5.83, 5.25, 5.35, 5.7, 5.6, 5.36, 5.34])",
+      "detail": "5.42 st (per minute [5.65, 5.35, 5.34, 5.72, 5.29, 5.52, 5.6, 5.77, 5.09, 4.88])",
       "level": "info"
     },
     {
@@ -263,31 +263,31 @@
     }
   ],
   "durations": {
-    "main": 559.57,
-    "short-short-1": 51.53,
-    "short-short-2": 51.13
+    "main": 559.67,
+    "short-short-1": 51.47,
+    "short-short-2": 51.0
   },
   "audio": {
     "video.mp4": {
-      "lufs": -14.32,
-      "truePeakDb": -1.38,
-      "lra": 3.3,
+      "lufs": -14.35,
+      "truePeakDb": -2.14,
+      "lra": 3.5,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-1.mp4": {
-      "lufs": -14.38,
-      "truePeakDb": -2.78,
-      "lra": 3.1,
+      "lufs": -14.34,
+      "truePeakDb": -2.73,
+      "lra": 3.0,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-2.mp4": {
-      "lufs": -14.42,
-      "truePeakDb": -2.76,
-      "lra": 3.6,
+      "lufs": -14.41,
+      "truePeakDb": -2.81,
+      "lra": 3.5,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
@@ -302,10 +302,10 @@
       "breaths": 149,
       "sectionPauses": 9,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 181,
-      "visualChangesPerMin": 19.4,
+      "visualChanges": 172,
+      "visualChangesPerMin": 18.4,
       "longestStaticSec": 2.25,
-      "longestStaticAtSec": 314.25,
+      "longestStaticAtSec": 108.25,
       "revealSilenceDb": -91.0
     },
     "short-short-1": {
@@ -316,22 +316,22 @@
       "breaths": 5,
       "sectionPauses": 4,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 16,
-      "visualChangesPerMin": 18.6,
-      "longestStaticSec": 0.75,
-      "longestStaticAtSec": 42.75,
+      "visualChanges": 15,
+      "visualChangesPerMin": 17.5,
+      "longestStaticSec": 1.0,
+      "longestStaticAtSec": 42.5,
       "revealSilenceDb": -91.0
     },
     "short-short-2": {
       "beats": 2,
-      "beatsPerMin": 2.3,
+      "beatsPerMin": 2.4,
       "sfx": 14,
-      "sfxPerMin": 16.4,
+      "sfxPerMin": 16.5,
       "breaths": 5,
       "sectionPauses": 4,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 14,
-      "visualChangesPerMin": 16.4,
+      "visualChanges": 12,
+      "visualChangesPerMin": 14.1,
       "longestStaticSec": 1.0,
       "longestStaticAtSec": 3.75,
       "revealSilenceDb": -91.0
@@ -343,34 +343,21 @@
     "clips": 131,
     "exaggerationOffset": 0.0,
     "cfgOffset": 0.0,
-    "clipWer": 0.0363,
-    "retried": 5,
-    "badSentences": [
-      {
-        "text": "You're Nike.",
-        "wer": 0.5,
-        "cer": 0.556,
-        "asr": "Clear Nike."
-      },
-      {
-        "text": "Signed.",
-        "wer": 1.0,
-        "cer": 0.333,
-        "asr": "sign"
-      }
-    ],
+    "clipWer": 0.0309,
+    "retried": 2,
+    "badSentences": [],
     "misheardShortClips": 1,
     "fallbackSentences": [],
     "pace": {
       "words": 1306,
-      "speechSec": 341.76,
-      "wpm": 229.3,
-      "articulationWpm": 254.2,
-      "inSentenceWpm": 254.2,
-      "totalSec": 559.57,
+      "speechSec": 342.14,
+      "wpm": 229.0,
+      "articulationWpm": 253.9,
+      "inSentenceWpm": 253.9,
+      "totalSec": 559.67,
       "overallWpm": 140.0,
       "pace": 1.0,
-      "pauseScale": 1.269,
+      "pauseScale": 1.268,
       "targetWpm": [
         135.0,
         145.0
@@ -381,7 +368,7 @@
         135,
         145
       ],
-      "paceGuardScale": 1.269,
+      "paceGuardScale": 1.268,
       "calibratedOverallWpm": 140.0,
       "pauses": {
         "sentence": 0.45,
@@ -393,32 +380,32 @@
         "afterReveal": 1.2,
         "afterQuestion": 3.0,
         "shortScale": 0.75,
-        "scale": 1.269
+        "scale": 1.268
       },
       "tempoFilter": {},
       "narrationWpm": 140.0
     },
-    "wer": 0.0388,
+    "wer": 0.0469,
     "asrModel": "base.en",
     "words": 1237,
     "liveliness": {
       "metric": "std of F0 in semitones (librosa.pyin)",
-      "overall": 5.52,
+      "overall": 5.48,
       "perMinute": [
-        5.67,
-        5.45,
-        5.15,
-        5.83,
-        5.25,
+        5.65,
         5.35,
-        5.7,
+        5.34,
+        5.72,
+        5.29,
+        5.52,
         5.6,
-        5.36,
-        5.34
+        5.77,
+        5.09,
+        4.88
       ],
-      "mean": 5.47
+      "mean": 5.42
     },
-    "seconds": 559.6
+    "seconds": 559.7
   },
   "warnings": []
 }
