@@ -3,6 +3,8 @@ import type {ShotProps} from './kit';
 import {BananaSlip, CartoonBonk, Crickets, DotsBubble, ExaggeratedZoom, QuestionMarks, RecordScratch, SweatDrop, Tumbleweed} from './funny';
 import {ClosedSign, EmptyOffice, FallingLeaf, LightsOut, RainCloud, WiltingPlant} from './sad';
 import {HeartbeatLine, InterrogationSpotlight, RedAlert, SlowPushIn, TickingClockCloseUp} from './tension';
+import {CheeringCrowd, Confetti, Fireworks, RisingRocket, TrophyShine} from './triumph';
+import {Fog, MagnifierSweep, SilhouetteReveal} from './mystery';
 
 export type Mood = 'funny' | 'sad' | 'tension' | 'triumph' | 'mystery';
 export const MOODS: Mood[] = ['funny', 'sad', 'tension', 'triumph', 'mystery'];
@@ -58,5 +60,17 @@ reg({id: 'HeartbeatLine', mood: 'tension', durationSec: 4, bg: 'board', descript
 reg({id: 'InterrogationSpotlight', mood: 'tension', durationSec: 4, bg: 'board', description: 'dark room, a swinging lamp over a figure at a table, a question pops in', props: 'text (default WHERE WERE YOU?), colour (figure)', component: InterrogationSpotlight});
 reg({id: 'SlowPushIn', mood: 'tension', durationSec: 5, bg: 'paper', description: 'slow ominous push-in on a small figure facing a huge document, the frame closes in', props: 'text (document title, default THE OFFER), colour (header), figureColour', component: SlowPushIn});
 reg({id: 'RedAlert', mood: 'tension', durationSec: 3, bg: 'paper', description: 'hazard stripes, rotating beacon, pulsing orange wash and a big ALERT', props: 'text (default ALERT), sub (caption)', sfxHint: 'alarm', demo: {sub: 'Cash runs out in 30 days'}, component: RedAlert});
+
+// triumph
+reg({id: 'Confetti', mood: 'triumph', durationSec: 3, bg: 'paper', description: 'a figure jumps for joy under looping brand-colour confetti, big pop word', props: 'text (pop word, default DEAL!), caption, colour (figure)', component: Confetti});
+reg({id: 'Fireworks', mood: 'triumph', durationSec: 4, bg: 'board', description: 'night skyline, rockets rise and burst into flat line-fireworks (loops)', props: 'text (caption)', demo: {text: 'Launch night'}, component: Fireworks});
+reg({id: 'RisingRocket', mood: 'triumph', durationSec: 4, bg: 'paper', description: 'a rocket climbs an exponential growth curve, smoke puffs, the value rides along', props: 'text (pop word, default TO THE MOON), value (label next to the rocket), colour (curve)', demo: {value: '+900%'}, component: RisingRocket});
+reg({id: 'TrophyShine', mood: 'triumph', durationSec: 3.5, bg: 'paper', description: 'a trophy pops up on a plinth, turning sun rays, twinkling sparkles', props: 'text (plinth, default #1), caption, colour (cup)', demo: {caption: 'Market leader'}, component: TrophyShine});
+reg({id: 'CheeringCrowd', mood: 'triumph', durationSec: 3.5, bg: 'paper', description: 'two rows of faceless figures cheer and bounce, confetti, YES! and a pop word', props: 'text (pop word, default HOORAY!), caption', component: CheeringCrowd});
+
+// mystery
+reg({id: 'Fog', mood: 'mystery', durationSec: 4.5, bg: 'greyLight', description: 'drifting fog banks hide a lone figure under a street lamp; the fog thins', props: 'text (caption late in the shot)', demo: {text: 'Who made the offer?'}, component: Fog});
+reg({id: 'SilhouetteReveal', mood: 'mystery', durationSec: 4, bg: 'board', description: 'grey silhouette under a spotlight with a big ?, a flash reveals the figure and a name card', props: 'text (name card, default THE BUYER), colour (revealed figure)', component: SilhouetteReveal});
+reg({id: 'MagnifierSweep', mood: 'mystery', durationSec: 4.5, bg: 'greyLight', description: 'a magnifying glass sweeps a document (magnified inside the lens) and stops on the key words', props: 'text (key words, default CLAUSE 7), title (document, default AGREEMENT), caption', demo: {title: 'TERM SHEET', text: 'CLAUSE 7: EXCLUSIVITY'}, component: MagnifierSweep});
 
 export const SHOT_IDS: string[] = Object.keys(SHOTS);

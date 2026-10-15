@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Always runs at the end of render.yml: writes ci/last-run.json + ci/last-run.log and commits them [skip ci].
+# Always runs at the end of render.yml: writes ci/last-run.json + ci/last-run.log and commits them [skip ci]
+# (via ci/push-results.sh: a plumbing commit on top of the current origin/main, no rebase conflicts).
 set -uo pipefail
 job_status="${1:-unknown}"
 mkdir -p build ci
@@ -26,16 +27,8 @@ with open("ci/last-run.json", "w") as f:
     f.write("\n")
 EOF
 
-git config user.name "factory-bot"
-git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-git add ci/last-run.json ci/last-run.log
+files=(ci/last-run.json ci/last-run.log)
 for s in ${SLUGS:-}; do
-  if [ -f "productions/$s/render-report.json" ]; then git add "productions/$s/render-report.json"; fi
+  if [ -f "productions/$s/render-report.json" ]; then files+=("productions/$s/render-report.json"); fi
 done
-git commit -m "ci: render ${job_status} for ${SLUGS:-nothing} [skip ci]" || exit 0
-for i in 1 2 3; do
-  if git pull --rebase --autostash origin main && git push origin HEAD:main; then exit 0; fi
-  sleep $((i * 5))
-done
-echo "could not push results"
-exit 1
+bash ci/push-results.sh "ci: render ${job_status} for ${SLUGS:-nothing} [skip ci]" "${files[@]}"
