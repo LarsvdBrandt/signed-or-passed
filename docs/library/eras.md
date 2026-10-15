@@ -1,7 +1,7 @@
 # Era packs
 
 Code: `render/src/eras/` (registry in `index.ts`, one file per pack). Preview: `preview-eras.mp4` in the
-`sample` release (rendered by the `EraPreview` composition: per era the backdrop, a grid of all props and a small
+`library` release (rendered by the `EraPreview` composition: per era the backdrop, a grid of all props and a small
 composed scene).
 
 An era pack = a **backdrop** + **props** (illustration components) + hints (example date tag, suggested theme,

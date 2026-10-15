@@ -18,7 +18,7 @@ a laugh, a sigh, suspense, a win, a mystery. All shots are self-drawn SVG in the
   `render/src/moods/index.ts` suggests one.
 
 ## Preview
-`MoodPreview` composition -> `preview-moods.mp4` in the `sample` release: every shot with its id and mood.
+`MoodPreview` composition -> `preview-moods.mp4` in the `library` release: every shot with its id and mood.
 
 ## Catalogue (28 shots)
 | shot | mood | sec | what you see | props |

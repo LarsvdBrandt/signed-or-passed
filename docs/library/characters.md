@@ -3,7 +3,7 @@
 The animated, faceless character rig (`render/src/characters`). House style: flat silhouette, 3px outlines, brand
 colours only, **no faces, no likeness of real people, no logos**. Real people are shown as a silhouette + NameCard.
 
-Preview: `preview-characters.mp4` in the `sample` release (every pose, costume, hat, held prop, Crowd2 examples).
+Preview: `preview-characters.mp4` in the `library` release (every pose, costume, hat, held prop, Crowd2 examples).
 
 ## Character (illustration layer component)
 
