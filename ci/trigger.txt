@@ -1,1 +1,1 @@
-iteration 28 - 2026-10-15T04:25:00Z - EFFECTS-2 (transitions library + parallax rig, TransitionPreview) + EFFECTS-3 (particles, new looks)
+iteration 31 - 2026-10-15T05:30:00Z - INFOGRAPHICS-3 (org-chart, family-tree, flow) + InfographicPreview (preview-infographics.mp4)
