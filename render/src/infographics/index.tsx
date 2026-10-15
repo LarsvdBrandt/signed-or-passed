@@ -5,6 +5,7 @@ import {Kicker, SourceLine, useUnit} from '../components/common';
 import type {SceneProps} from '../types';
 import {BarRace, DonutChart, LineAnnotated, NumberTicker, PercentRing, PieChart, RankingList, StackedArea} from './charts';
 import {BubbleChart, CalendarHeatmap, Choropleth, ComparisonTable, MoneyStacks, WhatCouldBuy} from './charts2';
+import {FamilyTree, FlowDiagram, OrgChart} from './charts3';
 import type {InfoProps} from './shared';
 
 export type {InfoProps} from './shared';
@@ -12,7 +13,8 @@ export type {InfoProps} from './shared';
 /**
  * Infographic registry (scene kind 'infographic', visual {type, title?, unit?, sourceId, data}).
  * Add a type: write a React.FC<InfoProps> and register it here + in schema/spec.schema.json ($defs/infographicType)
- * + docs/library/infographics.md. Data infographics need a sourceId (validate_spec.py).
+ * + docs/library/infographics.md. Data infographics need a sourceId (validate_spec.py); diagrams (org-chart,
+ * family-tree, flow) do not.
  */
 export const INFOGRAPHICS: Record<string, React.FC<InfoProps>> = {
   // INFOGRAPHICS-1 (charts.tsx)
@@ -31,6 +33,10 @@ export const INFOGRAPHICS: Record<string, React.FC<InfoProps>> = {
   'map-choropleth': Choropleth,
   'money-stacks': MoneyStacks,
   'what-could-buy': WhatCouldBuy,
+  // INFOGRAPHICS-3 (charts3.tsx): diagrams without data
+  'org-chart': OrgChart,
+  'family-tree': FamilyTree,
+  flow: FlowDiagram,
 };
 
 export const INFOGRAPHIC_TYPES = Object.keys(INFOGRAPHICS);
