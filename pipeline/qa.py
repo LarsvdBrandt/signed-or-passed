@@ -23,6 +23,15 @@ def loudness(path):
     return json.loads(m.group(0)) if m else None
 
 
+def silences(path):
+    """(starts, ends) of every stretch quieter than -50 dBFS for >= 2 s (ffmpeg silencedetect)."""
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(path), "-vn", "-af",
+                        "silencedetect=noise=-50dB:d=2", "-f", "null", "-"], capture_output=True, text=True)
+    starts = [float(x) for x in re.findall(r"silence_start: (-?[0-9.]+)", p.stderr)]
+    ends = [float(x) for x in re.findall(r"silence_end: (-?[0-9.]+)", p.stderr)]
+    return starts, ends
+
+
 def main():
     args = slug_arg(lambda p: p.add_argument("--gate", action="store_true"))
     slug = args.slug
@@ -36,7 +45,7 @@ def main():
 
     spec = load_spec(slug)
     test = is_test(slug)
-    checks, durations = [], {}
+    checks, durations, audio_stats = [], {}, {}
 
     def check(name, ok, detail=""):
         checks.append({"name": name, "ok": bool(ok), "detail": str(detail)})
@@ -73,6 +82,17 @@ def main():
                 i, tp = float(L["input_i"]), float(L["input_tp"])
                 check(f"{fname}: loudness -14 LUFS (+/-1)", abs(i + 14) <= 1.0, f"{i:.1f} LUFS")
                 check(f"{fname}: true peak <= -1 dBTP (0.3 dB codec tolerance)", tp <= -0.7, f"{tp:.1f} dBTP")
+                # AUDIO-1: a mix can hit -14 LUFS and still have dead air (a missing voice clip, a bed that stopped)
+                starts, ends = silences(path)
+                ends += [dur] * (len(starts) - len(ends))
+                spans = [max(0.0, e - st) for st, e in zip(starts, ends)]
+                longest, total_sil = (max(spans) if spans else 0.0), sum(spans)
+                audio_stats[fname] = {"lufs": i, "truePeakDb": tp, "lra": float(L.get("input_lra") or 0),
+                                      "silences": len(spans), "longestSilenceSec": round(longest, 2),
+                                      "silentPct": round(100.0 * total_sil / dur, 1) if dur else 0.0}
+                check(f"{fname}: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
+                      longest < 4.0 and (total_sil / dur if dur else 1) < 0.05,
+                      f"{len(spans)} silence(s), longest {longest:.1f}s, {100.0 * total_sil / dur if dur else 0:.1f}% silent")
             else:
                 check(f"{fname}: loudness measurable", False, "loudnorm parse failed")
 
@@ -116,6 +136,7 @@ def main():
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "checks": checks,
         "durations": durations,
+        "audio": audio_stats,
         "warnings": warnings(slug),
     }
     write_json(out / "render-report.json", report)
