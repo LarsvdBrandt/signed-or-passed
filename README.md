@@ -59,7 +59,7 @@ committed (`ci/runs/<slug>.json`): a lost render is caught up automatically, a f
 | `brand/` | palette, fonts (URLs, OFL), music licences (`music/licenses.csv`), recorded sound manifest (`sfx/manifest.csv`), voice catalogue (`voices.json`) |
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
-| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library; `musicgen.py` = generated music; `voice_samples.py` = voice board; `retention.py` = beats, keywords, beat sounds |
+| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library; `musicgen.py` = generated music (`musicdyn.py` = music energy per scene); `voice_samples.py` = voice board; `retention.py` = beats, keywords, beat sounds |
 | `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `EffectsPreview`, `TransitionPreview`, `InfographicPreview`, `TypographyPreview`, `TemplatePreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
@@ -227,7 +227,7 @@ No faces, no logos, company names as typography only.
 
 Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
 is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec`, `dateTag`,
-`lowerThird`, `voiceSpeed`, `beats`, `autoBeats` and `coldOpen`.
+`lowerThird`, `voiceSpeed`, `beats`, `autoBeats`, `coldOpen` and `musicEnergy`.
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
@@ -263,11 +263,16 @@ text) | `full` (word-by-word captions) | `off`. Beats get automatic sounds under
 low|mid|high, default mid). **Cold open**: `scenes[].coldOpen` (true or `{style, label, rampSec, desaturate, flash}`)
 turns the first scene(s) into a flash-forward (speed-ramp, desaturated, flash frame + whoosh); the brand sting then
 follows the hook.
+**Sound dynamics**: `scenes[].musicEnergy` (low | mid | high | drop | stop, sticky) re-arranges the generated music
+per act (layers in/out, filter sweeps, drop + slam back in; library tracks follow a gain curve). Automatic (`spec.sound
+{autoRisers, revealPauseSec, verdictImpact}`): a 2 s riser into every question and into the reveal, 0.6 s of total
+silence right before the reveal, an impact on the verdict.
 
 ## Timing
 Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.2 s (first scene
 0.3 s), 0.25 s between sentences, 0.15 s tail (0.35 s between scenes); question scenes add `holdSec` (3-2-1
-countdown); verdict scenes last at least 2.8 s; `minDurationSec` extends a scene (use it for map, city, growth,
+countdown); the scene before the reveal holds 0.6 s longer (silence before the reveal, `spec.sound.revealPauseSec`);
+verdict scenes last at least 2.8 s; `minDurationSec` extends a scene (use it for map, city, growth,
 photo-wall, document and infographic scenes). Each new scene slides in like a sheet of paper (12 frames) unless a
 `transition` is set. `[pause 0.6]` (or `[PAUSE]` = 0.5 s) adds a deliberate pause.
 
