@@ -309,8 +309,12 @@ build | excited | punch | somber | warm` from inline tags like `[build]`, `scene
 built-in voice (`reference: default`) or one cloned from a generated `narrator` reference; whole-track ASR + liveliness
 + words-per-minute QA; A/B workflow `voice-test.yml`; on GitHub the clips are generated in parallel over 2-12 runners,
 `ci/tts-plan.py`). **Channel default:** `{"engine": "chatterbox", "voice": "default", "reference": "default"}` with the
-VOICE-8 tuning (exaggeration +0.15, cfg -0.10, pace 0.94, pauses x1.15, pace guard 145-155 wpm; overridable with
-`voice.exaggerationOffset / cfgOffset / pace / pauseScale / targetWpm`)
+VOICE-8 tuning (exaggeration +0.15, cfg -0.10, pauses x1.15; overridable with
+`voice.exaggerationOffset / cfgOffset / pace / pauseScale / targetWpm`). Since VOICE-10a Chatterbox audio is **never
+time-stretched** (pace 1.0; an explicit `voice.pace` is clamped to 0.97-1.0, `scenes[].voiceSpeed` is ignored for
+Chatterbox): the pace guard (145-155 wpm) only nudges the pauses (x1.0-1.6). `voice.paragraphs: true` generates 2-4
+sentences per Chatterbox call (natural intonation across sentences) and cuts them at word timestamps; listening test
+`voice-test-2.yml` (`ci/voice-ab.py`, release `voice-test-2`) and the engine research in `docs/library/voice-research.md`)
 and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.
 `nl_BE-rdh-medium`, `nl_NL-alex-medium`, `nl_NL-mls-medium`, `en_US-ljspeech-high`; CC BY voices are credited in the
 description). `[pause 0.5]` in a narration inserts 0.5 s of silence (`[PAUSE]` = 0.5 s; not spoken, not in
