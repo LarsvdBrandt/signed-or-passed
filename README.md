@@ -227,7 +227,8 @@ No faces, no logos, company names as typography only.
 
 Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
 is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec`, `dateTag`,
-`lowerThird`, `voiceSpeed`, `beats`, `autoBeats`, `coldOpen` and `musicEnergy`.
+`lowerThird`, `voiceSpeed`, `beats`, `autoBeats`, `coldOpen`, `musicEnergy` and `section` (VOICE-12: the scene opens a
+new story section, so a longer pause comes before it).
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
@@ -275,6 +276,10 @@ countdown); the scene before the reveal holds 0.6 s longer (silence before the r
 verdict scenes last at least 2.8 s; `minDurationSec` extends a scene (use it for map, city, growth,
 photo-wall, document and infographic scenes). Each new scene slides in like a sheet of paper (12 frames) unless a
 `transition` is set. `[pause 0.6]` (or `[PAUSE]` = 0.5 s) adds a deliberate pause.
+Chatterbox productions (channel default) use the **VOICE-12 breathing-room** table instead of the gaps above: exact
+speech-to-speech pauses of 0.45 s between sentences, 0.75 s between paragraphs, 0.9 s between scenes, 1.6 s before a
+new story section, 0.6 s before / 0.9 s after a punch or big-number line, 1.2 s after the reveal line; the visual cut
+sits ~40 % into the pause and in-scene pauses >= 1 s get an automatic punch-in (see Voices).
 
 ## QA (render-report.json)
 Duration (long 8-12 min, short 45-60 s; `0000-*` test productions are exempt), resolution, audio present,
@@ -284,6 +289,8 @@ verdict scenes, >= 3 chapters, synthetic-voice disclosure. Retention QA (docs/li
 no static picture > 6 s outside question holds (warn > 4 s), brand sting after the hook; warnings for no
 number/keyword in the first 8 s, < 20 measured visual changes/min and a missing silence before the reveal;
 `report.retention` holds changes/min, beats/min, sfx/min, the longest static stretch and the reveal silence level.
+Intentional pauses (timing.json `breaths` <= 1.8 s) are exempt from the static-picture scan; the voice pace warning
+judges the overall rate (words / whole video: 135-145 wpm with the VOICE-12 breathing layout).
 Warnings do not fail the gate.
 
 ## Metadata (metadata.json)
@@ -318,9 +325,16 @@ built-in voice (`reference: default`) or one cloned from a generated `narrator` 
 `ci/tts-plan.py`). **Channel default (VOICE-11, "normal voice"):** `{"engine": "chatterbox", "voice": "default", "reference": "default"}`
 = variant C of `voice-test-2`: natural speed, no exaggeration / cfg offsets, paragraph generation, pauses x1.15 + a
 0.25 s punch beat (overridable with `voice.exaggeration / cfgWeight / temperature / exaggerationOffset / cfgOffset /
-pace / pauseScale / paragraphs / targetWpm`). Chatterbox audio is **never time-stretched** (pace 1.0; an explicit
-`voice.pace` is clamped to 0.97-1.0, `scenes[].voiceSpeed` is ignored for Chatterbox); the pace guard is opt-in
-(`voice.targetWpm`) and only nudges the pauses (x1.0-1.6). `voice.paragraphs` (default true) generates 2-4
+pace / pauseScale / paragraphs / targetWpm`). **VOICE-12 breathing room (channel default):** pauses are exact
+speech-to-speech gaps: sentence 0.45 s, paragraph 0.75 s, scene 0.9 s, story section 1.6 s (before chapter / question /
+reveal / verdict / lesson scenes or `scenes[].section`, filled with a soft whoosh + music swell), 0.6 s before and
+0.9 s after a `[punch]` / big-number line, 1.2 s after the reveal line, question hold 3 s; Shorts x0.75; overridable
+in `voice.pauses` (`false` = legacy pace); the default pace guard scales only these pauses (x0.8-1.4, max 1.8 s each)
+toward ~140 wpm over the whole video; render-report.json reports `overallWpm` and `inSentenceWpm`
+(docs/library/voices.md). Chatterbox audio is **never time-stretched** (pace 1.0; an explicit
+`voice.pace` is clamped to 0.97-1.0, `scenes[].voiceSpeed` is ignored for Chatterbox); with the breathing layout the
+pace guard is on by default and only scales the pauses (`voice.paceGuard: false` turns it off); with `voice.pauses:
+false` the legacy guard is opt-in (`voice.targetWpm`, pauses x1.0-1.6). `voice.paragraphs` (default true) generates 2-4
 sentences per Chatterbox call (natural intonation across sentences) and cuts them at word timestamps; listening test
 `voice-test-2.yml` (`ci/voice-ab.py`, release `voice-test-2`) and the engine research in `docs/library/voice-research.md`)
 and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.

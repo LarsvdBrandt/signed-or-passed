@@ -29,16 +29,45 @@ moderate emotion, paragraph flow, the good pauses kept:
 | `exaggerationOffset` | 0 | VOICE-11: no offset (the VOICE-8 +0.15 made the voice static); the VOICE-3 delivery styles alone vary the emotion around exaggeration 0.5 |
 | `cfgOffset` | 0 | VOICE-11: no offset (VOICE-8 used -0.10); cfg_weight 0.5 base per the delivery styles |
 | `pace` | 1.0 | VOICE-10a: **no time-stretch** (the 0.88 rubberband stretch of VOICE-8 made the voice drone); an explicit value is clamped to 0.97-1.0, scene `voiceSpeed` and style speed factors are ignored for Chatterbox |
-| `pauseScale` | 1.15 | pauses between sentences and after styles +15 %; punch beat 0.25 s |
-| `targetWpm` | not set | VOICE-11: the pace guard is **opt-in**: only when `targetWpm` is set (and `pace` / `pauseScale` are not) are the PAUSES of the main video nudged (pauseScale 1.0-1.6) toward this band; by default the voice speaks at its natural speed (~180-200 wpm in-scene) |
+| `pauses` | table below | **VOICE-12 breathing room**: exact speech-to-speech pauses (s) per boundary; `false` = the legacy pace (pauses x`pauseScale`) |
+| `pauseScale` | 1.0 | VOICE-12: multiplies every value of the pause table (explicit value = pace guard off); legacy layout 1.15 |
+| `paceGuard` | true | VOICE-12: when the **overall** rate (words / whole video) is outside 137-143 wpm, all pauses are scaled x0.8-1.4 (each capped at 1.8 s) toward 140; the voice is never stretched. `targetWpm` sets another band |
 | `paragraphs` | true | VOICE-10b/11: 2-4 sentences of one thought per Chatterbox call (flowing intonation instead of reading a list), see below; `false` = sentence by sentence |
+
+### Pause defaults (VOICE-12 "breathing room", channel default)
+
+Lars, 15 Oct 2026 21:40: *the speed of the sentences themselves is fine, but the pauses are too short: he rushes the
+sentences and chapters one after another*. The voice is unchanged; only the pauses grew. Each value is the silence
+from the last word of one sentence to the first word of the next (never inside a sentence), overridable per key in
+`spec.voice.pauses`:
+
+| key | default | where |
+|---|---|---|
+| `sentence` | 0.45 s | between sentences inside one paragraph / scene |
+| `paragraph` | 0.75 s | between two paragraph clips (chunks) in the same scene |
+| `scene` | 0.9 s | between scenes (the visual cut sits ~40 % into the pause) |
+| `section` | 1.6 s | before a new story **section** (hook -> promise -> set the scene -> pressure -> freeze -> reveal -> aftermath -> verdict -> lesson): automatically before every `chapter`, `question`, `reveal`, `verdict` and `lesson` scene and after a cold open; mark other section starts with `scenes[].section: true` (or a label). A soft house `whoosh` (-9 dB) on the cut + a music swell (~+2.6 dB) fill it |
+| `beforePunch` | 0.6 s | before a `[punch]` line |
+| `afterPunch` | 0.9 s | after a `[punch]` line or a big-number line (thousand / million / billion / percent / $ amounts) |
+| `afterReveal` | 1.2 s | after the first line of the reveal scene |
+| `afterQuestion` | 3 s | the question hold (`visual.holdSec` wins) |
+| `shortScale` | 0.75 | every pause x0.75 in Shorts (they must stay <= 60 s) |
+
+The largest applicable value wins (e.g. a punch line at a scene boundary gets max(0.9, 0.9)); `[pause N]` markers and the
+small style pauses (excited / somber 0.1 s ...) come on top; the reveal silence (`sound.revealPauseSec`), the brand
+sting and the question hold stay as they were. Target: **135-145 wpm over the whole video** (in-sentence rate
+unchanged, ~245 wpm measured on clip time); the pace guard aims at 140. Visuals follow automatically (timing.json),
+every intentional pause >= 1 s inside a scene gets an automatic punch-in (build_props), timing.json `breaths` lists
+them and qa.py ignores intentional pauses <= 1.8 s in its static-picture scan; render-report.json `voice.pace` reports
+`overallWpm` and `inSentenceWpm` side by side.
 
 Override any of them in `spec.voice` only for a reason (e.g. `"exaggeration": 0.65, "cfgWeight": 0.4` = variant D,
 more emotion; `"temperature": 0.9` = variant E; `"paragraphs": false` = variant B; `"exaggerationOffset": 0.15,
 "cfgOffset": -0.1` = the old VOICE-8 tuning). Mark the moments that matter with the
 delivery tags below (`[build]`, `[punch]`, `[excited]`, `[somber]`, `[warm]`, `[tense]`, `[curious]`, `[calm]`).
-The measured pace is in `render-report.json` -> `voice.pace` (`wpm`, `articulationWpm`) and QA warns (never fails)
-outside 135-165 wpm over the whole cut.
+The measured pace is in `render-report.json` -> `voice.pace` (`overallWpm` = words / whole video, `inSentenceWpm` =
+words / sentence time, plus `wpm` and `articulationWpm`) and QA warns (never fails) outside 133-147 wpm over the whole
+cut with the breathing layout (legacy layout: 135-165).
 
 ## Expressive narration: engine `chatterbox` (VOICE-1..10)
 
@@ -62,8 +91,10 @@ livelier at the build-up to a big number, a beat of suspense before the key word
 | `cfgOffset` | 0 | added to every style's cfg_weight (-0.5..0.5, floor 0.25 when negative); VOICE-8 used -0.10 |
 | `pace` | 1.0 | VOICE-10a: Chatterbox clamped to 0.97-1.0 (max 3 % stretch); Kokoro / Piper: speed factor; setting it disables the pace guard |
 | `paragraphs` | true | VOICE-10b: paragraph generation (chatterbox only); default since VOICE-11 |
-| `pauseScale` | 1.15 | VOICE-8: multiplies sentence gaps and style pauses (0.5-2.0) |
-| `targetWpm` | not set | opt-in pace guard band, e.g. [145, 155] (spoken words per minute, pauses inside scenes included); only the pauses move |
+| `pauses` | table above | VOICE-12 pause table (seconds per boundary), `false` = legacy layout |
+| `pauseScale` | 1.0 | VOICE-12: multiplies every pause of the table (0.5-2.0) and turns the pace guard off; legacy layout: sentence gaps and style pauses, default 1.15 |
+| `paceGuard` | true | VOICE-12: scale the pauses (x0.8-1.4, max 1.8 s each) toward ~140 wpm over the whole video |
+| `targetWpm` | not set | pace guard band over the whole video (default 137-143 with the breathing layout); legacy layout: opt-in band, e.g. [145, 155]; only the pauses move |
 
 ### Delivery styles (`pipeline/delivery.py`)
 
@@ -108,8 +139,9 @@ first) and uploads the clips as artifact `tts-<slug>-<i>`; the render job downlo
 generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper productions get no fan-out jobs.
 
 ### Voice QA (`pipeline/qa.py`, `build/<slug>/voice-qa.json`)
-- pace: `narrationWpm` = words / whole main cut duration (the conventional narration rate, computed by qa.py; the
-  QA band 135-165 wpm is judged on it), `wpm` = words / speech time (first to last word of each scene, pauses inside a scene included; scene gaps,
+- pace: `narrationWpm` = `overallWpm` = words / whole main cut duration (the conventional narration rate, computed by
+  qa.py; the QA band is judged on it: 135-145 wpm +/-2 with the VOICE-12 breathing layout, 135-165 legacy), `inSentenceWpm`
+  = `articulationWpm`, `wpm` = words / speech time (first to last word of each scene, pauses inside a scene included; scene gaps,
   question holds and the sting excluded), `articulationWpm` = words / clip time; warning outside 135-165 wpm;
 - every Chatterbox clip is transcribed with faster-whisper `base.en` and compared with `pipeline/textnorm.py`: both
   sides are mapped to one canonical form first (spelled-out and digit numbers, years, ordinals, decimals and
@@ -174,6 +206,15 @@ paceGuard false}`: no stretch, no VOICE-8 offsets, paragraph generation by defau
 explicit `targetWpm`. Blockbuster and Nike were re-rendered with it through `ci/rerender.txt` (their specs carry no
 voice overrides). D (more emotion) and E (temperature 0.9) remain one spec field away (see the table above).
 
+### VOICE-12 (iteration 60): breathing room
+
+Lars watched Nike v2 (155 wpm overall): the voice is right, the pauses are too short. `delivery.CHANNEL_PAUSES` +
+`tts.layout_breathing` lay every pause out as an exact speech-to-speech gap per boundary type (table above), the
+channel default for Chatterbox; `delivery.CHANNEL_TUNING.pauseScale` (1.15) only applies to the legacy layout
+(`voice.pauses: false`). A layout simulation on both specs gave ~146-148 wpm with the bare table, so the pace guard
+(default on, pauses only, x0.8-1.4, each pause capped at 1.8 s) brings the whole video to ~140 wpm. Both productions
+were re-rendered through `ci/rerender.txt`.
+
 ## Licence rule for Piper voices
 
 A Piper voice is allowed only when its training data is CC0, public domain or CC BY, and it was trained from
@@ -195,12 +236,15 @@ fine-tuned from it (`nl_NL-pim`, `nl_NL-ronnie`, `nl_BE-nathalie`, `en_GB-vctk`,
 "voice": {"engine": "piper", "voice": "nl_NL-mls-medium", "speaker": 3, "speed": 1.0}
 "voice": {"engine": "chatterbox", "voice": "default", "reference": "default"}
 "voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "exaggeration": 0.65, "cfgWeight": 0.4}
+"voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "pauses": {"section": 1.8, "scene": 1.0}}
 ```
 
 ## Narration controls
 
 - `[pause 0.5]` anywhere in `narration` inserts 0.5 s of silence. The marker is not spoken and never appears in
-  captions or timing (`pipeline/tts.py`).
+  captions or timing (`pipeline/tts.py`); with the VOICE-12 layout it comes on top of the table pause.
+- `scenes[].section: true` (or a label) marks the start of a new story section: the longer `section` pause comes
+  before it.
 - `scenes[].voiceSpeed` (0.5-2.0) overrides `voice.speed` for one scene, e.g. slower for the verdict (Kokoro / Piper;
   ignored for Chatterbox since VOICE-10a).
 
