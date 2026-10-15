@@ -1,1 +1,1 @@
-iteration 33 · 2026-10-15T06:25:00Z · scene templates (SCENES-1/2/3) + everything since c241eca (music, voices, sample v2.2)
+iteration 33b · 2026-10-15T06:30:00Z · scene templates (SCENES-1/2/3) + schema vTemplate + preview-templates.mp4 + everything since c241eca (music, voices, sample v2.2)

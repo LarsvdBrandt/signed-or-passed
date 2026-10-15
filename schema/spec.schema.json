@@ -172,7 +172,7 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "template", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1, "description": "spoken text; '[pause 0.5]' inserts 0.5 s of silence (not spoken, not captioned)"},
         "voiceSpeed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "overrides voice.speed for this scene"},
         "onScreenText": {"type": ["string", "null"]},
@@ -208,6 +208,7 @@
       "allOf": [
         {"if": {"properties": {"kind": {"const": "title"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTitle"}}}},
         {"if": {"properties": {"kind": {"const": "illustration"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vIllustration"}}}},
+        {"if": {"properties": {"kind": {"const": "template"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTemplate"}}}},
         {"if": {"properties": {"kind": {"const": "evidence"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vEvidence"}}}},
         {"if": {"properties": {"kind": {"const": "chart"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vChart"}}}},
         {"if": {"properties": {"kind": {"const": "counter"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCounter"}}}},
@@ -233,6 +234,26 @@
     "vTitle": {"type": "object", "required": ["title"], "properties": {"title": {"type": "string"}, "subtitle": {"type": "string"}}},
     "vText": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string"}}},
     "vVerdict": {"type": "object", "required": ["verdict"], "properties": {"verdict": {"enum": ["SIGNED", "PASSED"]}}},
+    "vTemplate": {
+      "type": "object",
+      "required": ["template"],
+      "description": "ready-made era-aware scene (render/src/templates, docs/library/templates.md). Slots per template (labels / colours): boardroom-meeting left, right, chair, document, banner; phone-call-split-screen left, right, line; signing-ceremony left, right, document, stamp, banner; rejection-letter document, stamp, recipient, note; factory-floor company, boss, workers; stock-market-crash headline, index; store-opening-queue store, sign, note; garage-startup name, left, right, roof; press-conference speaker, org, podium, banner; courtroom court, left, right, case; ship-departure ship, destination, sea; city-at-night-thinking thought, person, windows. An empty label switches that name card / overlay off.",
+      "properties": {
+        "template": {"enum": ["boardroom-meeting", "phone-call-split-screen", "signing-ceremony", "rejection-letter", "factory-floor", "stock-market-crash", "store-opening-queue", "garage-startup", "press-conference", "courtroom", "ship-departure", "city-at-night-thinking"]},
+        "era": {"type": "string", "description": "ancient | medieval | golden-age | industrial | twenties | fifties | eighties | nineties | noughties | modern | future, or an alias (rome, 1600s, victorian, 1920s, 1950s, 1980s, 1990s, 2000s, today ...); default per template"},
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}},
+        "colours": {"type": "object", "additionalProperties": {"type": "string"}, "description": "brand colour names (ink, stamp, board, grey, greyLight, paper) or hex"},
+        "props": {
+          "type": "object",
+          "description": "extensions: background (replaces the background), layers (extra illustration layers, also the template parts Garage, Podium, Bench, Quay, Waves, NightSkyline, WindowFrame; optional drift {dx, dy, startSec} in % per second), overlays [{text, x, y, style: stamp | sign | banner | caption | neon | flash, colour, rotate, delaySec, size}]",
+          "properties": {
+            "background": {"type": "string"},
+            "layers": {"type": "array", "items": {"type": "object", "required": ["component"]}},
+            "overlays": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "x": {"type": "number"}, "y": {"type": "number"}, "style": {"enum": ["stamp", "sign", "banner", "caption", "neon", "flash"]}, "colour": {"type": "string"}, "rotate": {"type": "number"}, "delaySec": {"type": "number", "minimum": 0}, "size": {"type": "number", "exclusiveMinimum": 0}}}}
+          }
+        }
+      }
+    },
     "textPreset": {"enum": ["typewriter", "word-pop", "highlighter-marker", "strike-then-correct", "stamp-text", "neon-flicker", "handwritten-reveal", "newspaper-spin", "split-flap", "scrolling-ticker", "quote-card"]},
     "vKineticText": {
       "type": "object",
