@@ -1,45 +1,42 @@
-Rendered 390/480, time remaining: 3s
-Rendered 391/480, time remaining: 3s
-Rendered 392/480, time remaining: 3s
 Rendered 393/480, time remaining: 3s
 Rendered 394/480, time remaining: 3s
 Rendered 395/480, time remaining: 3s
 Rendered 396/480, time remaining: 3s
 Rendered 397/480, time remaining: 3s
 Rendered 398/480, time remaining: 3s
-Rendered 398/480, time remaining: 3s
 Rendered 399/480, time remaining: 3s
 Rendered 400/480, time remaining: 3s
 Rendered 401/480, time remaining: 3s
+Rendered 402/480, time remaining: 3s
 Rendered 402/480, time remaining: 3s
 Rendered 403/480, time remaining: 3s
 Rendered 404/480, time remaining: 3s
 Rendered 405/480, time remaining: 3s
 Rendered 406/480, time remaining: 3s
-Rendered 406/480, time remaining: 3s
 Rendered 407/480, time remaining: 3s
 Rendered 408/480, time remaining: 3s
 Rendered 409/480, time remaining: 3s
-Rendered 410/480, time remaining: 3s
-Rendered 411/480, time remaining: 3s
+Rendered 410/480, time remaining: 2s
+Rendered 410/480, time remaining: 2s
+Rendered 411/480, time remaining: 2s
 Rendered 412/480, time remaining: 2s
 Rendered 413/480, time remaining: 2s
 Rendered 414/480, time remaining: 2s
 Rendered 415/480, time remaining: 2s
 Rendered 416/480, time remaining: 2s
-Rendered 416/480, time remaining: 2s
 Rendered 417/480, time remaining: 2s
 Rendered 418/480, time remaining: 2s
+Rendered 419/480, time remaining: 2s
 Rendered 419/480, time remaining: 2s
 Rendered 420/480, time remaining: 2s
 Rendered 421/480, time remaining: 2s
 Rendered 422/480, time remaining: 2s
 Rendered 423/480, time remaining: 2s
 Rendered 424/480, time remaining: 2s
-Rendered 424/480, time remaining: 2s
 Rendered 425/480, time remaining: 2s
 Rendered 426/480, time remaining: 2s
 Rendered 427/480, time remaining: 2s
+Rendered 428/480, time remaining: 2s
 Rendered 428/480, time remaining: 2s
 Rendered 429/480, time remaining: 2s
 Rendered 430/480, time remaining: 2s
@@ -47,10 +44,10 @@ Rendered 431/480, time remaining: 2s
 Rendered 432/480, time remaining: 2s
 Rendered 433/480, time remaining: 2s
 Rendered 434/480, time remaining: 2s
-Rendered 434/480, time remaining: 2s
 Rendered 435/480, time remaining: 2s
-Rendered 436/480, time remaining: 2s
+Rendered 436/480, time remaining: 1s
 Rendered 437/480, time remaining: 1s
+Rendered 438/480, time remaining: 1s
 Rendered 438/480, time remaining: 1s
 Rendered 439/480, time remaining: 1s
 Rendered 440/480, time remaining: 1s
@@ -58,9 +55,9 @@ Rendered 441/480, time remaining: 1s
 Rendered 442/480, time remaining: 1s
 Rendered 443/480, time remaining: 1s
 Rendered 444/480, time remaining: 1s
-Rendered 444/480, time remaining: 1s
 Rendered 445/480, time remaining: 1s
 Rendered 446/480, time remaining: 1s
+Rendered 447/480, time remaining: 1s
 Rendered 447/480, time remaining: 1s
 Rendered 448/480, time remaining: 1s
 Rendered 449/480, time remaining: 1s
@@ -68,9 +65,9 @@ Rendered 450/480, time remaining: 1s
 Rendered 451/480, time remaining: 1s
 Rendered 452/480, time remaining: 1s
 Rendered 453/480, time remaining: 1s
-Rendered 453/480, time remaining: 1s
 Rendered 454/480, time remaining: 1s
 Rendered 455/480, time remaining: 1s
+Rendered 456/480, time remaining: 1s
 Rendered 456/480, time remaining: 1s
 Rendered 457/480, time remaining: 1s
 Rendered 458/480, time remaining: 1s
@@ -78,9 +75,9 @@ Rendered 459/480, time remaining: 0s
 Rendered 460/480, time remaining: 0s
 Rendered 461/480, time remaining: 0s
 Rendered 462/480, time remaining: 0s
-Rendered 462/480, time remaining: 0s
 Rendered 463/480, time remaining: 0s
 Rendered 464/480, time remaining: 0s
+Rendered 465/480, time remaining: 0s
 Rendered 465/480, time remaining: 0s
 Rendered 466/480, time remaining: 0s
 Rendered 467/480, time remaining: 0s
@@ -88,25 +85,24 @@ Rendered 468/480, time remaining: 0s
 Rendered 469/480, time remaining: 0s
 Rendered 470/480, time remaining: 0s
 Rendered 471/480, time remaining: 0s
-Rendered 471/480, time remaining: 0s
 Rendered 472/480, time remaining: 0s
 Rendered 473/480, time remaining: 0s
+Rendered 474/480, time remaining: 0s
 Rendered 474/480, time remaining: 0s
 Rendered 475/480, time remaining: 0s
 Rendered 476/480, time remaining: 0s
 Rendered 477/480, time remaining: 0s
 Rendered 478/480, time remaining: 0s
 Rendered 479/480, time remaining: 0s
-Encoded 337/480
-Encoded 348/480
-Encoded 375/480
+Encoded 339/480
+Encoded 356/480
 Encoded 384/480
 Encoded 480/480
 [34m+                    ../build/0000-sample/short-s1/silent.mp4[39m [90m2.2 MB[39m
-===== [mux:0000-sample:short-s1] 06:14:41 =====
-===== [thumbnail:0000-sample] 06:14:42 =====
+===== [mux:0000-sample:short-s1] 07:25:37 =====
+===== [thumbnail:0000-sample] 07:25:37 =====
 Bundling 6%
-Bundling 22%
+Bundling 18%
 Bundling 55%
 Bundling 65%
 Bundling 71%
@@ -124,16 +120,17 @@ Rendered 0/1
 Rendered 0/1
 Rendered 1/1
 [34m+                    ../build/0000-sample/out/thumbnail.png[39m
-===== [preview:0000-sample] 06:14:46 =====
-===== [preview-themes:0000-sample] 06:17:30 =====
-===== [preview-eras:0000-sample] 06:20:16 =====
-===== [preview-moods:0000-sample] 06:22:38 =====
-===== [preview-characters:0000-sample] 06:24:37 =====
-===== [preview-effects:0000-sample] 06:25:39 =====
-===== [preview-transitions:0000-sample] 06:29:58 =====
-===== [preview-infographics:0000-sample] 06:31:43 =====
-===== [preview-typography:0000-sample] 06:33:31 =====
-===== [sound-fetch:0000-sample] 06:35:36 =====
+===== [preview:0000-sample] 07:25:41 =====
+===== [preview-themes:0000-sample] 07:28:21 =====
+===== [preview-eras:0000-sample] 07:31:06 =====
+===== [preview-moods:0000-sample] 07:33:26 =====
+===== [preview-characters:0000-sample] 07:35:24 =====
+===== [preview-effects:0000-sample] 07:36:26 =====
+===== [preview-transitions:0000-sample] 07:40:42 =====
+===== [preview-infographics:0000-sample] 07:42:26 =====
+===== [preview-typography:0000-sample] 07:44:13 =====
+===== [preview-templates:0000-sample] 07:46:18 =====
+===== [sound-fetch:0000-sample] 07:48:56 =====
   ok   applause_small_audience.wav: CC0 by Sandermotions (6.3 s)
   ok   crowd_murmur.wav: CC0 by unfa (10.0 s)
   ok   laugh_short.wav: CC0 by lmbubec (1.28 s)
@@ -152,7 +149,7 @@ Rendered 1/1
   ok   rain_distant_thunder.wav: CC0 by kvgarlic (10.0 s)
   ok   city_street.wav: CC0 by sagetyrtle (10.0 s)
 recorded sfx: 17 accepted, 0 rejected
-===== [sound-library:0000-sample] 06:36:03 =====
+===== [sound-library:0000-sample] 07:49:21 =====
 sfx pen_scribble          1.30s  office
 sfx stamp_thud            0.70s  office
 sfx paper_rustle          0.90s  office
@@ -207,14 +204,14 @@ sfx drum_roll             2.60s  music
 sfx cymbal_crash          2.80s  music
 sound board: 69 sounds (17 recorded), 241.2 s, 7237 frames
 zip -> /home/runner/work/signed-or-passed/signed-or-passed/build/0000-sample/out/sfx-library.zip
-===== [sound-board:0000-sample] 06:36:05 =====
-===== [sound-board-mux:0000-sample] 06:40:43 =====
-===== [music-library:0000-sample] 06:40:49 =====
+===== [sound-board:0000-sample] 07:49:23 =====
+===== [sound-board-mux:0000-sample] 07:53:54 =====
+===== [music-library:0000-sample] 07:54:00 =====
 music library: 17 files, board 303.0 s (9090 frames) -> /home/runner/work/signed-or-passed/signed-or-passed/build/music-lib
 zip -> /home/runner/work/signed-or-passed/signed-or-passed/build/0000-sample/out/music-library.zip
-===== [music-board:0000-sample] 06:41:30 =====
-===== [music-board-mux:0000-sample] 06:47:11 =====
-===== [voice-library:0000-sample] 06:47:23 =====
+===== [music-board:0000-sample] 07:54:39 =====
+===== [music-board-mux:0000-sample] 08:00:13 =====
+===== [voice-library:0000-sample] 08:00:25 =====
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/nn/modules/rnn.py:123: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1
   warnings.warn(
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
@@ -257,36 +254,36 @@ voice im_nicola: 3.8 s
 voice pf_dora: 3.2 s
 voice pm_alex: 3.4 s
 installing piper-tts==1.3.0 ...
-[0;93m2026-10-15 06:49:24.981328678 [W:onnxruntime:Default, device_discovery.cc:95 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
+[0;93m2026-10-15 08:02:24.444795461 [W:onnxruntime:Default, device_discovery.cc:95 GetPciBusId] Skipping pci_bus_id for PCI path at "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/VMBUS:00/5620e0c7-8062-4dce-aeb7-520c7ef76171" because filename "5620e0c7-8062-4dce-aeb7-520c7ef76171" did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+[m
 downloading https://huggingface.co/rhasspy/piper-voices/resolve/main/nl/nl_BE/rdh/medium/nl_BE-rdh-medium.onnx
-voice nl_BE-rdh-medium: 5.0 s
+voice nl_BE-rdh-medium: 5.1 s
 downloading https://huggingface.co/rhasspy/piper-voices/resolve/main/nl/nl_NL/alex/medium/nl_NL-alex-medium.onnx
-voice nl_NL-alex-medium: 4.8 s
+voice nl_NL-alex-medium: 4.9 s
 downloading https://huggingface.co/rhasspy/piper-voices/resolve/main/nl/nl_NL/mls/medium/nl_NL-mls-medium.onnx
-voice nl_NL-mls-medium: 9.3 s
+voice nl_NL-mls-medium: 10.6 s
 downloading https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ljspeech/high/en_US-ljspeech-high.onnx
 voice en_US-ljspeech-high: 6.4 s
 downloading https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/kristin/medium/en_US-kristin-medium.onnx
 voice en_US-kristin-medium: 5.6 s
-voice board: 42 voices (0 failed), 212.2 s -> /home/runner/work/signed-or-passed/signed-or-passed/build/voice-lib
+voice board: 42 voices (0 failed), 213.8 s -> /home/runner/work/signed-or-passed/signed-or-passed/build/voice-lib
 zip -> /home/runner/work/signed-or-passed/signed-or-passed/build/0000-sample/out/voice-samples.zip
-===== [voice-board:0000-sample] 06:49:46 =====
-===== [voice-board-mux:0000-sample] 06:53:59 =====
-===== [metadata:0000-sample] 06:54:04 =====
+===== [voice-board:0000-sample] 08:02:44 =====
+===== [voice-board-mux:0000-sample] 08:06:50 =====
+===== [metadata:0000-sample] 08:06:55 =====
 metadata: 5 chapters, 701 chars description, 1 short(s)
-===== [qa:0000-sample] 06:54:04 =====
+===== [qa:0000-sample] 08:06:55 =====
   [ok] video.mp4: resolution 1920x1080: 1920x1080
   [ok] video.mp4: audio present: aac
   [ok] video.mp4: duration: 149.9s (TEST production: exempt from 480-720s)
-  [ok] video.mp4: duration matches audio timing: video 149.93s vs timing 149.93s
+  [ok] video.mp4: duration matches audio timing: video 149.90s vs timing 149.90s
   [ok] video.mp4: loudness -14 LUFS (+/-1): -14.1 LUFS
-  [FAIL] video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance): -0.2 dBTP
+  [FAIL] video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance): -0.6 dBTP
   [ok] short-s1.mp4: resolution 1080x1920: 1080x1920
   [ok] short-s1.mp4: audio present: aac
   [ok] short-s1.mp4: duration: 16.0s (TEST production: exempt from 45-60s)
   [ok] short-s1.mp4: duration matches audio timing: video 16.00s vs timing 16.00s
-  [ok] short-s1.mp4: loudness -14 LUFS (+/-1): -14.1 LUFS
-  [ok] short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance): -1.4 dBTP
+  [ok] short-s1.mp4: loudness -14 LUFS (+/-1): -14.0 LUFS
+  [ok] short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance): -1.5 dBTP
   [ok] thumbnail.png: 1280x720: 1280x720
   [ok] captions.srt: present: captions.srt
   [ok] every sourceId resolves: ok
@@ -295,6 +292,9 @@ metadata: 5 chapters, 701 chars description, 1 short(s)
   [ok] description: >= 3 chapters: 5 chapters
   [ok] description: synthetic voice disclosed: 
 QA FAILED for 0000-sample
-===== [release:0000-sample] 06:54:09 =====
-HTTP 403: Resource not accessible by integration (https://api.github.com/repos/LarsvdBrandt/signed-or-passed/releases)
-===== [release:0000-sample] FAILED with exit code 1 =====
+===== [release:0000-sample] 08:07:00 =====
+https://github.com/LarsvdBrandt/signed-or-passed/releases/tag/sample
+===== [qa-gate:0000-sample] 08:07:10 =====
+QA FAILED: video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance): -0.6 dBTP
+===== [qa-gate:0000-sample] FAILED with exit code 1 =====
+===== [render-all] 0000-sample FAILED at qa-gate:0000-sample; continuing with the next production =====
