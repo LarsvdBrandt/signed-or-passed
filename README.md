@@ -1,8 +1,8 @@
 # Signed or Passed: video factory
 
 Turns `productions/<slug>/spec.json` into a finished YouTube video (MP4 + Shorts + thumbnail + captions + metadata)
-on free GitHub-hosted runners. Everything is open source: **Remotion** (React video), **Kokoro** TTS (voice
-`bm_george`, default speed 1.15; licence-checked **Piper** voices for other languages), **ffmpeg** + numpy (sound
+on free GitHub-hosted runners. Everything is open source: **Remotion** (React video), **Chatterbox** TTS (channel
+default, see Voices) or **Kokoro** (`bm_george`; licence-checked **Piper** voices for other languages), **ffmpeg** + numpy (sound
 effects, generated music, mix, loudness). No paid APIs, no API keys.
 
 ## How it works
@@ -316,6 +316,10 @@ and `piper` (installed on first use; only voices in `brand/voices.json` whose tr
 description). `[pause 0.5]` in a narration inserts 0.5 s of silence (`[PAUSE]` = 0.5 s; not spoken, not in
 captions); `**word**` marks an emphasised word (see Retention); `scenes[].voiceSpeed` (0.5-2.0) overrides the speed
 for one scene. Catalogue and licence rule: `docs/library/voices.md`; listen in `voice-samples.mp4`.
+Voice QA (`pipeline/textnorm.py`): Whisper's transcript and the narration are normalised to one canonical form
+(numbers, years, ordinals, decimals, dollars) before WER/CER; a clip is re-generated when it is misheard, a >= 6-word
+sentence counts as bad only with CER > 12 %; the QA gate fails on a garbled clip (CER > 35 %) or more than two doubtful
+clips, one or two are a warning ('listen to these') in `render-report.json`. `[pause N]` markers are never spoken.
 
 ## Local use
 `make install`, `make render SLUG=0000-sample`, `make studio` (Remotion Studio with the Preview composition).
