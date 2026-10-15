@@ -23,6 +23,7 @@
         {"type": "null"}
       ]
     },
+    "transition": {"$ref": "#/$defs/transition", "description": "default transition into every scene (render/src/transitions, docs/library/effects.md); omit for the house paper-slide"},
     "voice": {
       "type": "object",
       "required": ["engine", "voice"],
@@ -100,8 +101,11 @@
   },
   "$defs": {
     "sfxName": {"type": "string", "pattern": "^[a-z0-9_]+$", "description": "house sound (pen, stamp, paper, whoosh) or any pipeline/sfxlib.py name (docs/library/sound-usage.md); validate_spec.py checks the name"},
-    "effectId": {"enum": ["film-grain", "old-film", "vignette", "light-leaks", "vhs", "glitch", "chromatic-aberration", "ink-bleed", "paper-texture", "camera-shake", "gate-weave", "depth-of-field", "zoom-blur"]},
-    "lookId": {"enum": ["clean", "archival", "newsreel", "documentary", "cinematic", "vhs", "glitchy", "print", "handmade", "dreamy"]},
+    "effectId": {"enum": [
+      "film-grain", "old-film", "vignette", "light-leaks", "vhs", "glitch", "chromatic-aberration", "ink-bleed", "paper-texture", "camera-shake", "gate-weave", "depth-of-field", "zoom-blur",
+      "confetti", "dust", "smoke", "rain", "snow", "embers", "sparkles", "money-rain", "paper-scraps"
+    ]},
+    "lookId": {"enum": ["clean", "archival", "newsreel", "documentary", "cinematic", "vhs", "glitchy", "print", "handmade", "dreamy", "winter", "rainy", "celebration", "smoky"]},
     "effect": {
       "oneOf": [
         {"$ref": "#/$defs/effectId"},
@@ -116,6 +120,25 @@
         }
       ]
     },
+    "transitionId": {"enum": [
+      "paper-slide", "cut", "fade", "push", "page-curl", "whip-pan", "iris-in", "iris-out", "wipe-left", "wipe-right", "wipe-up", "wipe-down",
+      "diagonal-wipe", "clock-wipe", "barn-door", "ink-splash", "stamp-cut", "film-burn", "glitch-cut", "zoom-through", "flash"
+    ]},
+    "transition": {
+      "oneOf": [
+        {"$ref": "#/$defs/transitionId"},
+        {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {"$ref": "#/$defs/transitionId"},
+            "durationSec": {"type": "number", "minimum": 0.03, "maximum": 2, "description": "default per transition (0.35-0.9 s)"},
+            "params": {"type": "object", "description": "per transition, see docs/library/effects.md (from, cx, cy, colour, text, vertical, edge)"}
+          }
+        },
+        {"type": "null"}
+      ]
+    },
     "scene": {
       "type": "object",
       "required": ["id", "kind", "narration", "visual"],
@@ -126,12 +149,13 @@
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
         "motion": {
-          "description": "Camera move: none | push-in | pull-out | pan | pan-left | pan-right | parallax (illustration scenes: layers move by depth), or {type, strength 0-3}",
+          "description": "Camera move: none | push-in | pull-out | pan | pan-left | pan-right, or for illustration scenes the parallax rig (layers move by depth): parallax | parallax-right | parallax-left | parallax-up | parallax-down | parallax-dolly | parallax-orbit; or {type, strength 0-3}",
           "oneOf": [
             {"type": ["string", "null"]},
-            {"type": "object", "required": ["type"], "properties": {"type": {"enum": ["none", "push-in", "pull-out", "pan", "pan-left", "pan-right", "parallax"]}, "strength": {"type": "number", "minimum": 0, "maximum": 3}}}
+            {"type": "object", "required": ["type"], "properties": {"type": {"enum": ["none", "push-in", "pull-out", "pan", "pan-left", "pan-right", "parallax", "parallax-right", "parallax-left", "parallax-up", "parallax-down", "parallax-dolly", "parallax-orbit"]}, "strength": {"type": "number", "minimum": 0, "maximum": 3}}}
           ]
         },
+        "transition": {"$ref": "#/$defs/transition", "description": "transition INTO this scene (overrides spec.transition)"},
         "effects": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}, "description": "overlay effects on this scene (docs/library/effects.md), merged over spec.look"},
         "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
         "sfxCues": {
