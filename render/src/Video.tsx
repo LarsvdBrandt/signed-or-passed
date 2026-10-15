@@ -14,6 +14,7 @@ import {VerdictScene} from './scenes/VerdictScene';
 import {IllustrationScene, motionOf} from './scenes/IllustrationScene';
 import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWallScene, SplitFlapScene, VersusScene} from './scenes/MotionScenes';
 import {ShotScene} from './scenes/ShotScene';
+import {InfographicScene} from './infographics';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 import {EffectsStack, resolveEffects} from './effects';
@@ -33,6 +34,8 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
       return v.type === 'line' ? <LineChartScene scene={scene} ctx={ctx} /> : <ChartScene scene={scene} ctx={ctx} />;
     case 'counter':
       return v.style === 'money' ? <MoneyCounterScene scene={scene} ctx={ctx} /> : <CounterScene scene={scene} ctx={ctx} />;
+    case 'infographic':
+      return <InfographicScene scene={scene} ctx={ctx} />;
     case 'timeline':
       return <TimelineScene scene={scene} ctx={ctx} />;
     case 'map':

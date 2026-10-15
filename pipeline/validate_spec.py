@@ -6,6 +6,8 @@ from sfx import SFX
 from sfxlib import SOUNDS
 
 KNOWN_SFX = set(SFX) | set(SOUNDS)
+# infographic types that show no data and therefore need no sourceId (diagrams)
+NO_SOURCE_INFOGRAPHICS = {"org-chart", "family-tree", "flow"}
 
 
 def main():
@@ -36,7 +38,11 @@ def main():
                                       f"`python pipeline/sfxlib.py --list`)")
                 v = sc["visual"]
                 sid = v.get("sourceId")
-                if sc["kind"] in ("chart", "counter", "quote") and sid not in source_ids:
+                needs_source = sc["kind"] in ("chart", "counter", "quote") or (
+                    sc["kind"] == "infographic" and v.get("type") not in NO_SOURCE_INFOGRAPHICS)
+                if needs_source and sid not in source_ids:
+                    errors.append(f"{where}: sourceId '{sid}' not found in sources")
+                elif sid and sid not in source_ids:
                     errors.append(f"{where}: sourceId '{sid}' not found in sources")
                 if sc["kind"] == "evidence" and v.get("assetId") not in asset_ids:
                     errors.append(f"{where}: assetId '{v.get('assetId')}' not found in assets")
