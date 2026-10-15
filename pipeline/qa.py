@@ -267,8 +267,15 @@ def main():
                   f"{voice_qa['wer'] * 100:.1f} % ({voice_qa.get('asrModel', 'base.en')}, {voice_qa.get('words')} words)")
         if voice_qa.get("engine") == "chatterbox":
             bad = voice_qa.get("badSentences") or []
-            check("voice: no sentence with WER > 30 %", not bad,
-                  "; ".join(f"{b['wer']:.2f} '{b['text']}' heard '{b.get('asr')}'" for b in bad)[:900] or "all clips ok")
+            detail = "; ".join(f"{b['wer']:.2f}/{(b.get('cer') or 0):.2f} '{b['text']}' heard '{b.get('asr')}'"
+                               for b in bad)[:900] or "all clips ok"
+            # a garbled clip (CER > 35 %) or more than two doubtful clips fail; one or two doubtful clips (usually a
+            # single misheard word of base.en) are a warning listed in the report
+            severe = [b for b in bad if (b.get("cer") if b.get("cer") is not None else 1.0) > 0.35]
+            check("voice: no garbled sentence (WER > 30 % and CER > 35 %, max 2 doubtful)",
+                  not severe and len(bad) <= 2, detail)
+            if bad and not severe and len(bad) <= 2:
+                check("voice: doubtful sentences (listen to these)", False, detail, level="warn")
             fb = voice_qa.get("fallbackSentences") or []
             check("voice: no Kokoro fallback sentences", not fb, f"{len(fb)}: " + " | ".join(fb)[:600], level="warn")
         wpm = (voice_qa.get("pace") or {}).get("wpm")

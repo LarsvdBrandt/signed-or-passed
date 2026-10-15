@@ -106,10 +106,12 @@ generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper 
   sides are mapped to one canonical form first (spelled-out and digit numbers, years, ordinals, decimals and
   dollars compare equal: 'eighty-two and a half million' == '$82.5 million', 'twenty-third of September, two
   thousand and ten' == '23rd of September 2010'). A clip is BAD when its WER > 30 % AND (character error rate > 20 %,
-  or >= 6 words, or >= 2 words missing); one misheard word in a 2-4 word sentence ('lifer' / 'life-er') is only
-  counted (`misheardShortClips`). A bad clip is generated once more with a lower exaggeration and another seed, the
-  better take is kept; cached clips are re-scored on every render;
-- whole-track ASR word error rate <= 8 % (gate), no bad sentence (gate), Kokoro fallback sentences (warning);
+  or >= 6 words with CER > 12 %, or >= 2 words missing); one misheard word in a 2-4 word sentence ('lifer' /
+  'life-er') and word-boundary differences in longer sentences ('a rival' / 'arrival', 'capped downside' / 'cap down
+  side') are only counted (`misheardShortClips`). A bad clip is generated once more with a lower exaggeration and
+  another seed, the better take is kept; cached clips are re-scored on every render;
+- whole-track ASR word error rate <= 8 % (gate); bad sentences: a garbled one (CER > 35 %) or more than two fail
+  the gate, one or two are a warning ('doubtful sentences (listen to these)'); Kokoro fallback sentences (warning);
 - `[pause N]` markers are never spoken: the punch-line beat (a comma before the key word) skips markers;
 - liveliness = standard deviation of the pitch (F0, semitones, librosa pyin) per minute (info: higher = less
   monotone). `voice.qa: true` runs the same QA for Kokoro / Piper.

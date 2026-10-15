@@ -15,9 +15,11 @@ therefore mapped to ONE canonical form before they are compared:
 wer(ref, hyp)  word error rate on the canonical tokens.
 cer(ref, hyp)  character error rate on the canonical text without spaces (robust for 2-4 word sentences:
                'lifer' vs 'life-er', 'DVDs' vs 'TVTs').
-bad_sentence(ref, hyp)  the per-clip QA verdict: WER > 0.30 AND (CER > 0.20, or >= 6 words, or the ASR heard at
-               least two words fewer = a cut-off / skipped phrase). Short sentences with one misheard word no longer
-               fail the render; garbled, truncated or hallucinated clips still do.
+bad_sentence(ref, hyp)  the per-clip QA verdict: WER > 0.30 AND (CER > 0.20, or >= 6 words with CER > 0.12, or the
+               ASR heard at least two words fewer = a cut-off / skipped phrase). Short sentences with one misheard
+               word and long sentences where only the word boundaries differ ('a rival' vs 'arrival', 'capped
+               downside' vs 'cap down side': the characters match) no longer count; garbled, truncated or
+               hallucinated clips still do.
 """
 import re
 
@@ -195,7 +197,8 @@ def bad_sentence(ref, hyp, limit=0.30):
     w = wer(ref, hyp)
     if w <= limit:
         return False
-    return cer(ref, hyp) > 0.20 or len(r) >= 6 or len(h) < len(r) - 1
+    c = cer(ref, hyp)
+    return c > 0.20 or (len(r) >= 6 and c > 0.12) or len(h) < len(r) - 1
 
 
 if __name__ == "__main__":
