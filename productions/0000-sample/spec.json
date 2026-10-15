@@ -4,12 +4,14 @@
   "format": "long",
   "verdict": "PASSED",
   "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.1},
-  "music": {"mood": "tense"},
+  "music": {"mood": "tense", "era": "modern", "source": "generated", "stingers": true},
+  "captionStyle": "bold-pop",
   "scenes": [
-    {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory, version two.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test · v2"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
+    {"id": "s01", "kind": "title", "narration": "This is a test of the Signed or Passed factory, version two.", "visual": {"title": "Signed or Passed", "subtitle": "Factory test · v2.2"}, "sfx": "whoosh", "dateTag": "TEST · 0000"},
+    {"id": "s01b", "kind": "chapter", "narration": "Chapter one. The test offer.", "visual": {"number": 1, "title": "The test offer", "label": "Chapter"}, "sfx": "paper"},
     {"id": "s02", "kind": "map", "narration": "The globe turns and zooms into a test country, then draws a test route to a second port.", "visual": {"focus": "NLD", "focusLabel": "Netherlands", "zoomTo": "city", "city": {"name": "Amsterdam", "lat": 52.37, "lon": 4.9}, "pins": [{"lat": 52.37, "lon": 4.9, "label": "Amsterdam"}, {"lat": -6.2, "lon": 106.8, "label": "Jakarta"}], "arrows": [{"from": "Amsterdam", "to": "Jakarta"}]}, "transition": "whip-pan", "sfx": "whoosh", "sfxCues": [{"sfx": "ship_horn", "atSec": 6.0, "gainDb": -4}], "minDurationSec": 9},
     {"id": "s03", "kind": "city", "narration": "A test city builds itself, one building at a time.", "visual": {"era": "1900s", "density": "medium", "label": "Test city · 1900s"}, "sfxCues": [{"sfx": "factory_hum", "atSec": 0.5, "gainDb": -10}], "minDurationSec": 5},
-    {"id": "s04", "kind": "illustration", "narration": "A parallax test. The factory, the train and the truck each move on their own layer.", "motion": "parallax", "visual": {"background": "paper", "layers": [
+    {"id": "s04", "kind": "illustration", "narration": "A parallax test. The factory, the train and the truck each move on their own layer.", "motion": "parallax", "lowerThird": {"style": "bar", "title": "Test Works", "subtitle": "Placeholder company · 1900", "atSec": 0.8}, "visual": {"background": "paper", "layers": [
       {"component": "Factory", "props": {"label": "TEST WORKS"}, "x": 24, "y": 40, "scale": 0.95, "depth": 0.1, "enter": "slide-up"},
       {"component": "Train", "props": {"label": "EXPRESS"}, "x": 62, "y": 60, "scale": 1.0, "depth": 0.5, "enter": "slide-right", "delaySec": 0.3},
       {"component": "Truck", "props": {"label": "CARGO"}, "x": 80, "y": 82, "scale": 0.85, "depth": 1.0, "enter": "slide-right", "delaySec": 0.6}
@@ -38,6 +40,7 @@
     {"id": "s13e", "kind": "infographic", "narration": "A shaded map compares placeholder values across seven test countries.", "visual": {"type": "map-choropleth", "title": "Test map", "unit": "pts", "sourceId": "src1", "data": {"region": "europe", "legend": "Test score", "values": [{"country": "NLD", "value": 80}, {"country": "DEU", "value": 60}, {"country": "FRA", "value": 45}, {"country": "ESP", "value": 30}, {"country": "ITA", "value": 50}, {"country": "POL", "value": 20}, {"country": "SWE", "value": 35}]}}, "minDurationSec": 5},
     {"id": "s13f", "kind": "infographic", "narration": "A comparison table lines up two test options, row by row.", "visual": {"type": "comparison-table", "title": "Test comparison", "unit": "$", "sourceId": "src1", "data": {"columns": ["Option A", "Option B"], "rows": [{"label": "Price", "values": [1000000, 750000]}, {"label": "Control", "values": [true, false]}, {"label": "Speed", "values": ["Slow", "Fast"]}, {"label": "Risk", "values": ["Low", "High"]}], "highlight": 0}}, "minDurationSec": 5},
     {"id": "s13g", "kind": "infographic", "narration": "And one placeholder million buys this many test cars.", "visual": {"type": "what-could-buy", "title": "What it could buy", "unit": "$", "sourceId": "src1", "data": {"amount": 1000000, "price": 25000, "item": "test cars", "icon": "car"}}, "sfx": "pop", "minDurationSec": 5},
+    {"id": "s13h", "kind": "infographic", "narration": "A flow diagram walks through the test decision, step by step.", "visual": {"type": "flow", "title": "Test flow", "data": {"steps": [{"label": "Offer", "shape": "start"}, {"label": "Due diligence"}, {"label": "Sign?", "shape": "decision", "highlight": true}, {"label": "Closed", "shape": "end"}]}}, "minDurationSec": 5},
     {"id": "s14", "kind": "photo-wall", "narration": "Clues are pinned to the wall and joined with red string.", "visual": {"cards": [
       {"label": "THE FOUNDER", "component": "Person", "props": {"pose": "arms-crossed", "colour": "ink"}},
       {"label": "THE OFFER", "component": "Contract", "props": {"label": "OFFER"}},
@@ -46,9 +49,10 @@
     ]}, "sfxCues": [{"sfx": "camera_shutter", "atSec": 0.4}, {"sfx": "camera_shutter", "atSec": 1.1}, {"sfx": "tension_drone", "atSec": 0.0, "gainDb": -12}], "minDurationSec": 5},
     {"id": "s15", "kind": "quote", "narration": "A quote appears with its source, and a tag when it is disputed.", "visual": {"text": "This is a placeholder quote for testing.", "speaker": "Test Speaker", "sourceId": "src1", "status": "disputed"}, "sfx": "record_scratch"},
     {"id": "s16", "kind": "document", "narration": "The test contract writes itself, line by line. Then it is stamped.", "visual": {"title": "TEST AGREEMENT", "lines": ["The parties agree to the test terms", "set out in this document.", "Price, date and conditions", "are placeholders."], "verdict": "PASSED", "party": "Test Company"}, "sfx": "paper", "minDurationSec": 6},
-    {"id": "s17", "kind": "question", "narration": "So. Would you sign? Or would you pass?", "visual": {"question": "Sign the test contract?", "options": ["SIGN", "PASS"], "holdSec": 3}, "sfxCues": [{"sfx": "clock_tick", "atSec": 2.0, "gainDb": -4}]},
+    {"id": "s16b", "kind": "kinetic-text", "narration": "It all comes down to one question.", "visual": {"preset": "stamp-text", "text": "SIGN\nOR PASS?", "background": "paper", "rotate": -8}, "minDurationSec": 3},
+    {"id": "s17", "kind": "question", "narration": "So. [pause 0.6] Would you sign? Or would you pass?", "visual": {"question": "Sign the test contract?", "options": ["SIGN", "PASS"], "holdSec": 3}, "sfxCues": [{"sfx": "clock_tick", "atSec": 2.0, "gainDb": -4}]},
     {"id": "s18", "kind": "reveal", "narration": "Here is what happened in the test.", "visual": {"text": "The test offer was turned down."}, "effects": ["paper-scraps"], "sfx": "reveal_stinger"},
-    {"id": "s19", "kind": "verdict", "narration": "The verdict. Passed.", "visual": {"verdict": "PASSED"}, "transition": "stamp-cut", "sfx": "stamp", "minDurationSec": 3},
+    {"id": "s19", "kind": "verdict", "narration": "The verdict. [pause 0.4] Passed.", "voiceSpeed": 0.95, "visual": {"verdict": "PASSED"}, "transition": "stamp-cut", "sfx": "stamp", "minDurationSec": 3},
     {"id": "s20", "kind": "lesson", "narration": "The lesson. Test everything before you trust it.", "visual": {"text": "Test everything before you trust it."}, "effects": [{"id": "dust", "intensity": 0.6}]}
   ],
   "assets": [
@@ -58,8 +62,8 @@
     {"id": "src1", "title": "Factory test placeholder source", "url": "https://github.com/LarsvdBrandt/signed-or-passed"}
   ],
   "metadata": {
-    "title": "Signed or Passed: factory test v2",
-    "titleAlternatives": ["Factory test render v2"],
+    "title": "Signed or Passed: factory test v2.2",
+    "titleAlternatives": ["Factory test render v2.2"],
     "description": "A test render of the Signed or Passed video factory. Not a real story.",
     "tags": ["test"],
     "categoryId": "27",
