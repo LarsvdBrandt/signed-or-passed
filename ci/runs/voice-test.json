@@ -1,7 +1,13 @@
 {
-  "status": "running",
-  "slug": "voice-test",
+  "status": "success",
+  "jobStatus": "success",
   "triggerSha": "6d327df2c53b58bf9a8f15654eae80adb52d9b9c",
-  "startedAt": "2026-10-15T13:45:52Z",
+  "slug": "voice-test",
+  "slugs": [
+    "voice-test"
+  ],
+  "finishedAt": "2026-10-15T14:10:33+00:00",
+  "failedStep": null,
+  "failedSlugs": [],
   "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38745467373"
 }
