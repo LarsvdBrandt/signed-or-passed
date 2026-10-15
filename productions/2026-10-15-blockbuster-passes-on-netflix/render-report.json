@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "2026-10-15-blockbuster-passes-on-netflix",
   "test": false,
-  "generatedAt": "2026-10-15T08:39:35+00:00",
+  "generatedAt": "2026-10-15T09:05:47+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -22,7 +22,7 @@
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 658.93s vs timing 658.93s"
+      "detail": "video 658.90s vs timing 658.90s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -32,7 +32,7 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.2 dBTP"
+      "detail": "-1.1 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -67,7 +67,7 @@
     {
       "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.7 dBTP"
+      "detail": "-2.8 dBTP"
     },
     {
       "name": "short-short-1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -87,12 +87,12 @@
     {
       "name": "short-short-2.mp4: duration 45-60s",
       "ok": true,
-      "detail": "49.0s"
+      "detail": "49.1s"
     },
     {
       "name": "short-short-2.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 49.03s vs timing 49.03s"
+      "detail": "video 49.07s vs timing 49.07s"
     },
     {
       "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
@@ -102,7 +102,7 @@
     {
       "name": "short-short-2.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.2 dBTP"
+      "detail": "-2.8 dBTP"
     },
     {
       "name": "short-short-2.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -146,22 +146,22 @@
     }
   ],
   "durations": {
-    "main": 658.93,
+    "main": 658.9,
     "short-short-1": 47.47,
-    "short-short-2": 49.03
+    "short-short-2": 49.07
   },
   "audio": {
     "video.mp4": {
       "lufs": -14.12,
-      "truePeakDb": -1.21,
+      "truePeakDb": -1.14,
       "lra": 1.9,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-1.mp4": {
-      "lufs": -14.21,
-      "truePeakDb": -2.68,
+      "lufs": -14.22,
+      "truePeakDb": -2.76,
       "lra": 3.7,
       "silences": 0,
       "longestSilenceSec": 0.0,
@@ -169,8 +169,8 @@
     },
     "short-short-2.mp4": {
       "lufs": -14.13,
-      "truePeakDb": -2.16,
-      "lra": 2.6,
+      "truePeakDb": -2.82,
+      "lra": 2.3,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
