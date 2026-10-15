@@ -308,11 +308,12 @@ recordings of `brand/music/manifest.csv`. `source: none` renders without music. 
 build | excited | punch | somber | warm` from inline tags like `[build]`, `scenes[].delivery` or auto-delivery; the
 built-in voice (`reference: default`) or one cloned from a generated `narrator` reference; whole-track ASR + liveliness
 + words-per-minute QA; A/B workflow `voice-test.yml`; on GitHub the clips are generated in parallel over 2-12 runners,
-`ci/tts-plan.py`). **Channel default:** `{"engine": "chatterbox", "voice": "default", "reference": "default"}` with the
-VOICE-8 tuning (exaggeration +0.15, cfg -0.10, pauses x1.15; overridable with
-`voice.exaggerationOffset / cfgOffset / pace / pauseScale / targetWpm`). Since VOICE-10a Chatterbox audio is **never
-time-stretched** (pace 1.0; an explicit `voice.pace` is clamped to 0.97-1.0, `scenes[].voiceSpeed` is ignored for
-Chatterbox): the pace guard (145-155 wpm) only nudges the pauses (x1.0-1.6). `voice.paragraphs: true` generates 2-4
+`ci/tts-plan.py`). **Channel default (VOICE-11, "normal voice"):** `{"engine": "chatterbox", "voice": "default", "reference": "default"}`
+= variant C of `voice-test-2`: natural speed, no exaggeration / cfg offsets, paragraph generation, pauses x1.15 + a
+0.25 s punch beat (overridable with `voice.exaggeration / cfgWeight / temperature / exaggerationOffset / cfgOffset /
+pace / pauseScale / paragraphs / targetWpm`). Chatterbox audio is **never time-stretched** (pace 1.0; an explicit
+`voice.pace` is clamped to 0.97-1.0, `scenes[].voiceSpeed` is ignored for Chatterbox); the pace guard is opt-in
+(`voice.targetWpm`) and only nudges the pauses (x1.0-1.6). `voice.paragraphs` (default true) generates 2-4
 sentences per Chatterbox call (natural intonation across sentences) and cuts them at word timestamps; listening test
 `voice-test-2.yml` (`ci/voice-ab.py`, release `voice-test-2`) and the engine research in `docs/library/voice-research.md`)
 and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.
