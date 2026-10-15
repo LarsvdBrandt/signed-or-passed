@@ -3,7 +3,7 @@ import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {C, FONT_HEAD, FONT_MONO} from '../constants';
 import {PaperGrain} from '../components/common';
 
-export type SoundItem = {name: string; category: string; description: string; startFrame: number; endFrame: number};
+export type SoundItem = {name: string; category: string; description: string; startFrame: number; endFrame: number; file?: string; credit?: string};
 export type SoundBoardProps = {fps?: number; totalFrames: number; title?: string; subtitle?: string; items: SoundItem[]; env: number[]};
 
 /** Studio defaults; CI passes build/sfx-lib/soundboard-props.json (written by pipeline/soundboard.py). */
@@ -18,7 +18,7 @@ export const soundBoardDefaults: SoundBoardProps = {
 const BARS = 80;
 const LIST = 16;
 
-/** Sound board: plays every library sound in a row (audio muxed in CI) and shows its name, category and level. */
+/** Sound board: plays every library sound in a row (audio muxed in CI) and shows its name, category, file, credit and level. */
 export const SoundBoard: React.FC<SoundBoardProps> = ({title = 'Sound library', subtitle = '', items = [], env = []}) => {
   const frame = useCurrentFrame();
   let idx = -1;
@@ -35,6 +35,7 @@ export const SoundBoard: React.FC<SoundBoardProps> = ({title = 'Sound library', 
   }
   const winStart = Math.max(0, Math.min(items.length - LIST, idx - 7));
   const list = items.slice(winStart, winStart + LIST);
+  const recorded = cur !== null && (cur.file || '').startsWith('recorded/');
   return (
     <AbsoluteFill style={{backgroundColor: C.paper}}>
       <div style={{position: 'absolute', left: 80, top: 60, right: 680}}>
@@ -44,8 +45,13 @@ export const SoundBoard: React.FC<SoundBoardProps> = ({title = 'Sound library', 
       {cur ? (
         <div style={{position: 'absolute', left: 80, top: 280, right: 680}}>
           <div style={{fontFamily: FONT_MONO, fontSize: 28, color: C.grey}}>{`#${idx + 1} / ${items.length}`}</div>
-          <div style={{display: 'inline-block', marginTop: 18, padding: '6px 16px', border: `3px solid ${C.stamp}`, color: C.stamp, fontFamily: FONT_MONO, fontWeight: 700, fontSize: 26, letterSpacing: 2, textTransform: 'uppercase'}}>
-            {cur.category}
+          <div style={{display: 'flex', gap: 14, marginTop: 18}}>
+            <div style={{padding: '6px 16px', border: `3px solid ${C.stamp}`, color: C.stamp, fontFamily: FONT_MONO, fontWeight: 700, fontSize: 26, letterSpacing: 2, textTransform: 'uppercase'}}>
+              {cur.category}
+            </div>
+            <div style={{padding: '6px 16px', border: `3px solid ${recorded ? C.ink : C.grey}`, color: recorded ? C.ink : C.grey, fontFamily: FONT_MONO, fontWeight: 700, fontSize: 26, letterSpacing: 2, textTransform: 'uppercase'}}>
+              {recorded ? 'recorded' : 'procedural'}
+            </div>
           </div>
           <div
             style={{
@@ -62,7 +68,8 @@ export const SoundBoard: React.FC<SoundBoardProps> = ({title = 'Sound library', 
             {cur.name.replace(/_/g, ' ')}
           </div>
           <div style={{fontFamily: FONT_MONO, fontSize: 28, color: C.board, marginTop: 18}}>{cur.description}</div>
-          <div style={{fontFamily: FONT_MONO, fontSize: 22, color: C.grey, marginTop: 10}}>{`file: wav/${cur.name}.wav`}</div>
+          <div style={{fontFamily: FONT_MONO, fontSize: 22, color: C.grey, marginTop: 10}}>{`file: ${cur.file || `wav/${cur.name}.wav`}`}</div>
+          {cur.credit ? <div style={{fontFamily: FONT_MONO, fontSize: 22, color: C.grey, marginTop: 6}}>{cur.credit}</div> : null}
         </div>
       ) : null}
       <div style={{position: 'absolute', left: 80, right: 680, bottom: 90, height: 240, display: 'flex', alignItems: 'center', gap: 4}}>
@@ -76,7 +83,7 @@ export const SoundBoard: React.FC<SoundBoardProps> = ({title = 'Sound library', 
           const on = i === idx;
           return (
             <div
-              key={it.name}
+              key={`${i}-${it.name}`}
               style={{
                 fontFamily: FONT_MONO,
                 fontSize: 26,

@@ -8,6 +8,7 @@ import {BoardroomBackdrop, CityBackdrop, OfficeBackdrop} from './Backdrops';
 import {AssemblyLine, Airplane, Bank, ContainerShip, CrumblingBuilding, Factory, FallingChart, Rocket, Ship, StockBoard, StoreFront, Train, Truck, Warehouse} from './Industry';
 import {Basketball, Computer, DVD, DigitalCamera, FilmCamera, FloppyDisk, Guitar, Laptop, Microphone, OldTelephone, Record as VinylRecord, Smartphone, Sneaker, VHSTape} from './Tech';
 import {CoinRain, Crowd, Envelope, FlipCalendar, Gavel, Handshake, Hourglass, Lightbulb, LockKey, MagnifyingGlass, MoneyBag, PriceTag, Queue, Scales, ShareCertificate, SpinningNewspaper, Telegram, Trophy} from './Symbols';
+import {Character} from '../characters/Rig';
 import {ERA_BACKDROPS, ERA_ILLUSTRATIONS} from '../eras';
 
 export type IllEntry = {C: React.FC<any>; w: number; h: number; enter: string; group?: string};
@@ -20,6 +21,7 @@ export const ILLUSTRATIONS: Record<string, IllEntry> = {
   Stamp: {C: Stamp, w: 160, h: 220, enter: 'drop', group: 'office'},
   DecisionChair: {C: DecisionChair, w: 240, h: 340, enter: 'fade', group: 'office'},
   Person: {C: Person, w: 200, h: 400, enter: 'fade', group: 'people'},
+  Character: {C: Character, w: 200, h: 400, enter: 'fade', group: 'people'},
   NameCard: {C: NameCard, w: 360, h: 90, enter: 'pop', group: 'people'},
   Building: {C: Building, w: 260, h: 380, enter: 'slide-up', group: 'places'},
   Phone: {C: Phone, w: 160, h: 280, enter: 'pop', group: 'office'},
