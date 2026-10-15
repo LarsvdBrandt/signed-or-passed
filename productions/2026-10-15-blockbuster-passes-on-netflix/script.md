@@ -128,11 +128,11 @@ But that's not the crazy part. Watch what happens **next**.
 
 > claims: (none; re-hook)
 
-Netflix keeps going. In May two thousand and two, it **goes public**. Its shares hit the stock market at fifteen dollars each. The offering alone raises eighty-two and a half million dollars. More than the Dallas price. At that price, the whole company is valued at about **three hundred and ten million dollars**. Six times its Dallas price tag.
+Netflix keeps going. In May two thousand and two, it **goes public**. Its shares hit the stock market at fifteen dollars each. At that price, the whole company is valued at about **three hundred and ten million dollars**. Six times its Dallas price tag. The offering alone raises eighty-two and a half million. More than Blockbuster was asked to pay.
 
 > claims: c10, c15
 
-By then, it has more than **six hundred thousand** subscribers. About double what it had in two thousand. More than eleven and a half thousand titles. Nineteen ninety-five a month.
+By then, it has more than **six hundred thousand** subscribers. About double what it had in two thousand. More than eleven and a half thousand titles. Nineteen dollars ninety-five a month.
 
 > claims: c9, c7
 
