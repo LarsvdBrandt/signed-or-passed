@@ -33,6 +33,7 @@ $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumb
 #   preview-eras.mp4        every era pack: backdrop, all props, a small composed scene (silent)
 #   preview-moods.mp4       every mood shot (scene kind 'shot', render/src/moods) with id, mood and props (silent)
 #   preview-characters.mp4  every pose, costume, hat and held prop of the Character rig + Crowd2 examples (silent)
+#   preview-effects.mp4     every overlay effect, paper variant and look (render/src/effects) on a demo scene (silent)
 #   sound-board.mp4         every sound of the procedural sfx library (pipeline/sfxlib.py) + the CC0/PD recordings
 #                           of brand/sfx/manifest.csv (pipeline/fetch_sfx.py, licence verified live), with audio
 #   sfx-library.zip         all sfx WAVs (wav/ procedural, recorded/ CC0/PD) + catalogues + LICENCE.txt + CREDITS
@@ -42,6 +43,7 @@ if [ "$slug" = "0000-sample" ]; then
   $S "preview-eras:$slug" bash -c "cd render && npx remotion render src/index.ts EraPreview ../$OUT/preview-eras.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-moods:$slug" bash -c "cd render && npx remotion render src/index.ts MoodPreview ../$OUT/preview-moods.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-characters:$slug" bash -c "cd render && npx remotion render src/index.ts CharacterPreview ../$OUT/preview-characters.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+  $S "preview-effects:$slug" bash -c "cd render && npx remotion render src/index.ts EffectsPreview ../$OUT/preview-effects.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "sound-fetch:$slug" python pipeline/fetch_sfx.py --out build/sfx-lib --cache build/sfx-cache
   $S "sound-library:$slug" python pipeline/soundboard.py --out build/sfx-lib --zip "$OUT/sfx-library.zip" --recorded build/sfx-lib/recorded-catalogue.json
   $S "sound-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/sfx-lib/board-silent.mp4 --props=../build/sfx-lib/soundboard-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"

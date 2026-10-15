@@ -8,6 +8,7 @@ skipped. Accepted files are downloaded (cached in build/sfx-cache), trimmed to s
 mono at the sfx library rate, peak-normalised to -3 dBFS with short fades and written to <out>/recorded/<file>.
 Writes <out>/recorded-catalogue.json {sounds, rejected} and <out>/recorded/CREDITS.txt.
 Never fails the build: problems are logged as warnings (the procedural library works on its own).
+Wikimedia rate limits (HTTP 429) are honoured: Retry-After, growing backoff, 1 s between files.
 """
 import argparse
 import csv
@@ -15,6 +16,7 @@ import json
 import re
 import subprocess
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -30,6 +32,7 @@ API = "https://commons.wikimedia.org/w/api.php"
 MANIFEST = ROOT / "brand" / "sfx" / "manifest.csv"
 ACCEPT = {"cc0", "cc0 1.0", "cc-zero", "pd", "public domain", "public domain mark"}
 PEAK_DB = -3.0
+ATTEMPTS = 5
 
 
 def _abs(p):
@@ -37,16 +40,35 @@ def _abs(p):
     return p if p.is_absolute() else ROOT / p
 
 
+def _clean_url(url):
+    """Drop tracking query parameters (utm_*) that the API adds to file urls."""
+    parts = urllib.parse.urlsplit(url)
+    q = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query) if not k.startswith("utm_")]
+    return urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path, urllib.parse.urlencode(q), ""))
+
+
 def _get(url, timeout=120):
     last = None
-    for attempt in range(3):
+    for attempt in range(ATTEMPTS):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return r.read()
+        except urllib.error.HTTPError as e:
+            last = e
+            wait = 3 + attempt * 5
+            if e.code == 429:
+                try:
+                    wait = max(wait, min(60, int(e.headers.get("Retry-After") or 0)))
+                except (TypeError, ValueError):
+                    pass
+                wait = max(wait, 10 * (attempt + 1))
+            elif e.code in (403, 404, 410):
+                break
+            time.sleep(wait)
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(2 + attempt * 3)
+            time.sleep(3 + attempt * 5)
     raise RuntimeError(f"download failed: {url}: {last}")
 
 
@@ -91,7 +113,7 @@ def verify(title):
             raise ValueError(f"marked non-free on Commons ({short})")
         if not (licence_ok(short) or licence_ok(lic)):
             raise ValueError(f"licence '{short or lic or 'unknown'}' is not CC0 / Public Domain")
-        return info["url"], (short or lic), _strip((em.get("Artist") or {}).get("value", ""))
+        return _clean_url(info["url"]), (short or lic), _strip((em.get("Artist") or {}).get("value", ""))
     raise ValueError("no page in the API answer")
 
 
@@ -188,7 +210,7 @@ def main():
         except Exception as ex:  # noqa: BLE001
             rejected.append({"file": name, "sourcePage": row.get("source_page", ""), "reason": str(ex)})
             log(f"WARNING: skipped {name}: {ex}")
-        time.sleep(0.3)
+        time.sleep(1.0)
     write_json(out / "recorded-catalogue.json", {"sounds": sounds, "rejected": rejected})
     lines = [
         "Recorded sound effects - credits",

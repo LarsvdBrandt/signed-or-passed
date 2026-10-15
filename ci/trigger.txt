@@ -1,1 +1,1 @@
-iteration 26 - 2026-10-15T03:20Z - robust CI result push + MOODS-3 (triumph + mystery shots, 28 shots)
+2026-10-15T05:50:00+02:00 iteration 27: verify EFFECTS-1 (effects framework, spec.look, preview-effects.mp4) + fetch_sfx 429 backoff
