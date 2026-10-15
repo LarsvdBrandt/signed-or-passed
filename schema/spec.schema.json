@@ -24,6 +24,10 @@
       ]
     },
     "transition": {"$ref": "#/$defs/transition", "description": "default transition into every scene (render/src/transitions, docs/library/effects.md); omit for the house paper-slide"},
+    "captionStyle": {
+      "enum": ["bold-pop", "karaoke-highlight", "boxed", "minimal", null],
+      "description": "burned-in Shorts captions (render/src/typography/captions.tsx, docs/library/typography.md); omit for the theme's own caption style"
+    },
     "voice": {
       "type": "object",
       "required": ["engine", "voice"],
@@ -139,12 +143,24 @@
         {"type": "null"}
       ]
     },
+    "lowerThird": {
+      "type": "object",
+      "required": ["title"],
+      "description": "lower third overlay (render/src/typography/overlays.tsx, docs/library/typography.md)",
+      "properties": {
+        "style": {"enum": ["bar", "tab", "underline"], "default": "bar"},
+        "title": {"type": "string", "minLength": 1, "maxLength": 60},
+        "subtitle": {"type": "string", "maxLength": 80},
+        "atSec": {"type": "number", "minimum": 0, "description": "start relative to the scene (default 0.5)"},
+        "durationSec": {"type": "number", "exclusiveMinimum": 0, "description": "default 4.5 (cut at the scene end)"}
+      }
+    },
     "scene": {
       "type": "object",
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "infographic", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
@@ -157,6 +173,7 @@
         },
         "transition": {"$ref": "#/$defs/transition", "description": "transition INTO this scene (overrides spec.transition)"},
         "effects": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}, "description": "overlay effects on this scene (docs/library/effects.md), merged over spec.look"},
+        "lowerThird": {"oneOf": [{"$ref": "#/$defs/lowerThird"}, {"type": "null"}]},
         "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
         "sfxCues": {
           "type": "array",
@@ -182,6 +199,8 @@
         {"if": {"properties": {"kind": {"const": "chart"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vChart"}}}},
         {"if": {"properties": {"kind": {"const": "counter"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCounter"}}}},
         {"if": {"properties": {"kind": {"const": "infographic"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vInfographic"}}}},
+        {"if": {"properties": {"kind": {"const": "kinetic-text"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vKineticText"}}}},
+        {"if": {"properties": {"kind": {"const": "chapter"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vChapter"}}}},
         {"if": {"properties": {"kind": {"const": "timeline"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTimeline"}}}},
         {"if": {"properties": {"kind": {"const": "map"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vMap"}}}},
         {"if": {"properties": {"kind": {"const": "city"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCity"}}}},
@@ -201,6 +220,37 @@
     "vTitle": {"type": "object", "required": ["title"], "properties": {"title": {"type": "string"}, "subtitle": {"type": "string"}}},
     "vText": {"type": "object", "required": ["text"], "properties": {"text": {"type": "string"}}},
     "vVerdict": {"type": "object", "required": ["verdict"], "properties": {"verdict": {"enum": ["SIGNED", "PASSED"]}}},
+    "textPreset": {"enum": ["typewriter", "word-pop", "highlighter-marker", "strike-then-correct", "stamp-text", "neon-flicker", "handwritten-reveal", "newspaper-spin", "split-flap", "scrolling-ticker", "quote-card"]},
+    "vKineticText": {
+      "type": "object",
+      "required": ["preset"],
+      "description": "kinetic typography (render/src/typography, docs/library/typography.md)",
+      "properties": {
+        "preset": {"$ref": "#/$defs/textPreset"},
+        "text": {"type": "string", "description": "use \\n for line breaks"},
+        "lines": {"type": "array", "maxItems": 6, "items": {"type": "string"}},
+        "accent": {"oneOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}}], "description": "words in the accent colour (word-pop) or under the marker (highlighter-marker)"},
+        "background": {"enum": ["paper", "board", "ink", "stamp", "greyLight"]},
+        "colour": {"type": "string", "description": "brand colour name or hex"},
+        "accentColour": {"type": "string"},
+        "wrong": {"type": "string", "description": "strike-then-correct"},
+        "right": {"type": "string", "description": "strike-then-correct"},
+        "cps": {"type": "number", "exclusiveMinimum": 0, "description": "typewriter characters per second (18)"},
+        "stagger": {"type": "number", "exclusiveMinimum": 0, "description": "word-pop seconds between words"},
+        "rotate": {"type": "number", "description": "stamp-text rotation in degrees (-8)"},
+        "masthead": {"type": "string"},
+        "date": {"type": "string"},
+        "accentRow": {"type": "integer", "minimum": 0},
+        "label": {"type": "string", "description": "scrolling-ticker label (LATEST)"},
+        "title": {"type": "string", "description": "scrolling-ticker title above the band"},
+        "position": {"enum": ["centre", "bottom"]},
+        "speed": {"type": "number", "exclusiveMinimum": 0},
+        "speaker": {"type": "string"},
+        "status": {"enum": ["verified", "disputed"]},
+        "sourceId": {"type": "string"}
+      }
+    },
+    "vChapter": {"type": "object", "required": ["title"], "properties": {"number": {"type": ["integer", "string"]}, "title": {"type": "string", "minLength": 1}, "label": {"type": "string"}}},
     "vShot": {
       "type": "object",
       "required": ["shot"],
@@ -271,11 +321,11 @@
       }
     },
     "vCounter": {"type": "object", "required": ["from", "to", "sourceId"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}, "style": {"enum": ["plain", "money"], "description": "money = banknotes pile up while the number runs"}, "label": {"type": "string"}}},
-    "infographicType": {"enum": ["bar-race", "line-annotated", "pie", "donut", "stacked-area", "ranking", "ticker", "percent-ring", "bubble", "comparison-table", "calendar-heatmap", "map-choropleth", "money-stacks", "what-could-buy"]},
+    "infographicType": {"enum": ["bar-race", "line-annotated", "pie", "donut", "stacked-area", "ranking", "ticker", "percent-ring", "bubble", "comparison-table", "calendar-heatmap", "map-choropleth", "money-stacks", "what-could-buy", "org-chart", "family-tree", "flow"]},
     "vInfographic": {
       "type": "object",
       "required": ["type", "data"],
-      "description": "animated infographic from render/src/infographics (docs/library/infographics.md). Data types need a sourceId (validate_spec.py). data per type: bar-race {periods[], series[{label, values[], colour?}], top?}; line-annotated {points[{label, value}], annotations?[{at: index|label, text}]}; pie / donut {slices[{label, value, colour?}], highlight?, centerText?, centerLabel?, showValues?}; stacked-area {labels[], series[{label, values[], colour?}]}; ranking {items[{label, value?, note?}], order?: top-down|countdown}; ticker {from, to, decimals?, label?}; percent-ring {rings[{label, value 0-100, colour?}]} or {value, label}; bubble {bubbles[{label, value, colour?}]}; comparison-table {columns[], rows[{label, values[number|string|true|false|null]}], highlight?}; calendar-heatmap {start: YYYY-MM-DD, values[]} or {days[{date, value}]}, colour?, showTotal?; map-choropleth {values[{country: ISO3|name, value}], region?, bins?, colour?, legend?, showValues?}; money-stacks {items[{label, value, colour?}]}; what-could-buy {amount, price, item, icon?: box|house|car|person|coin|bag, max?, colour?}",
+      "description": "animated infographic from render/src/infographics (docs/library/infographics.md). Data types need a sourceId (validate_spec.py); the diagrams org-chart, family-tree and flow do not. data per type: bar-race {periods[], series[{label, values[], colour?}], top?}; line-annotated {points[{label, value}], annotations?[{at: index|label, text}]}; pie / donut {slices[{label, value, colour?}], highlight?, centerText?, centerLabel?, showValues?}; stacked-area {labels[], series[{label, values[], colour?}]}; ranking {items[{label, value?, note?}], order?: top-down|countdown}; ticker {from, to, decimals?, label?}; percent-ring {rings[{label, value 0-100, colour?}]} or {value, label}; bubble {bubbles[{label, value, colour?}]}; comparison-table {columns[], rows[{label, values[number|string|true|false|null]}], highlight?}; calendar-heatmap {start: YYYY-MM-DD, values[]} or {days[{date, value}]}, colour?, showTotal?; map-choropleth {values[{country: ISO3|name, value}], region?, bins?, colour?, legend?, showValues?}; money-stacks {items[{label, value, colour?}]}; what-could-buy {amount, price, item, icon?: box|house|car|person|coin|bag, max?, colour?}; org-chart {root: {label, title?, highlight?, colour?, children[]}} or {nodes[{id, label, title?, parent?}]}; family-tree {root: {label, years?, partner?: {label, years?} | name, highlight?, children[]}} or {nodes[{id, label, years?, parent?, partner?}]}; flow {steps[{id?, label, note?, shape?: box|decision|start|end, colour?, highlight?}], links?[{from, to, label?}], direction?: horizontal|vertical, numbered?}",
       "properties": {
         "type": {"$ref": "#/$defs/infographicType"},
         "title": {"type": "string", "description": "kicker top-left (default scene.onScreenText)"},

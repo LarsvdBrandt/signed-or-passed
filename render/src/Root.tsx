@@ -11,6 +11,7 @@ import {CHARACTER_PREVIEW_FRAMES, CharacterPreview} from './compositions/Charact
 import {EFFECTS_PREVIEW_FRAMES, EffectsPreview} from './compositions/EffectsPreview';
 import {TRANSITION_PREVIEW_FRAMES, TransitionPreview} from './compositions/TransitionPreview';
 import {INFOGRAPHIC_PREVIEW_FRAMES, InfographicPreview} from './compositions/InfographicPreview';
+import {TYPOGRAPHY_PREVIEW_FRAMES, TypographyPreview} from './compositions/TypographyPreview';
 import {SoundBoard, soundBoardDefaults} from './compositions/SoundBoard';
 import {sampleLong, sampleShort} from './sample-props';
 import {applyTheme} from './themes';
@@ -84,6 +85,12 @@ const InfographicPreviewDefault: React.FC = () => (
   </DefaultThemed>
 );
 
+const TypographyPreviewDefault: React.FC = () => (
+  <DefaultThemed>
+    <TypographyPreview />
+  </DefaultThemed>
+);
+
 const SoundBoardDefault: React.FC<any> = (props) => (
   <DefaultThemed>
     <SoundBoard {...props} />
@@ -104,6 +111,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="EffectsPreview" component={EffectsPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={EFFECTS_PREVIEW_FRAMES} />
       <Composition id="TransitionPreview" component={TransitionPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={TRANSITION_PREVIEW_FRAMES} />
       <Composition id="InfographicPreview" component={InfographicPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={INFOGRAPHIC_PREVIEW_FRAMES} />
+      <Composition id="TypographyPreview" component={TypographyPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={TYPOGRAPHY_PREVIEW_FRAMES} />
       <Composition id="SoundBoard" component={SoundBoardDefault} width={1920} height={1080} fps={30} durationInFrames={soundBoardDefaults.totalFrames} defaultProps={soundBoardDefaults as any} calculateMetadata={calcBoard as any} />
     </>
   );

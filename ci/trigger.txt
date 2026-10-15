@@ -1,1 +1,1 @@
-iteration 31 - 2026-10-15T05:30:00Z - INFOGRAPHICS-3 (org-chart, family-tree, flow) + InfographicPreview (preview-infographics.mp4)
+iteration 31 - 2026-10-15T05:45:00Z - INFOGRAPHICS-3 + TYPOGRAPHY-1/2/3 (kinetic-text presets, lower thirds, chapter cards, caption styles, preview-infographics.mp4, preview-typography.mp4)
