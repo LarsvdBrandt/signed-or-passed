@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "2026-10-15-blockbuster-passes-on-netflix",
   "test": false,
-  "generatedAt": "2026-10-15T19:17:33+00:00",
+  "generatedAt": "2026-10-15T20:29:56+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,22 +17,22 @@
     {
       "name": "video.mp4: duration 480-720s",
       "ok": true,
-      "detail": "510.1s"
+      "detail": "573.9s"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 510.13s vs timing 510.13s"
+      "detail": "video 573.87s vs timing 573.87s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.3 LUFS"
+      "detail": "-14.4 LUFS"
     },
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.9 dBTP"
+      "detail": "-2.0 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -42,7 +42,7 @@
     {
       "name": "video.mp4: visual changes/min >= 20",
       "ok": true,
-      "detail": "21.4 changes/min (measured), 0.9 planned beats/min, 17.1 sfx/min",
+      "detail": "21.0 changes/min (measured), 2.8 planned beats/min, 15.3 sfx/min",
       "level": "warn"
     },
     {
@@ -53,7 +53,7 @@
     {
       "name": "video.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "2.5s at 51.8s"
+      "detail": "3.8s at 303.5s"
     },
     {
       "name": "video.mp4: brand sting after the hook",
@@ -63,13 +63,13 @@
     {
       "name": "video.mp4: on-screen number/keyword in the first 8 s",
       "ok": true,
-      "detail": "kinetic-text m001@0.0s, counter m002@3.5s, kinetic-text m003@6.5s",
+      "detail": "kinetic-text m001@0.0s, counter m002@3.5s, kinetic-text m003@6.6s",
       "level": "warn"
     },
     {
       "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
-      "ok": true,
-      "detail": "-91.0 dB at 218.3s",
+      "ok": false,
+      "detail": "-24.3 dB at 248.6s",
       "level": "warn"
     },
     {
@@ -84,24 +84,23 @@
     },
     {
       "name": "short-short-1.mp4: duration 45-60s",
-      "ok": false,
-      "detail": "41.5s (short but publishable, >= 30 s)",
-      "level": "warn"
+      "ok": true,
+      "detail": "45.9s"
     },
     {
       "name": "short-short-1.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 41.53s vs timing 41.53s"
+      "detail": "video 45.87s vs timing 45.87s"
     },
     {
       "name": "short-short-1.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.5 LUFS"
+      "detail": "-14.4 LUFS"
     },
     {
       "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.8 dBTP"
+      "detail": "-2.6 dBTP"
     },
     {
       "name": "short-short-1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -111,18 +110,18 @@
     {
       "name": "short-short-1.mp4: visual changes/min >= 20",
       "ok": true,
-      "detail": "21.7 changes/min (measured), 0.0 planned beats/min, 26.0 sfx/min",
+      "detail": "22.2 changes/min (measured), 0.0 planned beats/min, 24.9 sfx/min",
       "level": "warn"
     },
     {
       "name": "short-short-1.mp4: first visual change <= 1.5 s",
       "ok": true,
-      "detail": "0.25s"
+      "detail": "0.00s"
     },
     {
       "name": "short-short-1.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "1.0s at 40.0s"
+      "detail": "none"
     },
     {
       "name": "short-short-1.mp4: on-screen number/keyword in the first 8 s",
@@ -133,7 +132,7 @@
     {
       "name": "short-short-1.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 19.1s",
+      "detail": "-91.0 dB at 21.6s",
       "level": "warn"
     },
     {
@@ -149,22 +148,22 @@
     {
       "name": "short-short-2.mp4: duration 45-60s",
       "ok": true,
-      "detail": "47.6s"
+      "detail": "52.6s"
     },
     {
       "name": "short-short-2.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 47.63s vs timing 47.63s"
+      "detail": "video 52.63s vs timing 52.63s"
     },
     {
       "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.4 LUFS"
+      "detail": "-14.3 LUFS"
     },
     {
       "name": "short-short-2.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.7 dBTP"
+      "detail": "-2.6 dBTP"
     },
     {
       "name": "short-short-2.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -173,19 +172,19 @@
     },
     {
       "name": "short-short-2.mp4: visual changes/min >= 20",
-      "ok": false,
-      "detail": "18.9 changes/min (measured), 0.0 planned beats/min, 21.4 sfx/min",
+      "ok": true,
+      "detail": "22.8 changes/min (measured), 0.0 planned beats/min, 20.5 sfx/min",
       "level": "warn"
     },
     {
       "name": "short-short-2.mp4: first visual change <= 1.5 s",
       "ok": true,
-      "detail": "0.25s"
+      "detail": "0.50s"
     },
     {
       "name": "short-short-2.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "0.8s at 46.8s"
+      "detail": "0.8s at 4.0s"
     },
     {
       "name": "short-short-2.mp4: on-screen number/keyword in the first 8 s",
@@ -196,7 +195,7 @@
     {
       "name": "short-short-2.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 25.1s",
+      "detail": "-91.0 dB at 25.9s",
       "level": "warn"
     },
     {
@@ -227,18 +226,12 @@
     {
       "name": "voice: ASR word error rate <= 8 %",
       "ok": true,
-      "detail": "3.0 % (base.en, 1205 words)"
+      "detail": "3.1 % (base.en, 1205 words)"
     },
     {
       "name": "voice: no garbled sentence (WER > 30 % and CER > 35 %, max 2 doubtful)",
       "ok": true,
-      "detail": "1.00/0.23 'Blockbuster passed.' heard 'Lockbuster past.'"
-    },
-    {
-      "name": "voice: doubtful sentences (listen to these)",
-      "ok": false,
-      "detail": "1.00/0.23 'Blockbuster passed.' heard 'Lockbuster past.'",
-      "level": "warn"
+      "detail": "all clips ok"
     },
     {
       "name": "voice: no Kokoro fallback sentences",
@@ -247,21 +240,21 @@
       "level": "warn"
     },
     {
-      "name": "voice: pace 145-155 words/min (whole narration)",
+      "name": "voice: pace 135-145 words/min (whole narration)",
       "ok": true,
-      "detail": "157.5 wpm over the whole cut, in-scene 217.5 wpm (articulation 251.1, pace 1.0, pauses x1.15)",
+      "detail": "140.0 wpm over the whole cut, in-scene 205.0 wpm (articulation 250.2, pace 1.0, pauses x1.312)",
       "level": "warn"
     },
     {
       "name": "voice: liveliness (F0 std, semitones)",
       "ok": true,
-      "detail": "5.51 st (per minute [5.36, 5.75, 5.42, 5.16, 5.46, 5.51, 5.86, 5.55, 5.49])",
+      "detail": "5.46 st (per minute [5.54, 5.58, 5.39, 5.32, 4.84, 5.84, 5.38, 5.66, 5.48, 5.59])",
       "level": "info"
     },
     {
       "name": "description: >= 3 chapters",
       "ok": true,
-      "detail": "13 chapters"
+      "detail": "15 chapters"
     },
     {
       "name": "description: synthetic voice disclosed",
@@ -270,31 +263,31 @@
     }
   ],
   "durations": {
-    "main": 510.13,
-    "short-short-1": 41.53,
-    "short-short-2": 47.63
+    "main": 573.87,
+    "short-short-1": 45.87,
+    "short-short-2": 52.63
   },
   "audio": {
     "video.mp4": {
-      "lufs": -14.34,
-      "truePeakDb": -1.92,
-      "lra": 3.3,
-      "silences": 0,
-      "longestSilenceSec": 0.0,
-      "silentPct": 0.0
-    },
-    "short-short-1.mp4": {
-      "lufs": -14.47,
-      "truePeakDb": -2.81,
+      "lufs": -14.36,
+      "truePeakDb": -2.0,
       "lra": 3.7,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
+    "short-short-1.mp4": {
+      "lufs": -14.4,
+      "truePeakDb": -2.63,
+      "lra": 3.5,
+      "silences": 0,
+      "longestSilenceSec": 0.0,
+      "silentPct": 0.0
+    },
     "short-short-2.mp4": {
-      "lufs": -14.37,
-      "truePeakDb": -2.71,
-      "lra": 2.0,
+      "lufs": -14.31,
+      "truePeakDb": -2.58,
+      "lra": 2.4,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
@@ -302,39 +295,45 @@
   },
   "retention": {
     "main": {
-      "beats": 8,
-      "beatsPerMin": 0.9,
-      "sfx": 145,
-      "sfxPerMin": 17.1,
+      "beats": 27,
+      "beatsPerMin": 2.8,
+      "sfx": 146,
+      "sfxPerMin": 15.3,
+      "breaths": 141,
+      "sectionPauses": 9,
       "firstVisualChangeSec": 0.25,
-      "visualChanges": 182,
-      "visualChangesPerMin": 21.4,
-      "longestStaticSec": 2.5,
-      "longestStaticAtSec": 51.75,
-      "revealSilenceDb": -91.0
+      "visualChanges": 201,
+      "visualChangesPerMin": 21.0,
+      "longestStaticSec": 3.75,
+      "longestStaticAtSec": 303.5,
+      "revealSilenceDb": -24.3
     },
     "short-short-1": {
       "beats": 0,
       "beatsPerMin": 0.0,
-      "sfx": 18,
-      "sfxPerMin": 26.0,
-      "firstVisualChangeSec": 0.25,
-      "visualChanges": 15,
-      "visualChangesPerMin": 21.7,
-      "longestStaticSec": 1.0,
-      "longestStaticAtSec": 40.0,
+      "sfx": 19,
+      "sfxPerMin": 24.9,
+      "breaths": 5,
+      "sectionPauses": 4,
+      "firstVisualChangeSec": 0.0,
+      "visualChanges": 17,
+      "visualChangesPerMin": 22.2,
+      "longestStaticSec": 0.0,
+      "longestStaticAtSec": null,
       "revealSilenceDb": -91.0
     },
     "short-short-2": {
       "beats": 0,
       "beatsPerMin": 0.0,
-      "sfx": 17,
-      "sfxPerMin": 21.4,
-      "firstVisualChangeSec": 0.25,
-      "visualChanges": 15,
-      "visualChangesPerMin": 18.9,
+      "sfx": 18,
+      "sfxPerMin": 20.5,
+      "breaths": 6,
+      "sectionPauses": 4,
+      "firstVisualChangeSec": 0.5,
+      "visualChanges": 20,
+      "visualChangesPerMin": 22.8,
       "longestStaticSec": 0.75,
-      "longestStaticAtSec": 46.75,
+      "longestStaticAtSec": 4.0,
       "revealSilenceDb": -91.0
     }
   },
@@ -344,54 +343,69 @@
     "clips": 125,
     "exaggerationOffset": 0.0,
     "cfgOffset": 0.0,
-    "clipWer": 0.0343,
+    "clipWer": 0.0347,
     "retried": 3,
-    "badSentences": [
-      {
-        "text": "Blockbuster passed.",
-        "wer": 1.0,
-        "cer": 0.235,
-        "asr": "Lockbuster past."
-      }
-    ],
-    "misheardShortClips": 4,
+    "badSentences": [],
+    "misheardShortClips": 8,
     "fallbackSentences": [],
     "pace": {
       "words": 1339,
-      "speechSec": 369.3,
-      "wpm": 217.5,
-      "articulationWpm": 251.1,
+      "speechSec": 391.97,
+      "wpm": 205.0,
+      "articulationWpm": 250.2,
+      "inSentenceWpm": 250.2,
+      "totalSec": 573.87,
+      "overallWpm": 140.0,
       "pace": 1.0,
-      "pauseScale": 1.15,
+      "pauseScale": 1.312,
       "targetWpm": [
-        145.0,
-        155.0
+        135.0,
+        145.0
       ],
       "paragraphs": true,
       "stretch": "none",
+      "targetOverallWpm": [
+        135,
+        145
+      ],
+      "paceGuardScale": 1.312,
+      "calibratedOverallWpm": 140.0,
+      "pauses": {
+        "sentence": 0.45,
+        "paragraph": 0.75,
+        "scene": 0.9,
+        "section": 1.6,
+        "beforePunch": 0.6,
+        "afterPunch": 0.9,
+        "afterReveal": 1.2,
+        "afterQuestion": 3.0,
+        "shortScale": 0.75,
+        "scale": 1.312
+      },
       "tempoFilter": {},
-      "narrationWpm": 157.5
+      "narrationWpm": 140.0
     },
-    "wer": 0.0299,
+    "wer": 0.0315,
     "asrModel": "base.en",
     "words": 1205,
     "liveliness": {
       "metric": "std of F0 in semitones (librosa.pyin)",
-      "overall": 5.55,
+      "overall": 5.48,
       "perMinute": [
-        5.36,
-        5.75,
-        5.42,
-        5.16,
-        5.46,
-        5.51,
-        5.86,
-        5.55,
-        5.49
+        5.54,
+        5.58,
+        5.39,
+        5.32,
+        4.84,
+        5.84,
+        5.38,
+        5.66,
+        5.48,
+        5.59
       ],
-      "mean": 5.51
+      "mean": 5.46
     },
-    "seconds": 510.1
+    "seconds": 573.9
   },
   "warnings": []
 }
