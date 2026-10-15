@@ -70,6 +70,19 @@ jobs:
             echo "$changed"
             slugs=$(echo "$changed" | grep -E '^productions/[^/]+/spec\.json$' | cut -d/ -f2 || true)
             if echo "$changed" | grep -qx 'ci/trigger.txt'; then slugs="$slugs 0000-sample"; fi
+            # Catch up on renders that were lost because a newer push replaced a pending run
+            # (concurrency keeps only one pending run): every real production whose spec.json
+            # was committed after its render-report.json (or that has none yet) is rendered too.
+            for spec in productions/*/spec.json; do
+              s=$(basename "$(dirname "$spec")")
+              [ "$s" = "0000-sample" ] && continue
+              st=$(git log -1 --format=%ct -- "$spec")
+              rt=$(git log -1 --format=%ct -- "productions/$s/render-report.json")
+              if [ -n "$st" ] && { [ -z "$rt" ] || [ "$st" -gt "$rt" ]; }; then
+                echo "Catch-up: $s (spec newer than its render report)"
+                slugs="$slugs $s"
+              fi
+            done
           fi
           slugs=$(for s in $slugs; do echo "$s"; done | sort -u | tr '\n' ' ' | sed 's/ *$//')
           echo "Productions to render: ${slugs:-none}" | tee -a build/ci.log
@@ -115,10 +128,7 @@ jobs:
       - name: Render
         if: env.SLUGS != ''
         timeout-minutes: 100
-        run: |
-          for slug in $SLUGS; do
-            bash ci/render-slug.sh "$slug"
-          done
+        run: bash ci/render-all.sh
 
       - name: Finalize (always)
         if: always()

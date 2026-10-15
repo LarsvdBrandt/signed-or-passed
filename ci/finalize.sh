@@ -4,8 +4,8 @@
 set -uo pipefail
 job_status="${1:-unknown}"
 mkdir -p build ci
-step=$(cat build/current_step 2>/dev/null || echo "setup")
-slug=$(cat build/current_slug 2>/dev/null || echo "")
+step=$(cat build/failed_step 2>/dev/null || cat build/current_step 2>/dev/null || echo "setup")
+slug=$(cat build/failed_slug 2>/dev/null || cat build/current_slug 2>/dev/null || echo "")
 if [ "$job_status" = "success" ]; then step=""; fi
 if [ -f build/ci.log ]; then tail -n 300 build/ci.log > ci/last-run.log; else echo "no log captured" > ci/last-run.log; fi
 
@@ -20,6 +20,7 @@ data = {
     "slugs": os.environ.get("SLUGS", "").split(),
     "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
     "failedStep": step or None,
+    "failedSlugs": [l.split()[0] for l in open("build/failed_slugs") if l.strip()] if os.path.exists("build/failed_slugs") else [],
     "runUrl": "%s/%s/actions/runs/%s" % (os.environ.get("GITHUB_SERVER_URL"), os.environ.get("GITHUB_REPOSITORY"), os.environ.get("GITHUB_RUN_ID")),
 }
 with open("ci/last-run.json", "w") as f:

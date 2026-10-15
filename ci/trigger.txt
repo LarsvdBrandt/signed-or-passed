@@ -1,1 +1,1 @@
-iteration 33b · 2026-10-15T06:30:00Z · scene templates (SCENES-1/2/3) + schema vTemplate + preview-templates.mp4 + everything since c241eca (music, voices, sample v2.2)
+iteration 34 · 2026-10-15T06:45:00Z · catch-up render of 2026-10-15-blockbuster-passes-on-netflix (lost pending run) + sample with everything since c241eca (templates, music, voices, sample v2.2)
