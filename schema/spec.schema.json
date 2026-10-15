@@ -45,10 +45,16 @@
       "required": ["engine", "voice"],
       "description": "TTS voice (pipeline/tts.py, brand/voices.json, docs/library/voices.md)",
       "properties": {
-        "engine": {"enum": ["kokoro", "piper"]},
+        "engine": {"enum": ["kokoro", "piper", "chatterbox"], "description": "chatterbox = expressive Resemble AI Chatterbox (MIT), zero-shot cloned from `reference`, sentence delivery styles (docs/library/voices.md); Kokoro is its per-sentence fallback"},
+        "reference": {"enum": ["narrator", "default"], "default": "narrator", "description": "chatterbox only: 'narrator' = cloned from a lively Kokoro bm_george reading generated at render time (channel default), 'default' = the built-in Chatterbox voice"},
+        "exaggeration": {"type": "number", "minimum": 0.25, "maximum": 1.0, "description": "chatterbox only: shifts every delivery style's emotion exaggeration (0.5 = neutral, higher = livelier)"},
+        "cfgWeight": {"type": "number", "minimum": 0.1, "maximum": 1.0, "description": "chatterbox only: shifts every style's cfg_weight (0.5 = neutral, lower = slower, more expressive)"},
+        "temperature": {"type": "number", "minimum": 0.3, "maximum": 1.2, "description": "chatterbox only, default 0.8"},
+        "fallback": {"type": "string", "pattern": "^[abefhip][fm]_[a-z]+$", "description": "chatterbox only: Kokoro voice for sentences Chatterbox cannot produce (default bm_george)"},
+        "qa": {"type": "boolean", "description": "run the voice QA (ASR word error rate + liveliness) for kokoro/piper too; always on for chatterbox"},
         "voice": {"type": "string", "description": "kokoro: a Kokoro v1.0 voice id (bm_george, af_heart, ef_dora ...); piper: a voice id listed in brand/voices.json (nl_BE-rdh-medium ...)"},
         "speaker": {"type": "integer", "minimum": 0, "description": "piper multi-speaker voices only (nl_NL-mls-medium: 0-51)"},
-        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.15 for kokoro, 1.0 for piper"}
+        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.15 for kokoro, 1.0 for piper and chatterbox (chatterbox: ffmpeg atempo, pitch kept)"}
       },
       "allOf": [
         {"if": {"properties": {"engine": {"const": "kokoro"}}}, "then": {"properties": {"voice": {"pattern": "^[abefhip][fm]_[a-z]+$"}}}},
@@ -232,6 +238,7 @@
         "kind": {"enum": ["title", "illustration", "template", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1, "description": "spoken text; '[pause 0.5]' inserts 0.5 s of silence ('[PAUSE]' = 0.5 s; not spoken, not captioned); '**word**' marks an emphasised word or phrase: spoken normally, shown as a big kinetic keyword timed to the word (docs/library/retention.md)"},
         "voiceSpeed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "overrides voice.speed for this scene"},
+        "delivery": {"enum": ["calm", "curious", "tense", "build", "excited", "punch", "somber", "warm"], "description": "chatterbox: default delivery style for the untagged sentences of this scene (inline tags like '[build]' at the start of a sentence win; without either, auto-delivery decides; docs/library/voices.md)"},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
         "motion": {
@@ -461,7 +468,7 @@
     "vSplitFlap": {"type": "object", "required": ["rows"], "properties": {"rows": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string", "maxLength": 18}}, "accentRow": {"type": "integer", "minimum": 0}, "sourceId": {"type": "string"}}},
     "vDocument": {"type": "object", "properties": {"title": {"type": "string"}, "lines": {"type": "array", "maxItems": 7, "items": {"type": "string"}}, "verdict": {"enum": ["SIGNED", "PASSED"]}, "party": {"type": "string"}, "signature": {"type": "string"}}},
     "vPhotoWall": {"type": "object", "required": ["cards"], "properties": {"cards": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"type": "object", "required": ["label"], "properties": {"label": {"type": "string"}, "component": {"type": "string"}, "props": {"type": "object"}, "dark": {"type": "boolean"}}}}, "links": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 0}}}}},
-    "vQuote": {"type": "object", "required": ["text", "speaker", "sourceId", "status"], "properties": {"text": {"type": "string"}, "speaker": {"type": "string"}, "sourceId": {"type": "string"}, "status": {"enum": ["verified", "disputed"]}}},
+    "vQuote": {"type": "object", "required": ["text", "speaker", "sourceId"], "properties": {"text": {"type": "string"}, "speaker": {"type": "string"}, "sourceId": {"type": "string"}, "status": {"enum": ["verified", "disputed"]}}},
     "vQuestion": {"type": "object", "required": ["question"], "properties": {"question": {"type": "string"}, "options": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}, "holdSec": {"type": "number", "minimum": 0, "maximum": 10}}}
   }
 }

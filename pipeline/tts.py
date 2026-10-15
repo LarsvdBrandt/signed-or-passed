@@ -17,12 +17,29 @@ first scene that is not a cold open, or spec.brandIntro.after; 1.2 s by default)
 RETENTION-4b: the scene before the reveal (common.reveal_index) holds spec.sound.revealPauseSec (default 0.6 s)
 longer, so voice, music and sfx fall silent right before the reveal; timing.json records revealAtSec and
 revealPauseSec.
+
+VOICE-1..4 (docs/library/voices.md): engine 'chatterbox' = Resemble AI Chatterbox (MIT, original model with emotion
+`exaggeration` + `cfg_weight`), zero-shot cloned from spec.voice.reference: 'narrator' (a lively ~13 s reading by
+Kokoro bm_george, generated at render time and cached) or 'default' (the built-in Chatterbox voice). It runs in its
+own venv (pipeline/requirements-chatterbox.txt, created on first use; SOP_CB_PYTHON overrides) through
+pipeline/chatterbox_worker.py: pass 1 lays every cut out with placeholders to collect the sentences, the worker
+generates them in N parallel shards (SOP_TTS_SHARDS, default 2 on >= 4 cores) into a cache keyed by text + settings,
+every clip is checked with faster-whisper (bad takes are regenerated once with a lower exaggeration), pass 2 lays
+the real clips out. A sentence that Chatterbox cannot produce is spoken by Kokoro (spec.voice.fallback, default
+bm_george). Each sentence gets a delivery style (pipeline/delivery.py: inline tags, scenes[].delivery or
+auto-delivery) that sets exaggeration / cfg_weight, a small speed factor and extra pauses. Voice QA (overall WER
+and liveliness = F0 variation per minute) goes to build/<slug>/voice-qa.json for qa.py.
 """
+import collections
+import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +48,8 @@ import soundfile as sf
 from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, OUTRO_SEC, ROOT, SCENE_LEAD, SCENE_TAIL,
                     SENTENCE_GAP, VERDICT_MIN, brand_intro_plan, branded, cold_open, cut_dir, cuts, fail, load_spec, log, reveal_index,
                     slug_arg, sound_opts,
-                    split_sentences, strip_emphasis, write_json)
+                    split_sentences, strip_emphasis, work_dir, write_json)
+import delivery as dlv
 
 SR = 24000
 PAUSE_RE = re.compile(r"\[\s*pause(?:\s+([0-9]*\.?[0-9]+)\s*s?)?\s*\]", re.I)
@@ -86,7 +104,7 @@ class KokoroEngine:
         self.voice = voice
         self.pipe = KPipeline(lang_code=voice[0], repo_id="hexgrad/Kokoro-82M")
 
-    def synth(self, text, speed):
+    def synth(self, text, speed, d=None):
         chunks = []
         for result in self.pipe(text, voice=self.voice, speed=speed, split_pattern=None):
             audio = getattr(result, "audio", None)
@@ -144,7 +162,7 @@ class PiperEngine:
         self.voice = PiperVoice.load(str(model), config_path=str(config))
         self.speaker = speaker
 
-    def synth(self, text, speed):
+    def synth(self, text, speed, d=None):
         from piper import SynthesisConfig
         cfg = SynthesisConfig(length_scale=1.0 / max(0.25, float(speed)))
         if self.speaker is not None:
@@ -160,15 +178,220 @@ class PiperEngine:
         return trim(resample(a, sr))
 
 
-def make_engine(engine, voice, speaker=None):
+CB_REQ = ROOT / "pipeline" / "requirements-chatterbox.txt"
+CB_WORKER = ROOT / "pipeline" / "chatterbox_worker.py"
+CB_VENV = Path(os.path.expanduser(os.environ.get("SOP_CB_VENV") or "~/.venvs/chatterbox"))
+CB_TORCH = "torch==2.6.0 torchaudio==2.6.0"
+TTS_CACHE = Path(os.path.expanduser("~/.cache/huggingface/sop-tts"))
+CB_TAG = "chatterbox-0.1.2/v1"
+ASR_MODEL = "base.en"
+# Narrator reference (VOICE-2): our own lively text read by Kokoro bm_george; Chatterbox clones that timbre.
+NARRATOR_TEXT = ("Fifty million dollars! Can you believe that? A tiny startup walks into the room, and the giant just "
+                 "laughs. Big mistake. Huge! Because ten years later, everything had changed. So tell me. "
+                 "Would you sign? Or would you pass?")
+NARRATOR_VOICE, NARRATOR_SPEED = "bm_george", 1.1
+
+
+def tempo(a, factor):
+    """Time-stretch without changing the pitch (ffmpeg atempo); no-op for |factor - 1| < 1 %."""
+    if abs(factor - 1.0) < 0.01 or len(a) == 0:
+        return a
+    try:
+        p = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1",
+                            "-i", "pipe:0", "-filter:a", f"atempo={factor:.4f}", "-f", "f32le", "pipe:1"],
+                           input=a.astype(np.float32).tobytes(), capture_output=True)
+    except OSError:
+        return a
+    if p.returncode != 0 or not p.stdout:
+        return a
+    return np.frombuffer(p.stdout, dtype=np.float32).copy()
+
+
+def cb_python():
+    """Python of the Chatterbox venv; created (CPU torch + pipeline/requirements-chatterbox.txt) on first use."""
+    if os.environ.get("SOP_CB_PYTHON"):
+        return os.environ["SOP_CB_PYTHON"]
+    py = CB_VENV / "bin" / "python"
+    stamp = CB_VENV / (".req-" + hashlib.sha1(CB_REQ.read_bytes()).hexdigest()[:12])
+    if not stamp.exists():
+        t0 = time.time()
+        log(f"creating the Chatterbox venv in {CB_VENV} ...")
+        subprocess.run([sys.executable, "-m", "venv", str(CB_VENV)], check=True)
+        pip = [str(py), "-m", "pip", "install", "-q"]
+        subprocess.run(pip + ["--upgrade", "pip"], check=True)
+        subprocess.run(pip + ["--index-url", "https://download.pytorch.org/whl/cpu"] + CB_TORCH.split(), check=True)
+        subprocess.run(pip + ["-r", str(CB_REQ)], check=True)
+        stamp.touch()
+        log(f"  Chatterbox venv ready in {time.time() - t0:.0f}s")
+    return str(py)
+
+
+def run_logged(cmd, prefix, env=None):
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env, bufsize=1)
+
+    def pump():
+        for line in p.stdout:
+            line = line.rstrip()
+            if line and "it/s]" not in line and "s/it]" not in line:
+                print(f"{prefix}{line}", flush=True)
+    th = threading.Thread(target=pump, daemon=True)
+    th.start()
+    return p, th
+
+
+class ChatterboxEngine:
+    """Two-pass engine: while `recording` it only collects the clips it is asked for (returns placeholders);
+    generate() renders them with the worker; afterwards synth() returns the cached clips."""
+    name = "chatterbox"
+    default_speed = 1.0
+    uses_delivery = True
+
+    def __init__(self, voice, speaker=None, settings=None, slug=""):
+        self.settings = settings or {}
+        self.reference = self.settings.get("reference") or "narrator"
+        self.base_ex = self.settings.get("exaggeration")
+        self.base_cfg = self.settings.get("cfgWeight")
+        self.temperature = float(self.settings.get("temperature") or 0.8)
+        self.fallback_voice = self.settings.get("fallback") or NARRATOR_VOICE
+        self.slug = slug
+        self.recording = True
+        self.jobs = {}
+        self.used = {}
+        self.fallbacks = []
+        self._kokoro = None
+        self.ref_path = None
+        self.ref_id = "default"
+
+    def _settings(self, d):
+        d = d or {"exaggeration": 0.5, "cfgWeight": 0.5, "speed": 1.0, "style": "calm"}
+        ex = float(d["exaggeration"])
+        if self.base_ex is not None:  # spec.voice.exaggeration shifts every style (0.5 = neutral)
+            ex = min(1.0, max(0.25, ex + float(self.base_ex) - 0.5))
+        cfg = float(d["cfgWeight"])
+        if self.base_cfg is not None:  # spec.voice.cfgWeight shifts every style (0.5 = neutral)
+            cfg = min(1.0, max(0.1, cfg + float(self.base_cfg) - 0.5))
+        return round(ex, 3), round(cfg, 3)
+
+    def _key(self, text, ex, cfg):
+        raw = json.dumps([CB_TAG, self.ref_id, text, ex, cfg, self.temperature], ensure_ascii=False)
+        return hashlib.sha1(raw.encode()).hexdigest()[:20]
+
+    def kokoro(self):
+        if self._kokoro is None:
+            self._kokoro = KokoroEngine(self.fallback_voice)
+        return self._kokoro
+
+    def synth(self, text, speed, d=None):
+        ex, cfg = self._settings(d)
+        key = self._key(text, ex, cfg)
+        path = TTS_CACHE / "chatterbox" / f"{key}.wav"
+        factor = float(speed) * float((d or {}).get("speed", 1.0))
+        if self.recording:
+            self.jobs[key] = {"id": key, "text": text, "expected": text, "exaggeration": ex, "cfgWeight": cfg,
+                              "temperature": self.temperature, "seed": int(key[:8], 16) % 100000, "out": str(path)}
+            return np.zeros(int(SR * max(0.4, 0.06 * len(text) / max(0.5, factor))), dtype=np.float32)
+        if path.exists():
+            a, sr = sf.read(str(path), dtype="float32")
+            a = trim(resample(np.asarray(a).reshape(-1), sr))
+            if len(a) > SR * 0.15:
+                meta = Path(str(path) + ".json")
+                self.used[key] = {"text": text, **(json.loads(meta.read_text()) if meta.exists() else {})}
+                return tempo(a, factor)
+        self.fallbacks.append(text)
+        log(f"  WARNING chatterbox clip missing -> Kokoro {self.fallback_voice}: {text!r}")
+        return self.kokoro().synth(text, DEFAULT_SPEED * float((d or {}).get("speed", 1.0)))
+
+    def prepare_reference(self):
+        if self.reference == "default":
+            self.ref_path, self.ref_id = "default", "default"
+            return
+        if self.reference != "narrator":
+            fail(f"voice.reference must be 'narrator' or 'default', not {self.reference!r}")
+        rid = hashlib.sha1(f"{NARRATOR_VOICE}|{NARRATOR_SPEED}|{NARRATOR_TEXT}".encode()).hexdigest()[:12]
+        cached = TTS_CACHE / f"narrator-ref-{rid}.wav"
+        if not cached.exists():
+            log(f"generating the narrator reference with Kokoro {NARRATOR_VOICE} ...")
+            k = self.kokoro() if self.fallback_voice == NARRATOR_VOICE else KokoroEngine(NARRATOR_VOICE)
+            parts = []
+            for sent in split_sentences(NARRATOR_TEXT):
+                parts += [k.synth(sent, NARRATOR_SPEED), np.zeros(int(0.22 * SR), dtype=np.float32)]
+            cached.parent.mkdir(parents=True, exist_ok=True)
+            sf.write(str(cached), np.concatenate(parts), SR, subtype="PCM_16")
+        dest = ROOT / "brand" / "voices" / "narrator-ref.wav"  # generated at render time, never committed
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(cached, dest)
+        self.ref_path, self.ref_id = str(cached), "narrator-" + rid
+
+    def generate(self):
+        self.recording = False
+        todo = [j for j in self.jobs.values() if not Path(j["out"]).exists()]
+        log(f"chatterbox: {len(self.jobs)} clips, {len(todo)} to generate (cache {TTS_CACHE / 'chatterbox'})")
+        if not todo:
+            return
+        try:
+            py = cb_python()
+        except Exception as e:  # noqa: BLE001
+            log(f"  WARNING Chatterbox venv failed ({e}); every sentence falls back to Kokoro")
+            return
+        cores = os.cpu_count() or 2
+        try:
+            mem_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 2 ** 30
+        except (ValueError, OSError):
+            mem_gb = 8
+        shards = int(os.environ.get("SOP_TTS_SHARDS") or (2 if cores >= 4 and mem_gb >= 12 else 1))
+        shards = max(1, min(shards, len(todo)))
+        threads = max(1, cores // shards)
+        buckets = [[] for _ in range(shards)]
+        loads = [0] * shards
+        for j in sorted(todo, key=lambda j: -len(j["text"])):
+            b = loads.index(min(loads))
+            buckets[b].append(j)
+            loads[b] += len(j["text"])
+        wd = work_dir(self.slug)
+        (TTS_CACHE / "chatterbox").mkdir(parents=True, exist_ok=True)
+        procs = []
+        t0 = time.time()
+        for n, b in enumerate(buckets):
+            jf = wd / f"cb-jobs-{n}.json"
+            jf.write_text(json.dumps(b, ensure_ascii=False))
+            env = dict(os.environ, OMP_NUM_THREADS=str(threads), MKL_NUM_THREADS=str(threads),
+                       TOKENIZERS_PARALLELISM="false")
+            procs.append(run_logged([py, str(CB_WORKER), "synth", "--jobs", str(jf), "--ref", self.ref_path,
+                                     "--threads", str(threads), "--asr", ASR_MODEL], f"  [shard {n}] ", env))
+        budget = float(os.environ.get("SOP_TTS_BUDGET_MIN") or 45) * 60
+        for p, th in procs:
+            try:
+                p.wait(timeout=max(1, budget - (time.time() - t0)))
+            except subprocess.TimeoutExpired:
+                log("  WARNING Chatterbox TTS budget exceeded: stopping; missing clips fall back to Kokoro")
+                p.kill()
+            th.join(timeout=5)
+        log(f"chatterbox: generated in {time.time() - t0:.0f}s with {shards} shard(s) x {threads} thread(s)")
+
+    def report(self):
+        clips = list(self.used.values())
+        words = [len(c["text"].split()) for c in clips]
+        wers = [(c.get("wer") or 0.0) for c in clips]
+        tot = sum(words) or 1
+        bad = [{"text": c["text"], "wer": c.get("wer"), "asr": c.get("asr")} for c in clips
+               if (c.get("wer") or 0) > 0.30]
+        return {"engine": "chatterbox", "reference": self.reference, "clips": len(clips),
+                "clipWer": round(sum(w * n for w, n in zip(wers, words)) / tot, 4),
+                "retried": sum(1 for c in clips if c.get("retried")), "badSentences": bad,
+                "fallbackSentences": sorted(set(self.fallbacks))}
+
+
+def make_engine(engine, voice, speaker=None, settings=None, slug=""):
+    if engine == "chatterbox":
+        return ChatterboxEngine(voice, speaker, settings, slug)
     if engine == "piper":
         return PiperEngine(voice, speaker)
     if engine in ("kokoro", None, ""):
         return KokoroEngine(voice, speaker)
-    fail(f"unknown TTS engine '{engine}' (kokoro | piper)")
+    fail(f"unknown TTS engine '{engine}' (kokoro | piper | chatterbox)")
 
 
-def speak(engine, text, speed):
+def speak(engine, text, speed, d=None):
     """Audio of one sentence with [pause N] markers turned into silence; (audio, offset of first sound, end of last sound)."""
     parts = PAUSE_RE.split(text)
     pieces = []
@@ -183,7 +406,7 @@ def speak(engine, text, speed):
         part = strip_emphasis(part or "").strip()
         if not re.search(r"\w", part):
             continue
-        a = engine.synth(part, speed)
+        a = engine.synth(part, speed, d) if d is not None else engine.synth(part, speed)
         if first is None:
             first = t
         pieces.append(a)
@@ -198,7 +421,7 @@ def snap(t):
     return round(t * FPS) / FPS
 
 
-def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None):
+def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None, deliveries=None):
     """Scene timing. intro_after = index of the scene after which an `intro` s gap (brand sting) is inserted;
     None with intro > 0 = the gap comes first (legacy). pause_before = {scene index: seconds}: the previous scene
     holds that much longer (silence before the reveal)."""
@@ -216,14 +439,22 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
         sp = float(sc.get("voiceSpeed") or speed)
         cur = start + (FIRST_LEAD if i == 0 else SCENE_LEAD)
         sents = []
-        for text in split_sentences(sc["narration"]):
-            a, first, last, dur = speak(engine, text, sp)
+        for j, text in enumerate(split_sentences(sc["narration"])):
+            d = (deliveries or {}).get((i, j))
+            spoken = text
+            if d is not None:
+                spoken = dlv.strip_tags(text)
+                if d["style"] == "punch":
+                    spoken, pb = dlv.punch_text(spoken)
+                    cur += pb
+            a, first, last, dur = speak(engine, spoken, sp, d)
             if first is None:  # only a pause
                 cur += dur
                 continue
             clips.append((cur, a))
-            sents.append({"text": clean_text(text), "start": round(cur + first, 3), "end": round(cur + last, 3)})
-            cur += dur + SENTENCE_GAP
+            sents.append({"text": clean_text(text), "start": round(cur + first, 3), "end": round(cur + last, 3),
+                          **({"delivery": d["style"]} if d is not None else {})})
+            cur += dur + SENTENCE_GAP + (d["pauseAfter"] if d is not None else 0.0)
         voice_end = sents[-1]["end"] if sents else start
         end = max(voice_end, cur - SENTENCE_GAP if sents else cur) + SCENE_TAIL
         if sc["kind"] == "question":
@@ -251,14 +482,51 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
     return out, clips, total, intro_at
 
 
+def track_qa(slug, engine, engine_name):
+    """VOICE-4: whole-track ASR (overall WER) + liveliness of the main cut, plus the per-clip Chatterbox checks."""
+    d = cut_dir(slug, "main")
+    timing = json.loads((d / "timing.json").read_text())
+    text = " ".join(s["text"] for sc in timing["scenes"] for s in sc["sentences"])
+    res = {"engine": engine_name}
+    if hasattr(engine, "report"):
+        res.update(engine.report())
+    try:
+        py = cb_python()
+        tf = work_dir(slug) / "voice-text.txt"
+        tf.write_text(text, encoding="utf-8")
+        out = work_dir(slug) / "voice-track-qa.json"
+        p, th = run_logged([py, str(CB_WORKER), "trackqa", "--wav", str(d / "voice.wav"), "--text", str(tf),
+                            "--out", str(out), "--asr", ASR_MODEL], "  [voice-qa] ")
+        p.wait(timeout=1200)
+        th.join(timeout=5)
+        if out.exists():
+            res.update(json.loads(out.read_text()))
+    except Exception as e:  # noqa: BLE001
+        log(f"  WARNING voice QA failed: {e}")
+        res["error"] = str(e)
+    write_json(work_dir(slug) / "voice-qa.json", res)
+    log(f"voice QA: WER {res.get('wer')} liveliness {(res.get('liveliness') or {}).get('mean')} st")
+
+
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
     v = spec["voice"]
     engine_name = v.get("engine") or "kokoro"
     voice = v.get("voice", "bm_george")
-    engine = make_engine(engine_name, voice, v.get("speaker"))
+    engine = make_engine(engine_name, voice, v.get("speaker"), v, args.slug)
     speed = float(v.get("speed") or engine.default_speed)
+    plans = {}
+    if getattr(engine, "uses_delivery", False):
+        engine.prepare_reference()
+        for cut in cuts(spec):  # pass 1: collect every clip of every cut (shorts reuse the main cut's clips)
+            plans[cut["name"]] = dlv.plan(cut["scenes"], lambda sc: split_sentences(sc["narration"]),
+                                          seed=f"{args.slug}/{cut['name']}")
+            counts = collections.Counter(x["style"] for x in plans[cut["name"]].values())
+            log(f"delivery {cut['name']}: " + ", ".join(f"{k} {n}" for k, n in sorted(counts.items())))
+            intro_after, intro = brand_intro_plan(spec, cut)
+            layout(engine, cut["scenes"], speed, intro, 0.0, intro_after, None, plans[cut["name"]])
+        engine.generate()
     for cut in cuts(spec):
         intro_after, intro = brand_intro_plan(spec, cut)
         outro = OUTRO_SEC if branded(cut) else 0.0
@@ -267,7 +535,7 @@ def main():
         ri = reveal_index(cut["scenes"])
         pause = sound_opts(spec)["revealPauseSec"] if ri else 0.0
         scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after,
-                                                {ri: pause} if pause > 0 else None)
+                                                {ri: pause} if pause > 0 else None, plans.get(cut["name"]))
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -285,6 +553,8 @@ def main():
             "scenes": scenes,
         })
         log(f"  total {total:.2f}s -> {d / 'voice.wav'}")
+    if engine_name == "chatterbox" or os.environ.get("SOP_VOICE_QA") == "1" or v.get("qa"):
+        track_qa(args.slug, engine, engine_name)
 
 
 if __name__ == "__main__":

@@ -255,6 +255,25 @@ def main():
     check("question scene exists", "question" in kinds)
     check("verdict scene exists", "verdict" in kinds)
 
+    # VOICE-4: ASR + liveliness of the voice track (build/<slug>/voice-qa.json, written by tts.py)
+    voice_qa = {}
+    vq_path = ROOT / "build" / slug / "voice-qa.json"
+    if vq_path.exists():
+        voice_qa = read_json(vq_path)
+        if voice_qa.get("wer") is not None:
+            check("voice: ASR word error rate <= 8 %", voice_qa["wer"] <= 0.08,
+                  f"{voice_qa['wer'] * 100:.1f} % ({voice_qa.get('asrModel', 'base.en')}, {voice_qa.get('words')} words)")
+        if voice_qa.get("engine") == "chatterbox":
+            bad = voice_qa.get("badSentences") or []
+            check("voice: no sentence with WER > 30 %", not bad,
+                  "; ".join(f"{b['wer']:.2f} '{b['text']}' heard '{b.get('asr')}'" for b in bad)[:900] or "all clips ok")
+            fb = voice_qa.get("fallbackSentences") or []
+            check("voice: no Kokoro fallback sentences", not fb, f"{len(fb)}: " + " | ".join(fb)[:600], level="warn")
+        lv = (voice_qa.get("liveliness") or {}).get("mean")
+        if lv is not None:
+            check("voice: liveliness (F0 std, semitones)", True, f"{lv} st (per minute {voice_qa['liveliness'].get('perMinute')})",
+                  level="info")
+
     meta_path = out / "metadata.json"
     if meta_path.exists():
         meta = read_json(meta_path)
@@ -273,6 +292,7 @@ def main():
         "durations": durations,
         "audio": audio_stats,
         "retention": retention,
+        "voice": voice_qa,
         "warnings": warnings(slug),
     }
     write_json(out / "render-report.json", report)

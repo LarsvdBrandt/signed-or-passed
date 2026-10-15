@@ -140,7 +140,9 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-          cache-dependency-path: pipeline/requirements.txt
+          cache-dependency-path: |
+            pipeline/requirements.txt
+            pipeline/requirements-chatterbox.txt
 
       - name: Cache npm and Hugging Face
         uses: actions/cache@v4
@@ -148,7 +150,7 @@ jobs:
           path: |
             ~/.npm
             ~/.cache/huggingface
-          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt') }}
+          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt', 'pipeline/requirements-chatterbox.txt') }}
           restore-keys: |
             deps-${{ runner.os }}-
 

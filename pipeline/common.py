@@ -196,8 +196,13 @@ def is_test(slug):
 EMPHASIS_RE = re.compile(r"\*\*(.+?)\*\*")
 
 
+# '[build]', '[punch]' ... at the start of a sentence = a delivery tag (pipeline/delivery.py, VOICE-3): never spoken,
+# never shown. strip_emphasis removes them together with the '**' markers wherever narration is turned into text.
+DELIVERY_TAG_RE = re.compile(r"\[\s*(?:calm|curious|tense|build|excited|punch|somber|warm)\s*\]\s*", re.I)
+
+
 def strip_emphasis(text):
-    return (text or "").replace("**", "")
+    return DELIVERY_TAG_RE.sub("", text or "").replace("**", "")
 
 
 def emphasis_phrases(text):
