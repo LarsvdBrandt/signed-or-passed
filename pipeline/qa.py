@@ -1,4 +1,11 @@
-"""ffprobe-based QA -> render-report.json (build/<slug>/out and productions/<slug>). --gate exits 1 if not ok."""
+"""ffprobe-based QA -> render-report.json (build/<slug>/out and productions/<slug>). --gate exits 1 if not ok.
+
+RETENTION-6 (docs/library/retention.md): per cut a low-res frame-difference scan (64x36 grey, 4 fps) checks the
+first visual change (<= 1.5 s), the longest static stretch outside question holds / the reveal silence / the end
+card (FAIL > 6 s, WARN 4-6 s), the brand sting after the hook, an on-screen number/keyword in the first 8 s and the
+silence before the reveal; beats/min (target >= 20) and sfx/min go to report.retention. Checks with level 'warn'
+are listed but do not fail the gate.
+"""
 import json
 import re
 import subprocess
@@ -7,6 +14,18 @@ from datetime import datetime, timezone
 
 from common import (ROOT, SIZES, cut_dir, cuts, is_test, load_spec, log, out_dir, read_json, slug_arg, warnings,
                     write_json)
+from retention import NO_AUTO_KEYWORD_KINDS
+
+SCAN_W, SCAN_H, SCAN_FPS = 64, 36, 4
+STATIC_DIFF = 0.15          # mean abs grey difference over 0.5 s below this = nothing moves (slow pans score >= 0.15)
+FIRST_CHANGE_DIFF = 2.0     # a real cut / pop within the first 1.5 s
+FIRST_CHANGE_SEC = 1.5
+STATIC_WARN_SEC, STATIC_FAIL_SEC = 4.0, 6.0
+HOOK_KEYWORD_SEC = 8.0
+BEATS_PER_MIN_TARGET = 20
+REVEAL_SILENCE_DB = -35.0
+HOOK_TEXT_KINDS = (NO_AUTO_KEYWORD_KINDS - {"question", "verdict"}) | {"reveal"}
+HOOK_TEXT_BEATS = {"kinetic", "counter", "pop"}
 
 
 def ffprobe(path):
@@ -32,23 +51,127 @@ def silences(path):
     return starts, ends
 
 
+def frame_diffs(path):
+    """Mean abs grey difference between frames 0.5 s apart, one value per 1/SCAN_FPS s (index i = time i/SCAN_FPS)."""
+    p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf",
+                        f"fps={SCAN_FPS},scale={SCAN_W}:{SCAN_H},format=gray", "-f", "rawvideo", "-"], capture_output=True)
+    if p.returncode != 0 or not p.stdout:
+        return None
+    try:
+        import numpy as np
+        a = np.frombuffer(p.stdout, np.uint8)
+        a = a[: len(a) // (SCAN_W * SCAN_H) * SCAN_W * SCAN_H].reshape(-1, SCAN_W * SCAN_H).astype(np.float32)
+        half = np.abs(a[2:] - a[:-2]).mean(axis=1).tolist()
+        step = np.abs(a[1:] - a[:-1]).mean(axis=1).tolist()
+    except ImportError:
+        n = SCAN_W * SCAN_H
+        fr = [p.stdout[i:i + n] for i in range(0, len(p.stdout) - n + 1, n)]
+        diff = lambda x, y: sum(abs(u - v) for u, v in zip(x, y)) / n  # noqa: E731
+        half = [diff(fr[i], fr[i + 2]) for i in range(len(fr) - 2)]
+        step = [diff(fr[i], fr[i + 1]) for i in range(len(fr) - 1)]
+    return half, step
+
+
+def mean_volume(path, start, dur):
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-ss", f"{start:.3f}", "-t", f"{dur:.3f}", "-i", str(path),
+                        "-vn", "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True)
+    m = re.search(r"mean_volume: (-?[0-9.]+|-inf) dB", p.stderr)
+    return None if not m else (-120.0 if m.group(1) == "-inf" else float(m.group(1)))
+
+
+def retention_checks(slug, cut, path, timing, dur, check):
+    """RETENTION-6 checks for one cut; returns the numbers for report.retention."""
+    fname = path.name
+    scenes = timing.get("scenes") or []
+    d = cut_dir(slug, cut["name"])
+    beats = read_json(d / "beats.json") if (d / "beats.json").exists() else []
+    sfx = read_json(d / "sfx-events.json") if (d / "sfx-events.json").exists() else None
+    minutes = max(dur, 1.0) / 60.0
+    stats = {"beats": len(beats), "beatsPerMin": round(len(beats) / minutes, 1),
+             "sfx": None if sfx is None else len(sfx), "sfxPerMin": None if sfx is None else round(len(sfx) / minutes, 1)}
+
+    # holds that may be static: question scenes, the silence before the reveal, the end card
+    holds = [(float(sc["start"]), float(sc["end"])) for sc in scenes if sc.get("kind") == "question"]
+    if timing.get("revealAtSec") and timing.get("revealPauseSec"):
+        r = float(timing["revealAtSec"])
+        holds.append((r - float(timing["revealPauseSec"]) - 0.5, r))
+    if timing.get("outroSec"):
+        holds.append((dur - float(timing["outroSec"]), dur + 1))
+
+    scan = frame_diffs(path)
+    if scan is None:
+        check(f"{fname}: retention frame scan", False, "ffmpeg frame scan failed", level="warn")
+    else:
+        half, step = scan
+        first = next((i / SCAN_FPS for i, v in enumerate(step) if v >= FIRST_CHANGE_DIFF), None)
+        stats["firstVisualChangeSec"] = first
+        check(f"{fname}: first visual change <= {FIRST_CHANGE_SEC} s", first is not None and first <= FIRST_CHANGE_SEC,
+              "none" if first is None else f"{first:.2f}s")
+        longest, at, run_start = 0.0, None, None
+        for i, v in enumerate(half + [STATIC_DIFF + 1]):
+            t = i / SCAN_FPS
+            in_hold = any(a <= t and t + 0.5 <= b for a, b in holds)
+            if v < STATIC_DIFF and not in_hold:
+                run_start = t if run_start is None else run_start
+            elif run_start is not None:
+                length = t + 0.5 - run_start  # frames run_start .. t+0.5 are identical
+                if length > longest:
+                    longest, at = length, run_start
+                run_start = None
+        stats["longestStaticSec"] = round(longest, 2)
+        stats["longestStaticAtSec"] = at
+        where = f"{longest:.1f}s at {at:.1f}s" if at is not None else "none"
+        check(f"{fname}: no static picture > {STATIC_FAIL_SEC:.0f} s (outside question holds)", longest <= STATIC_FAIL_SEC,
+              where)
+        if longest > STATIC_WARN_SEC:
+            check(f"{fname}: static picture <= {STATIC_WARN_SEC:.0f} s (outside question holds)",
+                  longest <= STATIC_WARN_SEC, where, level="warn")
+
+    if cut["format"] == "long" and float(timing.get("introSec") or 0) > 0:
+        ia = float(timing.get("introAtSec") or 0)
+        check(f"{fname}: brand sting after the hook", ia > 0, f"sting at {ia:.1f}s")
+
+    early = [b for b in beats if float(b.get("sec", 99)) <= HOOK_KEYWORD_SEC and (
+        str(b.get("do", "")).startswith("keyword") or b.get("do") in HOOK_TEXT_BEATS)]
+    early_sc = [sc for sc in scenes if float(sc["start"]) < HOOK_KEYWORD_SEC and sc.get("kind") in HOOK_TEXT_KINDS]
+    check(f"{fname}: on-screen number/keyword in the first {HOOK_KEYWORD_SEC:.0f} s", early or early_sc,
+          ", ".join([f"{b['do']}@{float(b['sec']):.1f}s" for b in early][:3] +
+                    [f"{sc['kind']} {sc['id']}@{float(sc['start']):.1f}s" for sc in early_sc][:3]) or "none",
+          level="warn")
+    check(f"{fname}: beats/min >= {BEATS_PER_MIN_TARGET}", stats["beatsPerMin"] >= BEATS_PER_MIN_TARGET,
+          f"{stats['beatsPerMin']} beats/min, " + ("sfx n/a" if sfx is None else f"{stats['sfxPerMin']} sfx/min"),
+          level="warn")
+
+    if timing.get("revealAtSec") and timing.get("revealPauseSec"):
+        r, pz = float(timing["revealAtSec"]), float(timing["revealPauseSec"])
+        mv = mean_volume(path, max(0.0, r - pz + 0.05), max(0.1, pz - 0.1))
+        stats["revealSilenceDb"] = mv
+        check(f"{fname}: silence before the reveal ({pz:.1f} s, < {REVEAL_SILENCE_DB:.0f} dB)",
+              mv is not None and mv < REVEAL_SILENCE_DB, "unmeasurable" if mv is None else f"{mv:.1f} dB at {r - pz:.1f}s",
+              level="warn")
+    return stats
+
+
 def main():
     args = slug_arg(lambda p: p.add_argument("--gate", action="store_true"))
     slug = args.slug
     out = out_dir(slug)
     if args.gate:
         report = read_json(out / "render-report.json")
-        bad = [c for c in report["checks"] if not c["ok"]]
+        bad = [c for c in report["checks"] if not c["ok"] and c.get("level", "fail") == "fail"]
         for c in bad:
             log(f"QA FAILED: {c['name']}: {c['detail']}")
         sys.exit(0 if report["ok"] else 1)
 
     spec = load_spec(slug)
     test = is_test(slug)
-    checks, durations, audio_stats = [], {}, {}
+    checks, durations, audio_stats, retention = [], {}, {}, {}
 
-    def check(name, ok, detail=""):
-        checks.append({"name": name, "ok": bool(ok), "detail": str(detail)})
+    def check(name, ok, detail="", level="fail"):
+        c = {"name": name, "ok": bool(ok), "detail": str(detail)}
+        if level != "fail":
+            c["level"] = level
+        checks.append(c)
 
     for cut in cuts(spec):
         fname = "video.mp4" if cut["name"] == "main" else f"{cut['name']}.mp4"
@@ -95,6 +218,8 @@ def main():
                       f"{len(spans)} silence(s), longest {longest:.1f}s, {100.0 * total_sil / dur if dur else 0:.1f}% silent")
             else:
                 check(f"{fname}: loudness measurable", False, "loudnorm parse failed")
+        if v:
+            retention[cut["name"]] = retention_checks(slug, cut, path, timing, dur, check)
 
     thumb = out / "thumbnail.png"
     tinfo = ffprobe(thumb) if thumb.exists() else None
@@ -130,19 +255,20 @@ def main():
         check("metadata.json: present", False, "missing")
 
     report = {
-        "ok": all(c["ok"] for c in checks),
+        "ok": all(c["ok"] for c in checks if c.get("level", "fail") == "fail"),
         "slug": slug,
         "test": test,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "checks": checks,
         "durations": durations,
         "audio": audio_stats,
+        "retention": retention,
         "warnings": warnings(slug),
     }
     write_json(out / "render-report.json", report)
     write_json(ROOT / "productions" / slug / "render-report.json", report)
     for c in checks:
-        log(f"  [{'ok' if c['ok'] else 'FAIL'}] {c['name']}: {c['detail']}")
+        log(f"  [{'ok' if c['ok'] else c.get('level', 'fail').upper()}] {c['name']}: {c['detail']}")
     log(f"QA {'passed' if report['ok'] else 'FAILED'} for {slug}")
 
 

@@ -32,6 +32,7 @@ import json
 import re
 import subprocess
 import urllib.parse
+from pathlib import Path
 
 import musicdyn
 import musicgen
@@ -387,6 +388,9 @@ def mix_cut(slug, cut, plan):
             events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0)), trim))
     if auto:
         log(f"  {len(auto)} automatic riser / impact sound(s)")
+    # RETENTION-6: qa.py reports sfx/min from this list
+    write_json(d / "sfx-events.json", sorted(({"sec": round(at, 3), "sfx": Path(str(f)).stem} for f, at, _v, _t in events),
+                                             key=lambda e: e["sec"]))
     for f, at, vol, trim in events:
         ms = int(round(at * 1000))
         inputs += ["-i", str(f)]
