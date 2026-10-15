@@ -1,15 +1,7 @@
 {
-  "status": "failure",
-  "jobStatus": "failure",
-  "triggerSha": "f7bd17591993702eb75d04ef80e62a3759f19fd9",
+  "status": "running",
   "slug": "2026-10-15-blockbuster-passes-on-netflix",
-  "slugs": [
-    "2026-10-15-blockbuster-passes-on-netflix"
-  ],
-  "finishedAt": "2026-10-15T08:39:38+00:00",
-  "failedStep": "release:2026-10-15-blockbuster-passes-on-netflix",
-  "failedSlugs": [
-    "2026-10-15-blockbuster-passes-on-netflix"
-  ],
-  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38704108032"
+  "triggerSha": "fad26033d0920a56e8154629299829016cde978d",
+  "startedAt": "2026-10-15T08:39:46Z",
+  "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38707055302"
 }
