@@ -1,0 +1,424 @@
+{
+  "ok": false,
+  "slug": "2026-10-15-nike-signs-michael-jordan",
+  "test": false,
+  "generatedAt": "2026-10-15T15:39:21+00:00",
+  "checks": [
+    {
+      "name": "video.mp4: resolution 1920x1080",
+      "ok": true,
+      "detail": "1920x1080"
+    },
+    {
+      "name": "video.mp4: audio present",
+      "ok": true,
+      "detail": "aac"
+    },
+    {
+      "name": "video.mp4: duration 480-720s",
+      "ok": true,
+      "detail": "536.5s"
+    },
+    {
+      "name": "video.mp4: duration matches audio timing",
+      "ok": true,
+      "detail": "video 536.47s vs timing 536.47s"
+    },
+    {
+      "name": "video.mp4: loudness -14 LUFS (+/-1)",
+      "ok": true,
+      "detail": "-14.3 LUFS"
+    },
+    {
+      "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
+      "ok": true,
+      "detail": "-2.4 dBTP"
+    },
+    {
+      "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
+      "ok": true,
+      "detail": "0 silence(s), longest 0.0s, 0.0% silent"
+    },
+    {
+      "name": "video.mp4: visual changes/min >= 20",
+      "ok": false,
+      "detail": "18.5 changes/min (measured), 5.9 planned beats/min, 17.8 sfx/min",
+      "level": "warn"
+    },
+    {
+      "name": "video.mp4: first visual change <= 1.5 s",
+      "ok": true,
+      "detail": "0.00s"
+    },
+    {
+      "name": "video.mp4: no static picture > 6 s (outside question holds)",
+      "ok": true,
+      "detail": "2.2s at 19.2s"
+    },
+    {
+      "name": "video.mp4: brand sting after the hook",
+      "ok": true,
+      "detail": "sting at 27.6s"
+    },
+    {
+      "name": "video.mp4: on-screen number/keyword in the first 8 s",
+      "ok": true,
+      "detail": "keyword-emphasis@0.5s, kinetic@4.4s, keyword-emphasis@6.8s, counter n001@0.0s, kinetic-text n003@6.2s",
+      "level": "warn"
+    },
+    {
+      "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
+      "ok": true,
+      "detail": "-91.0 dB at 316.5s",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-1.mp4: resolution 1080x1920",
+      "ok": true,
+      "detail": "1080x1920"
+    },
+    {
+      "name": "short-short-1.mp4: audio present",
+      "ok": true,
+      "detail": "aac"
+    },
+    {
+      "name": "short-short-1.mp4: duration 45-60s",
+      "ok": true,
+      "detail": "50.9s"
+    },
+    {
+      "name": "short-short-1.mp4: duration matches audio timing",
+      "ok": true,
+      "detail": "video 50.90s vs timing 50.90s"
+    },
+    {
+      "name": "short-short-1.mp4: loudness -14 LUFS (+/-1)",
+      "ok": true,
+      "detail": "-14.2 LUFS"
+    },
+    {
+      "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
+      "ok": true,
+      "detail": "-2.8 dBTP"
+    },
+    {
+      "name": "short-short-1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
+      "ok": true,
+      "detail": "0 silence(s), longest 0.0s, 0.0% silent"
+    },
+    {
+      "name": "short-short-1.mp4: visual changes/min >= 20",
+      "ok": true,
+      "detail": "21.2 changes/min (measured), 0.0 planned beats/min, 17.7 sfx/min",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-1.mp4: first visual change <= 1.5 s",
+      "ok": true,
+      "detail": "0.25s"
+    },
+    {
+      "name": "short-short-1.mp4: no static picture > 6 s (outside question holds)",
+      "ok": true,
+      "detail": "0.8s at 41.8s"
+    },
+    {
+      "name": "short-short-1.mp4: on-screen number/keyword in the first 8 s",
+      "ok": true,
+      "detail": "kinetic-text a001@0.0s",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-1.mp4: silence before the reveal (0.6 s, < -35 dB)",
+      "ok": true,
+      "detail": "-91.0 dB at 27.5s",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-2.mp4: resolution 1080x1920",
+      "ok": true,
+      "detail": "1080x1920"
+    },
+    {
+      "name": "short-short-2.mp4: audio present",
+      "ok": true,
+      "detail": "aac"
+    },
+    {
+      "name": "short-short-2.mp4: duration 45-60s",
+      "ok": true,
+      "detail": "49.8s"
+    },
+    {
+      "name": "short-short-2.mp4: duration matches audio timing",
+      "ok": true,
+      "detail": "video 49.77s vs timing 49.77s"
+    },
+    {
+      "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
+      "ok": true,
+      "detail": "-14.3 LUFS"
+    },
+    {
+      "name": "short-short-2.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
+      "ok": true,
+      "detail": "-2.8 dBTP"
+    },
+    {
+      "name": "short-short-2.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
+      "ok": true,
+      "detail": "0 silence(s), longest 0.0s, 0.0% silent"
+    },
+    {
+      "name": "short-short-2.mp4: visual changes/min >= 20",
+      "ok": true,
+      "detail": "21.7 changes/min (measured), 1.2 planned beats/min, 16.9 sfx/min",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-2.mp4: first visual change <= 1.5 s",
+      "ok": true,
+      "detail": "0.00s"
+    },
+    {
+      "name": "short-short-2.mp4: no static picture > 6 s (outside question holds)",
+      "ok": true,
+      "detail": "0.8s at 41.5s"
+    },
+    {
+      "name": "short-short-2.mp4: on-screen number/keyword in the first 8 s",
+      "ok": true,
+      "detail": "kinetic-text b001@0.0s",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-2.mp4: silence before the reveal (0.6 s, < -35 dB)",
+      "ok": true,
+      "detail": "-91.0 dB at 28.7s",
+      "level": "warn"
+    },
+    {
+      "name": "thumbnail.png: 1280x720",
+      "ok": true,
+      "detail": "1280x720"
+    },
+    {
+      "name": "captions.srt: present",
+      "ok": true,
+      "detail": "captions.srt"
+    },
+    {
+      "name": "every sourceId resolves",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "question scene exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "verdict scene exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "voice: ASR word error rate <= 8 %",
+      "ok": true,
+      "detail": "5.3 % (base.en, 1328 words)"
+    },
+    {
+      "name": "voice: no sentence with WER > 30 %",
+      "ok": false,
+      "detail": "0.33 'Five hundred thousand dollars a year.' heard '$500,000 a year.'; 0.33 'A rival is gaining on you.' heard 'Arrival is gaining on you.'; 0.75 'An All-Star team.' heard 'And I'll start team.'; 0.43 'A record bet, with a capped downside.' heard 'A record bet with a cap down side.'; 0.33 'His own shoe.' heard 'his own show.'; 0.40 'Sixty-five dollars a pair.' heard '$65 a pair.'; 0.33 'Five hundred thousand dollars a year.' heard '$500,000 a year.'; 0.40 'Sixty-five dollars a pair.' heard '$65 a pair.'"
+    },
+    {
+      "name": "voice: no Kokoro fallback sentences",
+      "ok": true,
+      "detail": "0: ",
+      "level": "warn"
+    },
+    {
+      "name": "voice: pace 145-155 words/min",
+      "ok": false,
+      "detail": "183.2 wpm (articulation 189.3, pace 0.88, pauses x1.15)",
+      "level": "warn"
+    },
+    {
+      "name": "voice: liveliness (F0 std, semitones)",
+      "ok": true,
+      "detail": "5.68 st (per minute [5.4, 5.34, 5.72, 5.94, 5.75, 5.61, 6.01, 5.71, 5.61])",
+      "level": "info"
+    },
+    {
+      "name": "description: >= 3 chapters",
+      "ok": true,
+      "detail": "10 chapters"
+    },
+    {
+      "name": "description: synthetic voice disclosed",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "durations": {
+    "main": 536.47,
+    "short-short-1": 50.9,
+    "short-short-2": 49.77
+  },
+  "audio": {
+    "video.mp4": {
+      "lufs": -14.28,
+      "truePeakDb": -2.36,
+      "lra": 3.4,
+      "silences": 0,
+      "longestSilenceSec": 0.0,
+      "silentPct": 0.0
+    },
+    "short-short-1.mp4": {
+      "lufs": -14.22,
+      "truePeakDb": -2.82,
+      "lra": 3.4,
+      "silences": 0,
+      "longestSilenceSec": 0.0,
+      "silentPct": 0.0
+    },
+    "short-short-2.mp4": {
+      "lufs": -14.32,
+      "truePeakDb": -2.81,
+      "lra": 5.3,
+      "silences": 0,
+      "longestSilenceSec": 0.0,
+      "silentPct": 0.0
+    }
+  },
+  "retention": {
+    "main": {
+      "beats": 53,
+      "beatsPerMin": 5.9,
+      "sfx": 159,
+      "sfxPerMin": 17.8,
+      "firstVisualChangeSec": 0.0,
+      "visualChanges": 165,
+      "visualChangesPerMin": 18.5,
+      "longestStaticSec": 2.25,
+      "longestStaticAtSec": 19.25,
+      "revealSilenceDb": -91.0
+    },
+    "short-short-1": {
+      "beats": 0,
+      "beatsPerMin": 0.0,
+      "sfx": 15,
+      "sfxPerMin": 17.7,
+      "firstVisualChangeSec": 0.25,
+      "visualChanges": 18,
+      "visualChangesPerMin": 21.2,
+      "longestStaticSec": 0.75,
+      "longestStaticAtSec": 41.75,
+      "revealSilenceDb": -91.0
+    },
+    "short-short-2": {
+      "beats": 1,
+      "beatsPerMin": 1.2,
+      "sfx": 14,
+      "sfxPerMin": 16.9,
+      "firstVisualChangeSec": 0.0,
+      "visualChanges": 18,
+      "visualChangesPerMin": 21.7,
+      "longestStaticSec": 0.75,
+      "longestStaticAtSec": 41.5,
+      "revealSilenceDb": -91.0
+    }
+  },
+  "voice": {
+    "engine": "chatterbox",
+    "reference": "default",
+    "clips": 221,
+    "exaggerationOffset": 0.15,
+    "cfgOffset": -0.1,
+    "clipWer": 0.0442,
+    "retried": 21,
+    "badSentences": [
+      {
+        "text": "Five hundred thousand dollars a year.",
+        "wer": 0.333,
+        "asr": "$500,000 a year."
+      },
+      {
+        "text": "A rival is gaining on you.",
+        "wer": 0.333,
+        "asr": "Arrival is gaining on you."
+      },
+      {
+        "text": "An All-Star team.",
+        "wer": 0.75,
+        "asr": "And I'll start team."
+      },
+      {
+        "text": "A record bet, with a capped downside.",
+        "wer": 0.429,
+        "asr": "A record bet with a cap down side."
+      },
+      {
+        "text": "His own shoe.",
+        "wer": 0.333,
+        "asr": "his own show."
+      },
+      {
+        "text": "Sixty-five dollars a pair.",
+        "wer": 0.4,
+        "asr": "$65 a pair."
+      },
+      {
+        "text": "Five hundred thousand dollars a year.",
+        "wer": 0.333,
+        "asr": "$500,000 a year."
+      },
+      {
+        "text": "Sixty-five dollars a pair.",
+        "wer": 0.4,
+        "asr": "$65 a pair."
+      }
+    ],
+    "fallbackSentences": [],
+    "pace": {
+      "words": 1306,
+      "speechSec": 427.69,
+      "wpm": 183.2,
+      "articulationWpm": 189.3,
+      "pace": 0.88,
+      "pauseScale": 1.15,
+      "targetWpm": [
+        145.0,
+        155.0
+      ],
+      "paceDefault": 0.94,
+      "calibratedWpm": 183.2,
+      "tempoFilter": {
+        "rubberband": 581
+      }
+    },
+    "wer": 0.0527,
+    "asrModel": "base.en",
+    "words": 1328,
+    "liveliness": {
+      "metric": "std of F0 in semitones (librosa.pyin)",
+      "overall": 5.72,
+      "perMinute": [
+        5.4,
+        5.34,
+        5.72,
+        5.94,
+        5.75,
+        5.61,
+        6.01,
+        5.71,
+        5.61
+      ],
+      "mean": 5.68
+    },
+    "seconds": 536.5
+  },
+  "warnings": []
+}
