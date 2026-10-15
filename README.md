@@ -282,8 +282,9 @@ loudness -14 LUFS +/-1, true peak <= -1 dBTP (0.3 dB codec tolerance), no dead a
 longest < 4 s, total < 5%), audio/video length match, thumbnail size, captions, all sourceIds resolve, question +
 verdict scenes, >= 3 chapters, synthetic-voice disclosure. Retention QA (docs/library/retention.md): first visual change <= 1.5 s,
 no static picture > 6 s outside question holds (warn > 4 s), brand sting after the hook; warnings for no
-number/keyword in the first 8 s, < 20 beats/min and a missing silence before the reveal; `report.retention` holds
-beats/min, sfx/min, the longest static stretch and the reveal silence level. Warnings do not fail the gate.
+number/keyword in the first 8 s, < 20 measured visual changes/min and a missing silence before the reveal;
+`report.retention` holds changes/min, beats/min, sfx/min, the longest static stretch and the reveal silence level.
+Warnings do not fail the gate.
 
 ## YouTube upload setup (once)
 Add repository secrets `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` (OAuth client of a Google Cloud project
@@ -302,7 +303,14 @@ recordings of `brand/music/manifest.csv`. `source: none` renders without music. 
 `music-board.mp4`.
 
 ## Voices
-`spec.voice = {engine, voice, speaker?, speed?}`. Engines: `kokoro` (default, Apache-2.0, English + es/fr/hi/it/pt)
+`spec.voice = {engine, voice, speaker?, speed?}`. Engines: `kokoro` (default, Apache-2.0, English + es/fr/hi/it/pt),
+`chatterbox` (expressive English, Resemble AI Chatterbox, MIT: per-sentence delivery styles `calm | curious | tense |
+build | excited | punch | somber | warm` from inline tags like `[build]`, `scenes[].delivery` or auto-delivery; the
+built-in voice (`reference: default`) or one cloned from a generated `narrator` reference; whole-track ASR + liveliness
++ words-per-minute QA; A/B workflow `voice-test.yml`; on GitHub the clips are generated in parallel over 2-12 runners,
+`ci/tts-plan.py`). **Channel default:** `{"engine": "chatterbox", "voice": "default", "reference": "default"}` with the
+VOICE-8 tuning (exaggeration +0.15, cfg -0.10, pace 0.94, pauses x1.15, pace guard 145-155 wpm; overridable with
+`voice.exaggerationOffset / cfgOffset / pace / pauseScale / targetWpm`)
 and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.
 `nl_BE-rdh-medium`, `nl_NL-alex-medium`, `nl_NL-mls-medium`, `en_US-ljspeech-high`; CC BY voices are credited in the
 description). `[pause 0.5]` in a narration inserts 0.5 s of silence (`[PAUSE]` = 0.5 s; not spoken, not in

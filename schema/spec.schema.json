@@ -46,7 +46,7 @@
       "description": "TTS voice (pipeline/tts.py, brand/voices.json, docs/library/voices.md)",
       "properties": {
         "engine": {"enum": ["kokoro", "piper", "chatterbox"], "description": "chatterbox = expressive Resemble AI Chatterbox (MIT), zero-shot cloned from `reference`, sentence delivery styles (docs/library/voices.md); Kokoro is its per-sentence fallback"},
-        "reference": {"enum": ["narrator", "default"], "default": "narrator", "description": "chatterbox only: 'narrator' = cloned from a lively Kokoro bm_george reading generated at render time (channel default), 'default' = the built-in Chatterbox voice"},
+        "reference": {"enum": ["narrator", "default"], "default": "narrator", "description": "chatterbox only: 'default' = the built-in Chatterbox voice (CHANNEL DEFAULT, A/B winner 2026-10-15), 'narrator' = cloned from a lively Kokoro bm_george reading generated at render time"},
         "exaggeration": {"type": "number", "minimum": 0.25, "maximum": 1.0, "description": "chatterbox only: shifts every delivery style's emotion exaggeration (0.5 = neutral, higher = livelier)"},
         "cfgWeight": {"type": "number", "minimum": 0.1, "maximum": 1.0, "description": "chatterbox only: shifts every style's cfg_weight (0.5 = neutral, lower = slower, more expressive)"},
         "temperature": {"type": "number", "minimum": 0.3, "maximum": 1.2, "description": "chatterbox only, default 0.8"},
@@ -54,7 +54,12 @@
         "qa": {"type": "boolean", "description": "run the voice QA (ASR word error rate + liveliness) for kokoro/piper too; always on for chatterbox"},
         "voice": {"type": "string", "description": "kokoro: a Kokoro v1.0 voice id (bm_george, af_heart, ef_dora ...); piper: a voice id listed in brand/voices.json (nl_BE-rdh-medium ...)"},
         "speaker": {"type": "integer", "minimum": 0, "description": "piper multi-speaker voices only (nl_NL-mls-medium: 0-51)"},
-        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.15 for kokoro, 1.0 for piper and chatterbox (chatterbox: ffmpeg atempo, pitch kept)"}
+        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.15 for kokoro, 1.0 for piper and chatterbox (chatterbox: ffmpeg atempo, pitch kept)"},
+        "exaggerationOffset": {"type": "number", "minimum": -0.5, "maximum": 0.5, "default": 0.15, "description": "chatterbox only (VOICE-8): added to every delivery style's exaggeration (cap 1.0); channel default +0.15, 0 = untuned"},
+        "cfgOffset": {"type": "number", "minimum": -0.5, "maximum": 0.5, "default": -0.1, "description": "chatterbox only (VOICE-8): added to every style's cfg_weight (floor 0.25 when negative); channel default -0.10, 0 = untuned"},
+        "pace": {"type": "number", "minimum": 0.7, "maximum": 1.3, "description": "VOICE-8 global pace applied after generation, pitch kept (rubberband/atempo); default 0.94 for chatterbox (then nudged into targetWpm), 1.0 otherwise; setting it disables the pace guard"},
+        "pauseScale": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "VOICE-8: multiplies the pauses between sentences and after delivery styles; default 1.15 for chatterbox, 1.0 otherwise"},
+        "targetWpm": {"type": "array", "items": {"type": "number", "minimum": 80, "maximum": 260}, "minItems": 2, "maxItems": 2, "description": "chatterbox pace guard band [min, max] spoken words per minute; default [145, 155]"}
       },
       "allOf": [
         {"if": {"properties": {"engine": {"const": "kokoro"}}}, "then": {"properties": {"voice": {"pattern": "^[abefhip][fm]_[a-z]+$"}}}},
@@ -68,6 +73,7 @@
         "mood": {"type": "string", "description": "tense | curious | triumphant | somber | playful | epic | mysterious | upbeat (aliases: suspense, neutral, hopeful, sad, dramatic, mystery ...)"},
         "era": {"type": "string", "description": "modern | baroque | jazz-age | fifties | eighties | future, or an alias (ancient, medieval, 1600s, victorian, 1920s, 1950s, 1980s, 2000s ...)"},
         "source": {"enum": ["auto", "generated", "library", "none"], "default": "auto", "description": "auto = a library track with that mood if one exists, else a generated CC0 bed"},
+        "track": {"type": "string", "description": "one verified CC0 / public-domain recording of brand/music/manifest.csv by file name or title; implies source library; unknown = generated bed + warning"},
         "stingers": {"type": "boolean", "default": true, "description": "musical hits at question and verdict scenes"}
       }
     },
