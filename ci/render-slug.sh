@@ -36,6 +36,7 @@ $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumb
 #   preview-effects.mp4      every overlay effect, particle, paper variant and look (render/src/effects) on a demo scene (silent)
 #   preview-transitions.mp4  every transition A -> B, param variants and the parallax rig moves (render/src/transitions) (silent)
 #   preview-infographics.mp4 every infographic type (render/src/infographics) with placeholder data, 6 s each (silent)
+#   preview-typography.mp4   every kinetic-text preset in 2 themes, lower thirds, chapter card, Shorts caption styles (silent)
 #   sound-board.mp4          every sound of the procedural sfx library (pipeline/sfxlib.py) + the CC0/PD recordings
 #                            of brand/sfx/manifest.csv (pipeline/fetch_sfx.py, licence verified live), with audio
 #   sfx-library.zip          all sfx WAVs (wav/ procedural, recorded/ CC0/PD) + catalogues + LICENCE.txt + CREDITS
@@ -48,6 +49,7 @@ if [ "$slug" = "0000-sample" ]; then
   $S "preview-effects:$slug" bash -c "cd render && npx remotion render src/index.ts EffectsPreview ../$OUT/preview-effects.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-transitions:$slug" bash -c "cd render && npx remotion render src/index.ts TransitionPreview ../$OUT/preview-transitions.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-infographics:$slug" bash -c "cd render && npx remotion render src/index.ts InfographicPreview ../$OUT/preview-infographics.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+  $S "preview-typography:$slug" bash -c "cd render && npx remotion render src/index.ts TypographyPreview ../$OUT/preview-typography.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "sound-fetch:$slug" python pipeline/fetch_sfx.py --out build/sfx-lib --cache build/sfx-cache
   $S "sound-library:$slug" python pipeline/soundboard.py --out build/sfx-lib --zip "$OUT/sfx-library.zip" --recorded build/sfx-lib/recorded-catalogue.json
   $S "sound-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/sfx-lib/board-silent.mp4 --props=../build/sfx-lib/soundboard-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
