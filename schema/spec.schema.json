@@ -153,7 +153,7 @@
       "type": "object",
       "required": ["layers"],
       "properties": {
-        "background": {"type": "string", "description": "paper | board | ink | stamp | CityBackdrop | OfficeBackdrop | BoardroomBackdrop | an era backdrop (AncientBackdrop, MedievalBackdrop, GoldenAgeBackdrop, IndustrialBackdrop, DecoBackdrop, DinerBackdrop; docs/library/eras.md)"},
+        "background": {"type": "string", "description": "paper | board | ink | stamp | CityBackdrop | OfficeBackdrop | BoardroomBackdrop | an era backdrop (AncientBackdrop, MedievalBackdrop, GoldenAgeBackdrop, IndustrialBackdrop, DecoBackdrop, DinerBackdrop, NeonBackdrop, CubicleBackdrop; docs/library/eras.md)"},
         "layers": {
           "type": "array",
           "items": {
@@ -173,7 +173,9 @@
                 "GoldenAgeBackdrop", "Fluyt", "CanalHouse", "Tulip", "SpiceSacks", "Globe", "Compass", "Ledger",
                 "IndustrialBackdrop", "SteamEngine", "TelegraphKey", "TopHat", "PocketWatch", "GasLamp", "FactoryGate", "PennyFarthing",
                 "DecoBackdrop", "TickerTape", "Gramophone", "VintageCar", "Breadline", "CathedralRadio", "CocktailGlass", "NewsboyCap",
-                "DinerBackdrop", "Jukebox", "TVSet", "FinCar", "RotaryPhone", "Typewriter", "RocketToy", "Milkshake"
+                "DinerBackdrop", "Jukebox", "TVSet", "FinCar", "RotaryPhone", "Typewriter", "RocketToy", "Milkshake",
+                "NeonBackdrop", "ArcadeCabinet", "Cassette", "CRTTV", "Boombox", "Calculator", "Mainframe", "PersonalStereo",
+                "CubicleBackdrop", "BeigePC", "DialUpModem", "CDROM", "Pager", "EarlyWebsite", "ServerRack", "ComputerMouse"
               ]},
               "props": {"type": "object", "description": "colour, label, pose (and component specific props, see README)"},
               "x": {"type": "number", "description": "centre, percent of frame width (0-100)"},

@@ -16,7 +16,7 @@ music era). Era components are normal illustration components:
 
 Rules (same as the core library): flat shapes, Board outlines with the live theme stroke, brand colours only, no
 gradients, faceless people, names as typography, never logos, never real rulers, coins, seals, flags, coats of
-arms, car makes or brands. All components follow the active theme (`spec.theme`).
+arms, car makes, games, browsers, operating systems or brands. All components follow the active theme (`spec.theme`).
 
 | era id | years | backdrop | props |
 |---|---|---|---|
@@ -26,9 +26,11 @@ arms, car makes or brands. All components follow the active theme (`spec.theme`)
 | `industrial` | 1850 - 1910 | `IndustrialBackdrop` (smokestacks, smoke) | SteamEngine (flywheel turns, steam), FactoryGate (label = arch sign), PennyFarthing (wheels turn), TelegraphKey (taps), TopHat, PocketWatch (hands move), GasLamp (flame flickers) + core Train, Telegram, ShareCertificate |
 | `twenties` | 1919 - 1939 | `DecoBackdrop` (art-deco towers at night, searchlights) | TickerTape (label = tape text, streams fictional quotes), Gramophone (record turns, notes), VintageCar (label = number plate), Breadline (label = sign, default FREE SOUP), CathedralRadio (label = dial text, broadcast waves), CocktailGlass (pose = clink), NewsboyCap + core OldTelephone, SpinningNewspaper, FallingChart |
 | `fifties` | 1945 - 1969 | `DinerBackdrop` (label = blinking sign, default DINER; counter, stools, checkerboard floor) | Jukebox (label = selection panel, cycling lights, notes), TVSet (label = caption over colour bars, flicker), FinCar (label = number plate, tail fins, whitewalls), RotaryPhone (pose = ring / dial), Typewriter (label is typed onto the sheet), RocketToy (label on the band, hovers), Milkshake (level drops, cherry bounces) + core VinylRecord, StoreFront, Newspaper |
+| `eighties` | 1970 - 1989 | `NeonBackdrop` (label = flickering neon sign, default OPEN 24H; synth grid floor, block skyline, sunset) | ArcadeCabinet (label = marquee, generic falling blocks, joystick), Cassette (label = tape label, reels turn), CRTTV (label = on-screen text, scanlines, static bursts), Boombox (speakers pump), Calculator (label = number it counts up to), Mainframe (label = cabinet plate, tape reels, blinking lights), PersonalStereo (headphones, sound waves) + core VHSTape, FloppyDisk, StockBoard |
+| `nineties` | 1990 - 2001 | `CubicleBackdrop` (label = motivational poster, default SYNERGY; cubicle farm, flickering fluorescent light, wall clock) | BeigePC (label is typed into a window), DialUpModem (label on the front, default 56K; LEDs, handshake noise), CDROM (label on the disc, spins), Pager (label scrolls on the LCD, buzzes), EarlyWebsite (label = address, default http://www.example.com; UNDER CONSTRUCTION band, hit counter, loading bar), ServerRack (label = plate, blinking LEDs), ComputerMouse (clicks) + core FloppyDisk, DVD, StockBoard |
 | `modern` | 2000 - today | `OfficeBackdrop` | core components for now (Smartphone, Laptop, Computer, DigitalCamera, StockBoard, ContainerShip, Airplane, Rocket) |
 
-Planned (factory todo ERAS-5..6): 1970s-80s, 1990s dotcom, 2000s, future.
+Planned (factory todo ERAS-6): 2000s, future.
 
 Adding an era: write `render/src/eras/<Era>.tsx` (components read `STROKE` and `C` at render time, never in a
 module-level constant; clipPath ids prefixed `era-`), register the components in `ERA_ILLUSTRATIONS`
