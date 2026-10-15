@@ -23,7 +23,9 @@ VOICE-1..4 (docs/library/voices.md): engine 'chatterbox' = Resemble AI Chatterbo
 Kokoro bm_george, generated at render time and cached) or 'default' (the built-in Chatterbox voice). It runs in its
 own venv (pipeline/requirements-chatterbox.txt, created on first use; SOP_CB_PYTHON overrides) through
 pipeline/chatterbox_worker.py: pass 1 lays every cut out with placeholders to collect the sentences, the worker
-generates them in N parallel shards (SOP_TTS_SHARDS, default 2 on >= 4 cores) into a cache keyed by text + settings,
+generates them in N parallel shards (SOP_TTS_SHARDS, default 2 on >= 4 cores) into a cache keyed by text + settings
+(on GitHub, render.yml first fans the clips out over several runners: `tts.py --slug S --shard i/n --export DIR`,
+ci/tts-plan.py decides n; the render job downloads the clips into the cache),
 every clip is checked with faster-whisper (bad takes are regenerated once with a lower exaggeration), pass 2 lays
 the real clips out. A sentence that Chatterbox cannot produce is spoken by Kokoro (spec.voice.fallback, default
 bm_george). Each sentence gets a delivery style (pipeline/delivery.py: inline tags, scenes[].delivery or
@@ -322,10 +324,25 @@ class ChatterboxEngine:
         shutil.copyfile(cached, dest)
         self.ref_path, self.ref_id = str(cached), "narrator-" + rid
 
-    def generate(self):
+    @staticmethod
+    def partition(jobs, n):
+        """Deterministic split of the clips over n runner jobs (largest text first, least-loaded bucket)."""
+        buckets, loads = [[] for _ in range(n)], [0] * n
+        for j in sorted(jobs, key=lambda j: (-len(j["text"]), j["id"])):
+            b = loads.index(min(loads))
+            buckets[b].append(j)
+            loads[b] += len(j["text"])
+        return buckets
+
+    def generate(self, shard=None):
+        """shard=(i, n): CI fan-out (render.yml job 'tts'): generate only bucket i of n of all clips."""
         self.recording = False
-        todo = [j for j in self.jobs.values() if not Path(j["out"]).exists()]
-        log(f"chatterbox: {len(self.jobs)} clips, {len(todo)} to generate (cache {TTS_CACHE / 'chatterbox'})")
+        jobs = list(self.jobs.values())
+        if shard:
+            jobs = self.partition(jobs, shard[1])[shard[0]]
+            log(f"chatterbox fan-out: shard {shard[0]}/{shard[1]} = {len(jobs)} of {len(self.jobs)} clips")
+        todo = [j for j in jobs if not Path(j["out"]).exists()]
+        log(f"chatterbox: {len(jobs)} clips, {len(todo)} to generate (cache {TTS_CACHE / 'chatterbox'})")
         if not todo:
             return
         try:
@@ -508,8 +525,34 @@ def track_qa(slug, engine, engine_name):
     log(f"voice QA: WER {res.get('wer')} liveliness {(res.get('liveliness') or {}).get('mean')} st")
 
 
+def export_shard(engine, shard, dest):
+    """Copy the clips (+ .json QA info) of this fan-out shard to dest for upload as a workflow artifact."""
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for j in engine.partition(list(engine.jobs.values()), shard[1])[shard[0]]:
+        for f in (Path(j["out"]), Path(j["out"] + ".json")):
+            if f.exists():
+                shutil.copyfile(f, dest / f.name)
+                n += f.suffix == ".wav"
+    log(f"chatterbox fan-out: exported {n} clip(s) to {dest}")
+
+
+def parse_shard(text):
+    """'i/n' -> (i, n) with 0 <= i < n, or None."""
+    if not text:
+        return None
+    m = re.fullmatch(r"\s*(\d+)\s*/\s*(\d+)\s*", text)
+    if not m or not 0 <= int(m.group(1)) < int(m.group(2)):
+        fail(f"--shard must be i/n with 0 <= i < n, not {text!r}")
+    return int(m.group(1)), int(m.group(2))
+
+
 def main():
-    args = slug_arg()
+    args = slug_arg(lambda p: (p.add_argument("--shard", default="", help="i/n: only generate fan-out shard i of n "
+                                              "(Chatterbox clips into the cache, no voice.wav)"),
+                               p.add_argument("--export", default="", help="with --shard: copy the shard's clips here")))
+    shard = parse_shard(args.shard)
     spec = load_spec(args.slug)
     v = spec["voice"]
     engine_name = v.get("engine") or "kokoro"
@@ -526,7 +569,14 @@ def main():
             log(f"delivery {cut['name']}: " + ", ".join(f"{k} {n}" for k, n in sorted(counts.items())))
             intro_after, intro = brand_intro_plan(spec, cut)
             layout(engine, cut["scenes"], speed, intro, 0.0, intro_after, None, plans[cut["name"]])
-        engine.generate()
+        engine.generate(shard)
+        if shard:
+            if args.export:
+                export_shard(engine, shard, args.export)
+            return
+    elif shard:
+        log(f"engine {engine_name} needs no fan-out: nothing to do for shard {args.shard}")
+        return
     for cut in cuts(spec):
         intro_after, intro = brand_intro_plan(spec, cut)
         outro = OUTRO_SEC if branded(cut) else 0.0

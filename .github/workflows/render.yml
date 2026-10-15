@@ -30,6 +30,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       slugs: ${{ steps.plan.outputs.slugs }}
+      tts: ${{ steps.plan.outputs.tts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,10 +93,88 @@ jobs:
           echo "Productions to render: ${slugs:-none}"
           json=$(python3 -c 'import json,sys; print(json.dumps(sys.argv[1:]))' $slugs)
           echo "slugs=$json" >> "$GITHUB_OUTPUT"
+          # Chatterbox productions: TTS fan-out over several runners (job 'tts' below)
+          tts=$(python3 ci/tts-plan.py $slugs || echo '[]')
+          echo "TTS fan-out: $tts"
+          echo "tts=$tts" >> "$GITHUB_OUTPUT"
+
+  # VOICE-6: Chatterbox needs ~7-10 s of CPU per second of speech, far too slow for one runner. Every runner of this
+  # matrix generates one deterministic share of the clips (pipeline/tts.py --shard i/n) and uploads them; the render
+  # job downloads them into its TTS cache. A failed or slow shard never blocks the render: missing clips are
+  # generated there (within SOP_TTS_BUDGET_MIN) or fall back to Kokoro and are reported by QA.
+  tts:
+    needs: plan
+    if: needs.plan.outputs.tts != '[]' && needs.plan.outputs.tts != ''
+    name: tts ${{ matrix.slug }} ${{ matrix.shard }}/${{ matrix.shards }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.tts) }}
+    timeout-minutes: 40
+    env:
+      PYTHONUNBUFFERED: '1'
+      HF_HUB_DISABLE_PROGRESS_BARS: '1'
+      DEBIAN_FRONTEND: noninteractive
+      SOP_TTS_BUDGET_MIN: '25'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        id: py
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            pipeline/requirements.txt
+            pipeline/requirements-chatterbox.txt
+
+      - name: Cache Hugging Face
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/huggingface
+          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt', 'pipeline/requirements-chatterbox.txt') }}
+          restore-keys: |
+            deps-${{ runner.os }}-
+
+      - name: Cache Chatterbox venv
+        uses: actions/cache@v4
+        with:
+          path: ~/.venvs/chatterbox
+          key: cbvenv-${{ runner.os }}-py${{ steps.py.outputs.python-version }}-${{ hashFiles('pipeline/requirements-chatterbox.txt') }}
+
+      - name: Install packages
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng
+          python -m pip install --upgrade pip
+          pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          pip install -r pipeline/requirements.txt
+
+      - name: Generate clips
+        timeout-minutes: 32
+        run: |
+          python pipeline/tts.py --slug "${{ matrix.slug }}" --shard "${{ matrix.shard }}/${{ matrix.shards }}" \
+            --export "build/tts-out"
+
+      - name: Upload clips
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tts-${{ matrix.slug }}-${{ matrix.shard }}
+          path: build/tts-out
+          retention-days: 2
+          if-no-files-found: ignore
 
   render:
-    needs: plan
-    if: needs.plan.outputs.slugs != '[]' && needs.plan.outputs.slugs != ''
+    needs: [plan, tts]
+    # runs when 'tts' succeeded, failed or was skipped (no Chatterbox production)
+    if: ${{ !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.slugs != '[]' && needs.plan.outputs.slugs != '' }}
     name: render ${{ matrix.slug }}
     runs-on: ubuntu-latest
     strategy:
@@ -111,6 +190,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       SLUGS: ${{ matrix.slug }}
       PYTHONUNBUFFERED: '1'
+      SOP_TTS_BUDGET_MIN: '20'
       HF_HUB_DISABLE_PROGRESS_BARS: '1'
       DEBIAN_FRONTEND: noninteractive
     steps:
@@ -136,6 +216,7 @@ jobs:
           node-version: '20'
 
       - name: Set up Python
+        id: py
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -143,6 +224,13 @@ jobs:
           cache-dependency-path: |
             pipeline/requirements.txt
             pipeline/requirements-chatterbox.txt
+
+      - name: Cache Chatterbox venv
+        if: contains(needs.plan.outputs.tts, format('"{0}"', matrix.slug))
+        uses: actions/cache@v4
+        with:
+          path: ~/.venvs/chatterbox
+          key: cbvenv-${{ runner.os }}-py${{ steps.py.outputs.python-version }}-${{ hashFiles('pipeline/requirements-chatterbox.txt') }}
 
       - name: Cache npm and Hugging Face
         uses: actions/cache@v4
@@ -153,6 +241,15 @@ jobs:
           key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt', 'pipeline/requirements-chatterbox.txt') }}
           restore-keys: |
             deps-${{ runner.os }}-
+
+      - name: Fetch fan-out TTS clips
+        if: contains(needs.plan.outputs.tts, format('"{0}"', matrix.slug))
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tts-${{ matrix.slug }}-*
+          merge-multiple: true
+          path: ~/.cache/huggingface/sop-tts/chatterbox
 
       - name: Install system packages
         timeout-minutes: 10
