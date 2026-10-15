@@ -16,6 +16,8 @@ export type Scene = {
   effects?: any[];
   /** transition INTO this scene (render/src/transitions): id or {id, durationSec, params}; default spec.transition */
   transition?: any;
+  /** lower third overlay (render/src/typography/overlays): {style, title, subtitle?, atSec?, durationSec?} */
+  lowerThird?: any;
   startFrame: number;
   durationFrames: number;
   sentences: Sentence[];
@@ -32,6 +34,8 @@ export type VideoProps = {
   look?: any;
   /** Default transition between scenes (spec.transition); default 'paper-slide'. */
   transition?: any;
+  /** Shorts caption style (spec.captionStyle): bold-pop | karaoke-highlight | boxed | minimal; default = theme style. */
+  captionStyle?: string | null;
   fps: number;
   width: number;
   height: number;
