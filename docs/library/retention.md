@@ -20,7 +20,7 @@ The editorial rules behind this live in the workspace memory "Signed or Passed R
 | Music energy per scene | `scenes[].musicEnergy` low/mid/high/drop/stop | none = the bed's own sections |
 | Riser, silence before the reveal, verdict impact | `spec.sound {autoRisers, revealPauseSec, verdictImpact}` | on, 0.6 s, on |
 
-Still to come in this phase (see factory-status): retention QA checks.
+Every render is scored by the retention QA (last section) in `render-report.json`.
 
 ## Visual beats (`scenes[].beats`)
 
@@ -189,3 +189,20 @@ Automatic, no spec needed (defaults shown):
   softer one (-6 dB) at the start of a separate `reveal` scene.
 
 Applies to the main video and the Shorts.
+
+## Retention QA (`render-report.json`)
+
+`pipeline/qa.py` scans every cut at 64x36 grey, 4 fps (about 9 s per 2.5 min of video) and adds these checks. A
+`level: "warn"` check is reported (`[WARN]` in the log) but does not fail the gate; the others do.
+
+| Check | Rule | Level |
+|---|---|---|
+| First visual change | a frame-to-frame change (mean grey difference >= 2) within 1.5 s | fail |
+| Static picture | longest stretch where nothing moves (difference over 0.5 s < 0.15) outside question scenes, the silence before the reveal and the end card: <= 6 s | fail (warn above 4 s) |
+| Brand sting after the hook | `timing.introAtSec > 0` when the cut has a sting | fail |
+| Number / keyword in the first 8 s | a keyword or kinetic / counter / pop beat, or a text-led scene (counter, title, kinetic-text, chart, ...) starting before 8 s | warn |
+| Beats per minute | `beats.json` (camera beats + keywords) >= 20 per minute | warn |
+| Silence before the reveal | mean level in the `revealPauseSec` window < -35 dB | warn |
+
+`report.retention.<cut>` holds the numbers: `beats`, `beatsPerMin`, `sfx`, `sfxPerMin` (from `sfx-events.json`, which
+`mix.py` writes per cut), `firstVisualChangeSec`, `longestStaticSec`, `longestStaticAtSec`, `revealSilenceDb`.

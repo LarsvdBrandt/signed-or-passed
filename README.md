@@ -280,7 +280,10 @@ photo-wall, document and infographic scenes). Each new scene slides in like a sh
 Duration (long 8-12 min, short 45-60 s; `0000-*` test productions are exempt), resolution, audio present,
 loudness -14 LUFS +/-1, true peak <= -1 dBTP (0.3 dB codec tolerance), no dead air (silence below -50 dBFS:
 longest < 4 s, total < 5%), audio/video length match, thumbnail size, captions, all sourceIds resolve, question +
-verdict scenes, >= 3 chapters, synthetic-voice disclosure.
+verdict scenes, >= 3 chapters, synthetic-voice disclosure. Retention QA (docs/library/retention.md): first visual change <= 1.5 s,
+no static picture > 6 s outside question holds (warn > 4 s), brand sting after the hook; warnings for no
+number/keyword in the first 8 s, < 20 beats/min and a missing silence before the reveal; `report.retention` holds
+beats/min, sfx/min, the longest static stretch and the reveal silence level. Warnings do not fail the gate.
 
 ## YouTube upload setup (once)
 Add repository secrets `YT_CLIENT_ID`, `YT_CLIENT_SECRET`, `YT_REFRESH_TOKEN` (OAuth client of a Google Cloud project
