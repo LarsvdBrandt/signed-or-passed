@@ -39,7 +39,7 @@ separately from production renders.
 |---|---|---|---|---|
 | Sound effects (procedural + CC0/PD recordings) | `scenes[].sfx`, `scenes[].sfxCues` | `pipeline/sfxlib.py`, `brand/sfx/manifest.csv` | `sound-board.mp4`, `sfx-library.zip` | [sound.md](sound.md), [sound-usage.md](sound-usage.md) |
 | Music (generated beds, era flavours, stingers; CC0/PD recordings) | `music` (`mood`, `era`, `source`, `track`, `stingers`) | `pipeline/musicgen.py`, `brand/music/manifest.csv` | `music-board.mp4`, `music-library.zip` | [music.md](music.md) |
-| Voices (Kokoro, licence-checked Piper) | `voice` (`engine`, `voice`, `speaker`, `speed`), `scenes[].voiceSpeed`, `[pause]` in narration | `brand/voices.json`, `pipeline/voice_samples.py` | `voice-samples.mp4`, `voice-samples.zip` | [voices.md](voices.md) |
+| Voices (Kokoro, licence-checked Piper, Chatterbox) | `voice` (`engine`, `voice`, `speaker`, `speed`, `paragraphs` ...), `scenes[].voiceSpeed`, `[pause]` in narration | `brand/voices.json`, `pipeline/voice_samples.py`, `pipeline/tts.py` | `voice-samples.mp4`, `voice-samples.zip`; listening test release `voice-test-2` | [voices.md](voices.md), research: [voice-research.md](voice-research.md) |
 
 ## Using it for another channel
 

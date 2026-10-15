@@ -9,7 +9,9 @@ Catalogue: `brand/voices.json` (id, engine, language, gender, grade, licence, at
 |---|---|---|---|
 | `kokoro` (default) | hexgrad/Kokoro-82M v1.0 | Apache-2.0 | English (US `a*`, UK `b*`), Spanish `e*`, French `f*`, Hindi `h*`, Italian `i*`, Brazilian Portuguese `p*`. Japanese / Mandarin voices need misaki[ja]/[zh] and are not installed. Default speed 1.1. |
 | `piper` | rhasspy/piper-voices (ONNX) | per voice (below) | Installed on first use (`piper-tts==1.3.0`), model cached in `~/.cache/huggingface/piper`. Default speed 1.0. Only voices listed in `brand/voices.json` are accepted. |
-| `chatterbox` | ResembleAI/chatterbox (original model, `chatterbox-tts==0.1.2`) | MIT (code + weights) | Expressive English narration with emotion control (`exaggeration`, `cfg_weight`), zero-shot cloned from a reference clip. Own venv (`pipeline/requirements-chatterbox.txt`, CPU torch 2.6), created on first use. Default speed 1.0. Every sentence gets a delivery style (below). Kokoro is the per-sentence fallback. Output carries Resemble's inaudible Perth watermark. |
+| `chatterbox` | ResembleAI/chatterbox (original model, `chatterbox-tts==0.1.2`) | MIT (code + weights) | Expressive English narration with emotion control (`exaggeration`, `cfg_weight`), zero-shot cloned from a reference clip. Own venv (`pipeline/requirements-chatterbox.txt`, CPU torch 2.6), created on first use. Never time-stretched (VOICE-10a). Every sentence gets a delivery style (below). Kokoro is the per-sentence fallback. Output carries Resemble's inaudible Perth watermark. |
+
+Which free TTS could sound more human, licences, GPU options: [voice-research.md](voice-research.md).
 
 ## Channel default (Signed or Passed): use this voice block in every spec
 
@@ -24,17 +26,18 @@ with the VOICE-8 channel tuning applied automatically (more emotion, more human,
 |---|---|---|
 | `exaggerationOffset` | +0.15 | added to every delivery style's exaggeration (cap 1.0): more emotion |
 | `cfgOffset` | -0.10 | added to every style's cfg_weight (floor 0.25): more expressive, more deliberate pacing |
-| `pace` | 0.94 | every clip slowed after generation, pitch kept (ffmpeg `rubberband`, else `atempo`) |
+| `pace` | 1.0 | VOICE-10a: **no time-stretch** (the 0.88 rubberband stretch of VOICE-8 made the voice drone); an explicit value is clamped to 0.97-1.0, scene `voiceSpeed` and style speed factors are ignored for Chatterbox |
 | `pauseScale` | 1.15 | pauses between sentences and after styles +15 %; punch beat 0.25 s |
-| `targetWpm` | [145, 155] | pace guard: when `pace` is not set, the measured pace of the main video is nudged (0.88-1.04) into this band |
+| `targetWpm` | [145, 155] | pace guard: when neither `pace` nor `pauseScale` is set, only the PAUSES of the main video are nudged (pauseScale 1.0-1.6) toward this band |
+| `paragraphs` | false | VOICE-10b: 2-4 sentences of one thought per Chatterbox call (flowing intonation), see below; becomes the default once Lars picks a `voice-test-2` variant |
 
-Override any of them in `spec.voice` only for a reason (e.g. `"pace": 1.0` for a fast Short; `"exaggerationOffset":
-0, "cfgOffset": 0, "pace": 1.0, "pauseScale": 1.0` = the untuned A/B voice). Mark the moments that matter with the
+Override any of them in `spec.voice` only for a reason (e.g. `"exaggerationOffset": 0, "cfgOffset": 0, "pauseScale":
+1.0` = the untuned A/B voice). Mark the moments that matter with the
 delivery tags below (`[build]`, `[punch]`, `[excited]`, `[somber]`, `[warm]`, `[tense]`, `[curious]`, `[calm]`).
 The measured pace is in `render-report.json` -> `voice.pace` (`wpm`, `articulationWpm`) and QA warns outside
 135-165 wpm.
 
-## Expressive narration: engine `chatterbox` (VOICE-1..8)
+## Expressive narration: engine `chatterbox` (VOICE-1..10)
 
 Kokoro reads every sentence in the same tone. `chatterbox` makes the narrator sound like a person telling a story:
 livelier at the build-up to a big number, a beat of suspense before the key word, slower and darker at a collapse.
@@ -51,17 +54,19 @@ livelier at the build-up to a big number, a beat of suspense before the key word
 | `cfgWeight` | per style | shifts every style's cfg_weight (lower = slower, more expressive), 0.1-1.0 |
 | `temperature` | 0.8 | sampling temperature, 0.3-1.2 |
 | `fallback` | `bm_george` | Kokoro voice for a sentence Chatterbox cannot produce |
-| `speed` | 1.0 | time-stretch (pitch kept) on top of the style's speed factor |
+| `speed` | 1.0 | Kokoro / Piper only (native speed); Chatterbox is not time-stretched (VOICE-10a) |
 | `exaggerationOffset` | 0.15 | VOICE-8: added to every style's exaggeration (-0.5..0.5; 0 = untuned) |
 | `cfgOffset` | -0.10 | VOICE-8: added to every style's cfg_weight (-0.5..0.5, floor 0.25 when negative) |
-| `pace` | 0.94 | VOICE-8: global pace after generation (0.7-1.3, pitch kept); setting it disables the pace guard |
+| `pace` | 1.0 | VOICE-10a: Chatterbox clamped to 0.97-1.0 (max 3 % stretch); Kokoro / Piper: speed factor; setting it disables the pace guard |
+| `paragraphs` | false | VOICE-10b: paragraph generation (chatterbox only) |
 | `pauseScale` | 1.15 | VOICE-8: multiplies sentence gaps and style pauses (0.5-2.0) |
-| `targetWpm` | [145, 155] | VOICE-8 pace guard band (spoken words per minute, pauses inside scenes included) |
+| `targetWpm` | [145, 155] | pace guard band (spoken words per minute, pauses inside scenes included); VOICE-10a: only the pauses move |
 
 ### Delivery styles (`pipeline/delivery.py`)
 
 Base values; the channel tuning above is added on top (e.g. `punch` becomes exaggeration 0.90, cfg 0.25; `excited`
 1.0 / 0.25; `calm` 0.50 / 0.40). On a retry after a bad ASR check the clip is generated with 0.2 less exaggeration.
+The speed column applies to Kokoro / Piper only (Chatterbox is never stretched, VOICE-10a).
 
 | style | exaggeration | cfg | speed | pause after | used for |
 |---|---|---|---|---|---|
@@ -117,12 +122,33 @@ generates what is missing (budget 20 min, then Kokoro fallback). Kokoro / Piper 
 - liveliness = standard deviation of the pitch (F0, semitones, librosa pyin) per minute (info: higher = less
   monotone). `voice.qa: true` runs the same QA for Kokoro / Piper.
 
-### Pace decision (iteration 53)
-Chatterbox articulates fast (~190-215 wpm raw). The pace guard slows it to its floor `pace` 0.88 (the slowest
-tempo without rubberband/atempo artifacts), which gives ~183 wpm inside scenes and ~146 wpm over the whole video
-(Nike, 8662039). Lars asked for "slightly slower": that is what 0.88 delivers, so the guard is kept as is and is
-never pushed below 0.88. QA judges the 145-155 band on `narrationWpm` (whole main cut) so the report no longer
-warns on the in-scene rate; `wpm` / `articulationWpm` stay in the report for comparison.
+### Pace decision (iteration 53, reversed by VOICE-10a)
+Chatterbox articulates fast (~190-215 wpm raw). The pace guard slowed it to its floor `pace` 0.88 with rubberband,
+which gave ~183 wpm inside scenes and ~146 wpm over the whole video (Nike, 8662039). Lars heard that version as
+*worse, more static*: since VOICE-10a the voice is no longer stretched (see below). QA still judges the 145-155 band
+on `narrationWpm` (whole main cut, a warning only); `wpm` / `articulationWpm` stay in the report for comparison.
+
+### VOICE-10 (iteration 54): no stretch, paragraphs, listening test 2
+Lars (15 Oct, 19:20) heard the VOICE-8 voice (v4 Blockbuster, Nike) as *worse, more static*, while the liveliness
+metric went up. Causes and fixes (details in [voice-research.md](voice-research.md)):
+- **No time-stretch** (VOICE-10a): the iteration-53 pace decision above is reversed. Chatterbox clips are never
+  stretched by default; "slightly slower" comes from the pauses (pace guard on `pauseScale` 1.0-1.6) and cfg_weight.
+- **Paragraph generation** (VOICE-10b, `voice.paragraphs: true`): `tts.chunk_plan` groups 2-4 consecutive sentences
+  of the same delivery family (narr = calm/curious/warm, build = tense/build, peak = punch/excited, somber), at most
+  45 words / 250 characters, into one Chatterbox call. A chunk may cross scene boundaries (most scenes hold one
+  sentence) but never into or out of a chapter / question / reveal / verdict / lesson scene, across the brand sting or
+  a cold-open boundary, and never contains a `[pause]` marker; it takes the strongest delivery inside it. The worker
+  transcribes the clip with faster-whisper word timestamps, aligns them to the known words (difflib) and cuts at the
+  quietest 20 ms between two sentences (`.json`: `cuts`, `speech`). Inside a scene the natural pause is kept
+  (+0.06 s x pauseScale); toward the next scene the usual scene gap applies. timing.json keeps its format
+  (sentences get `"paragraph": true`).
+- **Listening test 2** (`.github/workflows/voice-test-2.yml`, trigger `ci/voice-test-2.txt`, release `voice-test-2`):
+  the same ~70 s Blockbuster excerpt (m001-m008 hook + promise, m028-m034 build-up to the $50M and the punch, m060,
+  m120) as `<letter>-<name>.mp3` (dry voice) and `.mp4` (full video), each starting with a 1 s beep gap:
+  A Kokoro bm_george 1.15 (v2) | B Chatterbox default, no stretch, sentence by sentence, moderate (no VOICE-8 offsets)
+  | C like B with paragraphs | D like C, exaggeration 0.65 / cfg 0.4 | E like C, temperature 0.9.
+  `voice-test-2-report.json`: WER, liveliness, wpm / narrationWpm, UTMOS (UTMOS22 strong naturalness MOS prediction,
+  `chatterbox_worker.py utmos`, tarepan/SpeechMOS v1.2.0 via torch.hub, MIT) and TTS speed per variant.
 
 ### Voice A/B (`.github/workflows/voice-test.yml`)
 Push `ci/voice-test.txt` (or start it in the Actions tab): the opening ~100 words + question / reveal / verdict of
@@ -154,14 +180,15 @@ fine-tuned from it (`nl_NL-pim`, `nl_NL-ronnie`, `nl_BE-nathalie`, `en_GB-vctk`,
 "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.1}
 "voice": {"engine": "piper", "voice": "nl_NL-mls-medium", "speaker": 3, "speed": 1.0}
 "voice": {"engine": "chatterbox", "voice": "default", "reference": "default"}
-"voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "pace": 1.0, "exaggerationOffset": 0.2}
+"voice": {"engine": "chatterbox", "voice": "default", "reference": "default", "paragraphs": true, "exaggerationOffset": 0.2}
 ```
 
 ## Narration controls
 
 - `[pause 0.5]` anywhere in `narration` inserts 0.5 s of silence. The marker is not spoken and never appears in
   captions or timing (`pipeline/tts.py`).
-- `scenes[].voiceSpeed` (0.5-2.0) overrides `voice.speed` for one scene, e.g. slower for the verdict.
+- `scenes[].voiceSpeed` (0.5-2.0) overrides `voice.speed` for one scene, e.g. slower for the verdict (Kokoro / Piper;
+  ignored for Chatterbox since VOICE-10a).
 
 ```json
 {"id": "s17", "kind": "question", "narration": "So. [pause 0.6] Would you sign? [pause 0.4] Or would you pass?", "voiceSpeed": 0.95, ...}
