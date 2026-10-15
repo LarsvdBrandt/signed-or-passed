@@ -3,7 +3,8 @@
 RETENTION-6 (docs/library/retention.md): per cut a low-res frame-difference scan (64x36 grey, 4 fps) checks the
 first visual change (<= 1.5 s), the longest static stretch outside question holds / the reveal silence / the end
 card (FAIL > 6 s, WARN 4-6 s), the brand sting after the hook, an on-screen number/keyword in the first 8 s and the
-silence before the reveal; beats/min (target >= 20) and sfx/min go to report.retention. Checks with level 'warn'
+silence before the reveal; measured visual changes/min (target >= 20), planned beats/min and sfx/min go to
+report.retention. Checks with level 'warn'
 are listed but do not fail the gate.
 """
 import json
@@ -20,9 +21,10 @@ SCAN_W, SCAN_H, SCAN_FPS = 64, 36, 4
 STATIC_DIFF = 0.15          # mean abs grey difference over 0.5 s below this = nothing moves (slow pans score >= 0.15)
 FIRST_CHANGE_DIFF = 2.0     # a real cut / pop within the first 1.5 s
 FIRST_CHANGE_SEC = 1.5
+CHANGE_GAP_SEC = 0.75       # visual changes closer together than this (continuous motion) count as one
 STATIC_WARN_SEC, STATIC_FAIL_SEC = 4.0, 6.0
 HOOK_KEYWORD_SEC = 8.0
-BEATS_PER_MIN_TARGET = 20
+CHANGES_PER_MIN_TARGET = 20  # measured visual changes (cuts, beats, pops, keywords, camera punches) per minute
 REVEAL_SILENCE_DB = -35.0
 HOOK_TEXT_KINDS = (NO_AUTO_KEYWORD_KINDS - {"question", "verdict"}) | {"reveal"}
 HOOK_TEXT_BEATS = {"kinetic", "counter", "pop"}
@@ -105,6 +107,17 @@ def retention_checks(slug, cut, path, timing, dur, check):
         half, step = scan
         first = next((i / SCAN_FPS for i, v in enumerate(step) if v >= FIRST_CHANGE_DIFF), None)
         stats["firstVisualChangeSec"] = first
+        changes, last = 0, -9.0
+        for i, v in enumerate(step):
+            if v >= FIRST_CHANGE_DIFF:
+                if i / SCAN_FPS - last >= CHANGE_GAP_SEC:
+                    changes += 1
+                last = i / SCAN_FPS
+        stats["visualChanges"] = changes
+        stats["visualChangesPerMin"] = round(changes / minutes, 1)
+        check(f"{fname}: visual changes/min >= {CHANGES_PER_MIN_TARGET}", stats["visualChangesPerMin"] >= CHANGES_PER_MIN_TARGET,
+              f"{stats['visualChangesPerMin']} changes/min (measured), {stats['beatsPerMin']} planned beats/min, "
+              + ("sfx n/a" if sfx is None else f"{stats['sfxPerMin']} sfx/min"), level="warn")
         check(f"{fname}: first visual change <= {FIRST_CHANGE_SEC} s", first is not None and first <= FIRST_CHANGE_SEC,
               "none" if first is None else f"{first:.2f}s")
         longest, at, run_start = 0.0, None, None
@@ -137,9 +150,6 @@ def retention_checks(slug, cut, path, timing, dur, check):
     check(f"{fname}: on-screen number/keyword in the first {HOOK_KEYWORD_SEC:.0f} s", early or early_sc,
           ", ".join([f"{b['do']}@{float(b['sec']):.1f}s" for b in early][:3] +
                     [f"{sc['kind']} {sc['id']}@{float(sc['start']):.1f}s" for sc in early_sc][:3]) or "none",
-          level="warn")
-    check(f"{fname}: beats/min >= {BEATS_PER_MIN_TARGET}", stats["beatsPerMin"] >= BEATS_PER_MIN_TARGET,
-          f"{stats['beatsPerMin']} beats/min, " + ("sfx n/a" if sfx is None else f"{stats['sfxPerMin']} sfx/min"),
           level="warn")
 
     if timing.get("revealAtSec") and timing.get("revealPauseSec"):

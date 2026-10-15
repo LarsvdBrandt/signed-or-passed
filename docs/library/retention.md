@@ -201,8 +201,11 @@ Applies to the main video and the Shorts.
 | Static picture | longest stretch where nothing moves (difference over 0.5 s < 0.15) outside question scenes, the silence before the reveal and the end card: <= 6 s | fail (warn above 4 s) |
 | Brand sting after the hook | `timing.introAtSec > 0` when the cut has a sting | fail |
 | Number / keyword in the first 8 s | a keyword or kinetic / counter / pop beat, or a text-led scene (counter, title, kinetic-text, chart, ...) starting before 8 s | warn |
-| Beats per minute | `beats.json` (camera beats + keywords) >= 20 per minute | warn |
+| Visual changes per minute | measured changes (frame-to-frame difference >= 2; changes closer than 0.75 s count once: cuts, beats, pops, keywords, camera punches) >= 20 per minute | warn |
 | Silence before the reveal | mean level in the `revealPauseSec` window < -35 dB | warn |
 
-`report.retention.<cut>` holds the numbers: `beats`, `beatsPerMin`, `sfx`, `sfxPerMin` (from `sfx-events.json`, which
-`mix.py` writes per cut), `firstVisualChangeSec`, `longestStaticSec`, `longestStaticAtSec`, `revealSilenceDb`.
+`report.retention.<cut>` holds the numbers: `visualChanges`, `visualChangesPerMin` (measured), `beats`, `beatsPerMin`
+(planned in `beats.json`: explicit beats + keywords; auto camera beats and scene cuts are not in it), `sfx`, `sfxPerMin`
+(from `sfx-events.json`, which `mix.py` writes per cut), `firstVisualChangeSec`, `longestStaticSec`,
+`longestStaticAtSec`, `revealSilenceDb`. The sample (iteration 44): 23 changes/min, longest static 2.2 s, reveal
+silence -91 dB.
