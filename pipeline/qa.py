@@ -269,6 +269,11 @@ def main():
                   "; ".join(f"{b['wer']:.2f} '{b['text']}' heard '{b.get('asr')}'" for b in bad)[:900] or "all clips ok")
             fb = voice_qa.get("fallbackSentences") or []
             check("voice: no Kokoro fallback sentences", not fb, f"{len(fb)}: " + " | ".join(fb)[:600], level="warn")
+        wpm = (voice_qa.get("pace") or {}).get("wpm")
+        if wpm is not None:  # VOICE-8: target 145-155 spoken words per minute (warn outside 135-165)
+            check("voice: pace 145-155 words/min", 135 <= wpm <= 165,
+                  f"{wpm} wpm (articulation {voice_qa['pace'].get('articulationWpm')}, pace {voice_qa['pace'].get('pace')}, "
+                  f"pauses x{voice_qa['pace'].get('pauseScale')})", level="warn")
         lv = (voice_qa.get("liveliness") or {}).get("mean")
         if lv is not None:
             check("voice: liveliness (F0 std, semitones)", True, f"{lv} st (per minute {voice_qa['liveliness'].get('perMinute')})",

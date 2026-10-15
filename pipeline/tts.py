@@ -31,6 +31,15 @@ the real clips out. A sentence that Chatterbox cannot produce is spoken by Kokor
 bm_george). Each sentence gets a delivery style (pipeline/delivery.py: inline tags, scenes[].delivery or
 auto-delivery) that sets exaggeration / cfg_weight, a small speed factor and extra pauses. Voice QA (overall WER
 and liveliness = F0 variation per minute) goes to build/<slug>/voice-qa.json for qa.py.
+
+VOICE-8 channel tuning (delivery.CHANNEL_TUNING, overridable per spec): spec.voice.exaggerationOffset (+0.15) and
+cfgOffset (-0.10, floor 0.25) shift every style, spec.voice.pace (0.94) slows every clip after generation with a
+pitch-preserving time-stretch (ffmpeg rubberband when available, else atempo), spec.voice.pauseScale (1.15) lengthens
+sentence gaps and style pauses. Defaults apply to engine chatterbox; kokoro/piper use pace/pauseScale only when set.
+Pace guard: unless spec.voice.pace is set explicitly, the main cut is measured after generation and the pace is
+nudged (0.88-1.04) until it lands in spec.voice.targetWpm (default [145, 155]): slower, never sleepy.
+timing.json and voice-qa.json record the measured pace: wpm = words / speech time (first to last word of every scene,
+pauses between sentences included; scene gaps, holds and the sting excluded), articulationWpm = words / clip time.
 """
 import collections
 import hashlib
@@ -194,19 +203,51 @@ NARRATOR_TEXT = ("Fifty million dollars! Can you believe that? A tiny startup wa
 NARRATOR_VOICE, NARRATOR_SPEED = "bm_george", 1.1
 
 
-def tempo(a, factor):
-    """Time-stretch without changing the pitch (ffmpeg atempo); no-op for |factor - 1| < 1 %."""
-    if abs(factor - 1.0) < 0.01 or len(a) == 0:
-        return a
+TEMPO_USED = collections.Counter()
+_RUBBERBAND = None
+
+
+def _has_rubberband():
+    global _RUBBERBAND
+    if _RUBBERBAND is None:
+        _RUBBERBAND = False
+        if os.environ.get("SOP_TEMPO", "").lower() != "atempo":
+            try:
+                p = subprocess.run(["ffmpeg", "-hide_banner", "-filters"], capture_output=True, text=True, timeout=30)
+                _RUBBERBAND = bool(re.search(r"\brubberband\b", p.stdout or ""))
+            except (OSError, subprocess.SubprocessError):
+                _RUBBERBAND = False
+    return _RUBBERBAND
+
+
+def _ffmpeg_filter(a, flt):
     try:
         p = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1",
-                            "-i", "pipe:0", "-filter:a", f"atempo={factor:.4f}", "-f", "f32le", "pipe:1"],
+                            "-i", "pipe:0", "-filter:a", flt, "-f", "f32le", "-ac", "1", "-ar", str(SR), "pipe:1"],
                            input=a.astype(np.float32).tobytes(), capture_output=True)
     except OSError:
-        return a
+        return None
     if p.returncode != 0 or not p.stdout:
-        return a
+        return None
     return np.frombuffer(p.stdout, dtype=np.float32).copy()
+
+
+def tempo(a, factor):
+    """Time-stretch without changing the pitch; no-op for |factor - 1| < 1 %. Uses ffmpeg's rubberband filter
+    (higher quality for speech) when this ffmpeg has it, else atempo (SOP_TEMPO=atempo forces atempo)."""
+    if abs(factor - 1.0) < 0.01 or len(a) == 0:
+        return a
+    if _has_rubberband():
+        out = _ffmpeg_filter(a, f"rubberband=tempo={factor:.4f}:pitchq=quality")
+        if out is not None and len(out):
+            TEMPO_USED["rubberband"] += 1
+            return out
+    out = _ffmpeg_filter(a, f"atempo={factor:.4f}")
+    if out is not None and len(out):
+        TEMPO_USED["atempo"] += 1
+        return out
+    TEMPO_USED["none"] += 1
+    return a
 
 
 def cb_python():
@@ -254,6 +295,9 @@ class ChatterboxEngine:
         self.base_ex = self.settings.get("exaggeration")
         self.base_cfg = self.settings.get("cfgWeight")
         self.temperature = float(self.settings.get("temperature") or 0.8)
+        # VOICE-8 channel tuning: offsets on top of every delivery style (spec.voice overrides, 0 = untuned)
+        self.ex_off = float(self.settings.get("exaggerationOffset", dlv.CHANNEL_TUNING["exaggerationOffset"]))
+        self.cfg_off = float(self.settings.get("cfgOffset", dlv.CHANNEL_TUNING["cfgOffset"]))
         self.fallback_voice = self.settings.get("fallback") or NARRATOR_VOICE
         self.slug = slug
         self.recording = True
@@ -266,12 +310,14 @@ class ChatterboxEngine:
 
     def _settings(self, d):
         d = d or {"exaggeration": 0.5, "cfgWeight": 0.5, "speed": 1.0, "style": "calm"}
-        ex = float(d["exaggeration"])
+        ex = float(d["exaggeration"]) + self.ex_off
         if self.base_ex is not None:  # spec.voice.exaggeration shifts every style (0.5 = neutral)
-            ex = min(1.0, max(0.25, ex + float(self.base_ex) - 0.5))
-        cfg = float(d["cfgWeight"])
+            ex += float(self.base_ex) - 0.5
+        ex = min(1.0, max(0.25, ex))
+        cfg = float(d["cfgWeight"]) + self.cfg_off
         if self.base_cfg is not None:  # spec.voice.cfgWeight shifts every style (0.5 = neutral)
-            cfg = min(1.0, max(0.1, cfg + float(self.base_cfg) - 0.5))
+            cfg += float(self.base_cfg) - 0.5
+        cfg = min(1.0, max(dlv.CFG_FLOOR if self.cfg_off < 0 else 0.1, cfg))
         return round(ex, 3), round(cfg, 3)
 
     def _key(self, text, ex, cfg):
@@ -301,7 +347,7 @@ class ChatterboxEngine:
                 return tempo(a, factor)
         self.fallbacks.append(text)
         log(f"  WARNING chatterbox clip missing -> Kokoro {self.fallback_voice}: {text!r}")
-        return self.kokoro().synth(text, DEFAULT_SPEED * float((d or {}).get("speed", 1.0)))
+        return self.kokoro().synth(text, DEFAULT_SPEED * factor)
 
     def prepare_reference(self):
         if self.reference == "default":
@@ -393,6 +439,7 @@ class ChatterboxEngine:
         bad = [{"text": c["text"], "wer": c.get("wer"), "asr": c.get("asr")} for c in clips
                if (c.get("wer") or 0) > 0.30]
         return {"engine": "chatterbox", "reference": self.reference, "clips": len(clips),
+                "exaggerationOffset": self.ex_off, "cfgOffset": self.cfg_off,
                 "clipWer": round(sum(w * n for w, n in zip(wers, words)) / tot, 4),
                 "retried": sum(1 for c in clips if c.get("retried")), "badSentences": bad,
                 "fallbackSentences": sorted(set(self.fallbacks))}
@@ -438,10 +485,13 @@ def snap(t):
     return round(t * FPS) / FPS
 
 
-def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None, deliveries=None):
+def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None, deliveries=None,
+           pace=1.0, pause_scale=1.0):
     """Scene timing. intro_after = index of the scene after which an `intro` s gap (brand sting) is inserted;
     None with intro > 0 = the gap comes first (legacy). pause_before = {scene index: seconds}: the previous scene
-    holds that much longer (silence before the reveal)."""
+    holds that much longer (silence before the reveal). pace multiplies every clip's speed (VOICE-8), pause_scale
+    every sentence gap and style pause."""
+    gap = SENTENCE_GAP * pause_scale
     t = snap(intro) if intro_after is None else 0.0
     intro_at = 0.0
     out = []
@@ -453,7 +503,7 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
             out[-1]["end"] = round(t, 3)
             log(f"  reveal pause      {p:.2f}s before {sc['id']}")
         start = t
-        sp = float(sc.get("voiceSpeed") or speed)
+        sp = float(sc.get("voiceSpeed") or speed) * pace
         cur = start + (FIRST_LEAD if i == 0 else SCENE_LEAD)
         sents = []
         for j, text in enumerate(split_sentences(sc["narration"])):
@@ -471,9 +521,9 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
             clips.append((cur, a))
             sents.append({"text": clean_text(text), "start": round(cur + first, 3), "end": round(cur + last, 3),
                           **({"delivery": d["style"]} if d is not None else {})})
-            cur += dur + SENTENCE_GAP + (d["pauseAfter"] if d is not None else 0.0)
+            cur += dur + gap + (d["pauseAfter"] * pause_scale if d is not None else 0.0)
         voice_end = sents[-1]["end"] if sents else start
-        end = max(voice_end, cur - SENTENCE_GAP if sents else cur) + SCENE_TAIL
+        end = max(voice_end, cur - gap if sents else cur) + SCENE_TAIL
         if sc["kind"] == "question":
             end += float(sc["visual"].get("holdSec", 3))
         if sc["kind"] == "verdict":
@@ -499,7 +549,43 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_
     return out, clips, total, intro_at
 
 
-def track_qa(slug, engine, engine_name):
+def pace_stats(scenes):
+    """Measured narration pace of a laid-out cut (VOICE-8 target 145-155 wpm)."""
+    words = speech = artic = 0.0
+    for sc in scenes:
+        ss = sc.get("sentences") or []
+        if not ss:
+            continue
+        words += sum(len(s["text"].split()) for s in ss)
+        speech += max(0.0, ss[-1]["end"] - ss[0]["start"])
+        artic += sum(max(0.0, s["end"] - s["start"]) for s in ss)
+    return {"words": int(words), "speechSec": round(speech, 2), "wpm": round(60.0 * words / speech, 1) if speech else None,
+            "articulationWpm": round(60.0 * words / artic, 1) if artic else None}
+
+
+PACE_MIN, PACE_MAX = 0.88, 1.04
+
+
+def calibrate_pace(engine, spec, cut, speed, plan, pace, pause_scale, band):
+    """VOICE-8 pace guard: re-measure the main cut's wpm with the real clips and nudge the pace into `band`."""
+    lo, hi = band
+    intro_after, intro = brand_intro_plan(spec, cut)
+    wpm = None
+    for _ in range(3):
+        scenes = layout(engine, cut["scenes"], speed, intro, 0.0, intro_after, None, plan, pace, pause_scale)[0]
+        wpm = pace_stats(scenes)["wpm"]
+        if not wpm or lo <= wpm <= hi:
+            break
+        new = round(min(PACE_MAX, max(PACE_MIN, pace * ((lo + hi) / 2.0) / wpm)), 3)
+        log(f"pace guard: {wpm} wpm at pace {pace} is outside {lo}-{hi} -> pace {new}")
+        if abs(new - pace) < 0.005:
+            break
+        pace = new
+    log(f"pace guard: pace {pace} -> {wpm} wpm (target {lo}-{hi})")
+    return pace, wpm
+
+
+def track_qa(slug, engine, engine_name, tuning=None):
     """VOICE-4: whole-track ASR (overall WER) + liveliness of the main cut, plus the per-clip Chatterbox checks."""
     d = cut_dir(slug, "main")
     timing = json.loads((d / "timing.json").read_text())
@@ -507,6 +593,7 @@ def track_qa(slug, engine, engine_name):
     res = {"engine": engine_name}
     if hasattr(engine, "report"):
         res.update(engine.report())
+    res["pace"] = {**pace_stats(timing["scenes"]), **(tuning or {}), "tempoFilter": dict(TEMPO_USED)}
     try:
         py = cb_python()
         tf = work_dir(slug) / "voice-text.txt"
@@ -559,6 +646,11 @@ def main():
     voice = v.get("voice", "bm_george")
     engine = make_engine(engine_name, voice, v.get("speaker"), v, args.slug)
     speed = float(v.get("speed") or engine.default_speed)
+    tuned = engine_name == "chatterbox"  # VOICE-8 channel tuning; other engines only when the spec sets it
+    pace = float(v.get("pace") or (dlv.CHANNEL_TUNING["pace"] if tuned else 1.0))
+    pause_scale = float(v.get("pauseScale") or (dlv.CHANNEL_TUNING["pauseScale"] if tuned else 1.0))
+    band = [float(x) for x in (v.get("targetWpm") or [145, 155])]
+    tuning = {"pace": pace, "pauseScale": pause_scale, "targetWpm": band}
     plans = {}
     if getattr(engine, "uses_delivery", False):
         engine.prepare_reference()
@@ -577,15 +669,21 @@ def main():
     elif shard:
         log(f"engine {engine_name} needs no fan-out: nothing to do for shard {args.shard}")
         return
+    if tuned and not v.get("pace") and plans:
+        main_cut = cuts(spec)[0]
+        pace, measured = calibrate_pace(engine, spec, main_cut, speed, plans.get(main_cut["name"]), pace, pause_scale,
+                                        band)
+        tuning.update({"pace": pace, "paceDefault": dlv.CHANNEL_TUNING["pace"], "calibratedWpm": measured})
     for cut in cuts(spec):
         intro_after, intro = brand_intro_plan(spec, cut)
         outro = OUTRO_SEC if branded(cut) else 0.0
         log(f"TTS {args.slug}/{cut['name']} engine={engine_name} voice={voice} speed={speed} sting={intro}s "
-            f"(after scene #{intro_after}) outro={outro}s")
+            f"(after scene #{intro_after}) outro={outro}s pace={pace} pauseScale={pause_scale}")
         ri = reveal_index(cut["scenes"])
         pause = sound_opts(spec)["revealPauseSec"] if ri else 0.0
         scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after,
-                                                {ri: pause} if pause > 0 else None, plans.get(cut["name"]))
+                                                {ri: pause} if pause > 0 else None, plans.get(cut["name"]),
+                                                pace, pause_scale)
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -600,11 +698,14 @@ def main():
             "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3),
             "introSec": intro, "introAtSec": round(intro_at, 3), "outroSec": outro, "engine": engine_name, "voice": voice, "speed": speed,
             **({"revealAtSec": scenes[ri]["start"], "revealPauseSec": pause} if ri else {}),
+            "pace": {**pace_stats(scenes), **tuning},
             "scenes": scenes,
         })
-        log(f"  total {total:.2f}s -> {d / 'voice.wav'}")
+        ps = pace_stats(scenes)
+        log(f"  total {total:.2f}s -> {d / 'voice.wav'}  ({ps['words']} words, {ps['wpm']} wpm, "
+            f"articulation {ps['articulationWpm']} wpm, tempo {dict(TEMPO_USED)})")
     if engine_name == "chatterbox" or os.environ.get("SOP_VOICE_QA") == "1" or v.get("qa"):
-        track_qa(args.slug, engine, engine_name)
+        track_qa(args.slug, engine, engine_name, tuning)
 
 
 if __name__ == "__main__":
