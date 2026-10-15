@@ -9,6 +9,7 @@ import {ERA_PREVIEW_FRAMES, EraPreview} from './compositions/EraPreview';
 import {MOOD_PREVIEW_FRAMES, MoodPreview} from './compositions/MoodPreview';
 import {CHARACTER_PREVIEW_FRAMES, CharacterPreview} from './compositions/CharacterPreview';
 import {EFFECTS_PREVIEW_FRAMES, EffectsPreview} from './compositions/EffectsPreview';
+import {TRANSITION_PREVIEW_FRAMES, TransitionPreview} from './compositions/TransitionPreview';
 import {SoundBoard, soundBoardDefaults} from './compositions/SoundBoard';
 import {sampleLong, sampleShort} from './sample-props';
 import {applyTheme} from './themes';
@@ -70,6 +71,12 @@ const EffectsPreviewDefault: React.FC = () => (
   </DefaultThemed>
 );
 
+const TransitionPreviewDefault: React.FC = () => (
+  <DefaultThemed>
+    <TransitionPreview />
+  </DefaultThemed>
+);
+
 const SoundBoardDefault: React.FC<any> = (props) => (
   <DefaultThemed>
     <SoundBoard {...props} />
@@ -88,6 +95,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="MoodPreview" component={MoodPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={MOOD_PREVIEW_FRAMES} />
       <Composition id="CharacterPreview" component={CharacterPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={CHARACTER_PREVIEW_FRAMES} />
       <Composition id="EffectsPreview" component={EffectsPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={EFFECTS_PREVIEW_FRAMES} />
+      <Composition id="TransitionPreview" component={TransitionPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={TRANSITION_PREVIEW_FRAMES} />
       <Composition id="SoundBoard" component={SoundBoardDefault} width={1920} height={1080} fps={30} durationInFrames={soundBoardDefaults.totalFrames} defaultProps={soundBoardDefaults as any} calculateMetadata={calcBoard as any} />
     </>
   );

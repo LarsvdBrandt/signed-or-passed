@@ -7,12 +7,15 @@ export type Scene = {
   narration: string;
   onScreenText?: string | null;
   visual: any;
-  motion?: string | null;
+  /** camera move: a string or {type, strength} (see IllustrationScene.motionOf) */
+  motion?: any;
   sfx?: string | null;
   dateTag?: string | null;
   minDurationSec?: number;
   /** overlay effects (render/src/effects): ids or {id, intensity, params}; merged over spec.look */
   effects?: any[];
+  /** transition INTO this scene (render/src/transitions): id or {id, durationSec, params}; default spec.transition */
+  transition?: any;
   startFrame: number;
   durationFrames: number;
   sentences: Sentence[];
@@ -27,6 +30,8 @@ export type VideoProps = {
   theme?: string;
   /** Global look (spec.look): preset name, effect array or {preset, effects}; see docs/library/effects.md. */
   look?: any;
+  /** Default transition between scenes (spec.transition); default 'paper-slide'. */
+  transition?: any;
   fps: number;
   width: number;
   height: number;

@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {ChromaticAberration, CameraShake, DepthOfField, GateWeave, GlitchWrap, InkBleedWrap, OldFilmWrap, VhsWrap, ZoomBlur} from './wrappers';
 import {FilmGrain, LightLeaks, OldFilmOverlay, PaperTexture, Vignette, VhsOverlay} from './overlays';
+import {Confetti, Dust, Embers, MoneyRain, PaperScraps, Rain, Smoke, Snow, Sparkles} from './particles';
 import {safeId} from './util';
 import type {EffectCtx, EffectDef, EffectInput, EffectSpec} from './types';
 
@@ -25,6 +26,16 @@ export const EFFECTS: Record<string, EffectDef> = {
   'gate-weave': {id: 'gate-weave', label: 'Gate weave', description: 'slow film-gate wobble', params: 'freq', Wrap: GateWeave},
   'depth-of-field': {id: 'depth-of-field', label: 'Depth of field', description: 'soft focus or rack focus', params: 'blurPx, rack none|in|out, rackSec', Wrap: DepthOfField},
   'zoom-blur': {id: 'zoom-blur', label: 'Zoom blur', description: 'radial ghost burst at the start or end', params: 'at start|end|always, burstSec, copies, cx, cy', Wrap: ZoomBlur},
+  // particles (render/src/effects/particles.tsx): seeded, deterministic
+  confetti: {id: 'confetti', label: 'Confetti', description: 'falling brand-coloured confetti, looping or one burst', params: 'burst, colours[], density, speed', Overlay: Confetti},
+  dust: {id: 'dust', label: 'Dust', description: 'floating, twinkling dust motes', params: 'colour, density, speed', Overlay: Dust},
+  smoke: {id: 'smoke', label: 'Smoke', description: 'soft flat smoke puffs rising from the bottom', params: 'x (origin 0-100, default spread), colour, density, speed', Overlay: Smoke},
+  rain: {id: 'rain', label: 'Rain', description: 'slanted rain streaks', params: 'slant (0.2), colour, density, speed', Overlay: Rain},
+  snow: {id: 'snow', label: 'Snow', description: 'outlined paper snowflakes drifting down', params: 'colour, density, speed', Overlay: Snow},
+  embers: {id: 'embers', label: 'Embers / fire', description: 'rising sparks; fire: true adds flat flames along the bottom', params: 'fire, colour, density, speed', Overlay: Embers},
+  sparkles: {id: 'sparkles', label: 'Sparkles', description: '4-point stars popping up', params: 'colours[], density', Overlay: Sparkles},
+  'money-rain': {id: 'money-rain', label: 'Money rain', description: 'fluttering banknotes falling', params: 'symbol ($), colour, density, speed', Overlay: MoneyRain},
+  'paper-scraps': {id: 'paper-scraps', label: 'Paper scraps', description: 'torn paper scraps blowing across', params: 'wind (0.18), density, speed', Overlay: PaperScraps},
 };
 
 export const EFFECT_IDS = Object.keys(EFFECTS);
@@ -41,6 +52,10 @@ export const LOOKS: Record<string, EffectSpec[]> = {
   print: [{id: 'paper-texture', intensity: 1, params: {variant: 'newsprint'}}],
   handmade: [{id: 'paper-texture', intensity: 1, params: {variant: 'crumpled'}}, {id: 'ink-bleed', intensity: 0.6}],
   dreamy: [{id: 'light-leaks', intensity: 1}, {id: 'vignette', intensity: 0.5}, {id: 'depth-of-field', intensity: 0.25}],
+  winter: [{id: 'snow', intensity: 0.8}, {id: 'vignette', intensity: 0.4}],
+  rainy: [{id: 'rain', intensity: 1}, {id: 'vignette', intensity: 0.6}],
+  celebration: [{id: 'confetti', intensity: 1}, {id: 'light-leaks', intensity: 0.5}],
+  smoky: [{id: 'smoke', intensity: 0.8}, {id: 'vignette', intensity: 0.6}, {id: 'film-grain', intensity: 0.4}],
 };
 
 export const LOOK_IDS = Object.keys(LOOKS);
@@ -78,7 +93,7 @@ export const resolveEffects = (look: any, sceneEffects: any): EffectSpec[] => me
 
 // inner -> outer for wrappers, bottom -> top for overlays
 const WRAP_ORDER = ['ink-bleed', 'depth-of-field', 'chromatic-aberration', 'glitch', 'vhs', 'old-film', 'zoom-blur', 'gate-weave', 'camera-shake'];
-const OVERLAY_ORDER = ['paper-texture', 'light-leaks', 'film-grain', 'old-film', 'vhs', 'vignette'];
+const OVERLAY_ORDER = ['paper-texture', 'light-leaks', 'smoke', 'dust', 'rain', 'snow', 'embers', 'sparkles', 'confetti', 'money-rain', 'paper-scraps', 'film-grain', 'old-film', 'vhs', 'vignette'];
 const rank = (order: string[], id: string) => {
   const i = order.indexOf(id);
   return i < 0 ? order.length : i;

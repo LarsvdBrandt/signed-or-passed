@@ -16,6 +16,7 @@ def main():
     sources = {s["id"]: {"title": s["title"], "url": s["url"]} for s in spec.get("sources") or []}
     theme = spec.get("theme") or DEFAULT_THEME
     look = spec.get("look")
+    transition = spec.get("transition")
     for cut in cuts(spec):
         d = cut_dir(args.slug, cut["name"])
         timing = read_json(d / "timing.json")
@@ -42,6 +43,7 @@ def main():
             "verdict": spec["verdict"],
             "theme": theme,
             "look": look,
+            "transition": transition,
             "fps": FPS,
             "width": w,
             "height": h,
@@ -57,8 +59,11 @@ def main():
         }
         write_json(d / "props.json", props)
         n_fx = sum(1 for s in scenes if s.get("effects"))
+        n_tr = sum(1 for s in scenes if s.get("transition"))
+        tr_name = transition if isinstance(transition, str) else (transition or {}).get("id", "paper-slide") if isinstance(transition, dict) else "paper-slide"
         log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), theme {theme}, "
             f"look {look if isinstance(look, str) else ('custom' if look else 'none')}, {n_fx} scenes with effects, "
+            f"transition {tr_name} ({n_tr} scene overrides), "
             f"intro {props['introFrames']} / outro {props['outroFrames']} frames")
 
 

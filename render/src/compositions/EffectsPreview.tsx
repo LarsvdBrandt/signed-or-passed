@@ -11,12 +11,20 @@ type Entry = {name: string; kind: 'effect' | 'look'; effects: EffectSpec[]; note
 
 const PAPER_VARIANTS = ['grain', 'fibre', 'crumpled', 'newsprint', 'kraft', 'watercolour'];
 
+const DEMO_PARAMS: Record<string, Record<string, any>> = {
+  'depth-of-field': {rack: 'in'},
+  'chromatic-aberration': {pulse: true},
+  embers: {fire: true},
+  'money-rain': {symbol: '$'},
+};
+
 const ENTRIES: Entry[] = [
   ...Object.values(EFFECTS)
     .filter((d) => d.id !== 'paper-texture')
-    .map((d) => ({name: d.id, kind: 'effect' as const, effects: [{id: d.id, intensity: 1, params: d.id === 'depth-of-field' ? {rack: 'in'} : d.id === 'chromatic-aberration' ? {pulse: true} : {}}], note: `${d.description} · params: ${d.params}`})),
+    .map((d) => ({name: d.id, kind: 'effect' as const, effects: [{id: d.id, intensity: 1, params: DEMO_PARAMS[d.id] || {}}], note: `${d.description} · params: ${d.params}`})),
   {name: 'film-grain coarse', kind: 'effect', effects: [{id: 'film-grain', intensity: 1.4, params: {size: 'coarse'}}], note: 'size coarse, intensity 1.4'},
   {name: 'old-film mono', kind: 'effect', effects: [{id: 'old-film', intensity: 1.3, params: {mono: true}}], note: 'mono, intensity 1.3'},
+  {name: 'confetti burst', kind: 'effect', effects: [{id: 'confetti', intensity: 1.5, params: {burst: true}}], note: 'burst: true (one shower from the scene start), intensity 1.5'},
   ...PAPER_VARIANTS.map((v) => ({name: `paper-texture ${v}`, kind: 'effect' as const, effects: [{id: 'paper-texture', intensity: 1.2, params: {variant: v}}], note: `variant ${v}`})),
   ...LOOK_IDS.map((id) => ({name: `look: ${id}`, kind: 'look' as const, effects: lookEffects(id), note: LOOKS[id].length ? LOOKS[id].map((e) => `${e.id}${e.intensity != null && e.intensity !== 1 ? ` ${e.intensity}` : ''}`).join(' + ') : 'no effects (house style)'})),
 ];
@@ -79,7 +87,7 @@ const Block: React.FC<{entry: Entry; i: number}> = ({entry, i}) => {
   );
 };
 
-/** Every effect, paper variant and look on the same demo scene, 3 s each. Rendered as preview-effects.mp4. */
+/** Every effect (incl. particles), paper variant and look on the same demo scene, 3 s each. Rendered as preview-effects.mp4. */
 export const EffectsPreview: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: C.paper}}>
     {ENTRIES.map((e, i) => (

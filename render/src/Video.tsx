@@ -17,6 +17,8 @@ import {ShotScene} from './scenes/ShotScene';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 import {EffectsStack, resolveEffects} from './effects';
+import {TransitionLayer, resolveTransition, type ResolvedTransition} from './transitions';
+import {isParallax} from './transitions/parallax';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
   const v = scene.visual || {};
@@ -71,7 +73,7 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
   }
 };
 
-/** Camera move over a scene. motion: 'push-in' | 'pull-out' | 'pan-left' | 'pan-right' | 'pan' or {type, strength}. 'parallax' is handled per layer by IllustrationScene. */
+/** Camera move over a scene. motion: 'push-in' | 'pull-out' | 'pan-left' | 'pan-right' | 'pan' or {type, strength}. 'parallax*' is handled per layer by IllustrationScene. */
 const Camera: React.FC<{motion?: any; duration: number; children: React.ReactNode}> = ({motion, duration, children}) => {
   const frame = useCurrentFrame();
   const p = interpolate(frame, [0, Math.max(1, duration)], [0, 1], clamp);
@@ -85,7 +87,7 @@ const Camera: React.FC<{motion?: any; duration: number; children: React.ReactNod
   return <AbsoluteFill style={{transform: t || undefined}}>{children}</AbsoluteFill>;
 };
 
-/** Paper-slide transition: a new sheet slides in over the previous one. */
+/** Paper-slide transition: a new sheet slides in over the previous one (used by the end card and older previews). */
 export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> = ({slide, children}) => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
@@ -100,22 +102,26 @@ export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> =
   );
 };
 
-/** One scene on its paper sheet: theme filter, camera move, then the effects (spec.look + scenes[].effects, render/src/effects). */
-const SceneFrame: React.FC<{scene: Scene; prev?: Scene; slide: boolean; ctx: VideoProps}> = ({scene, prev, slide, ctx}) => (
-  <PaperSheet slide={slide}>
+/**
+ * One scene on its paper sheet: entering transition (scenes[].transition / spec.transition, render/src/transitions),
+ * the exit move of the next scene's transition, theme filter, camera move, then the effects (spec.look + scenes[].effects).
+ */
+const SceneFrame: React.FC<{scene: Scene; prev?: Scene; enter: ResolvedTransition | null; exit: ResolvedTransition | null; ctx: VideoProps}> = ({scene, prev, enter, exit, ctx}) => (
+  <TransitionLayer enter={enter} exit={exit} exitAt={scene.durationFrames} seed={scene.id}>
     <EffectsStack effects={resolveEffects(ctx.look, scene.effects)} seed={scene.id} duration={scene.durationFrames}>
       <AbsoluteFill style={themeContentStyle()}>
-        <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
+        <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
           <SceneContent scene={scene} prev={prev} ctx={ctx} />
         </Camera>
       </AbsoluteFill>
     </EffectsStack>
-  </PaperSheet>
+  </TransitionLayer>
 );
 
 export const VideoMain: React.FC<VideoProps> = (props) => {
   applyTheme(props.theme);
   const frame = useCurrentFrame();
+  const fps = props.fps || 30;
   const scenes = props.scenes || [];
   const intro = Math.max(0, Math.round(props.introFrames || 0));
   const outro = Math.max(0, Math.round(props.outroFrames || 0));
@@ -124,20 +130,25 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
   const total = Math.max(1, Math.round(props.totalFrames || lastEnd + outro));
   const outroStart = Math.max(0, Math.min(lastEnd, total - 1));
   const inBody = frame >= intro && frame < lastEnd;
+  // the transition INTO each scene (none for the very first scene when there is no intro)
+  const enters: Array<ResolvedTransition | null> = scenes.map((sc, i) => (i > 0 || intro > 0 ? resolveTransition(sc.transition, props.transition, fps) : null));
+  const firstEnter = enters[0];
   return (
     <AbsoluteFill style={{backgroundColor: C.paper}}>
       <ThemeDefs />
       {intro > 0 ? (
-        <Sequence name="brand-intro" from={0} durationInFrames={intro + TRANSITION_FRAMES}>
+        <Sequence name="brand-intro" from={0} durationInFrames={intro + (firstEnter ? firstEnter.frames : TRANSITION_FRAMES)}>
           <BrandIntro />
         </Sequence>
       ) : null}
       {scenes.map((sc, i) => {
         const last = i === scenes.length - 1;
-        const extra = !last || outro > 0 ? TRANSITION_FRAMES : 0;
+        const next = !last ? enters[i + 1] : null;
+        // the outgoing scene stays visible under the next scene's transition
+        const extra = next ? next.frames : outro > 0 ? TRANSITION_FRAMES : 0;
         return (
           <Sequence key={sc.id} name={`${sc.kind}:${sc.id}`} from={sc.startFrame} durationInFrames={sc.durationFrames + extra}>
-            <SceneFrame scene={sc} prev={scenes[i - 1]} slide={i > 0 || intro > 0} ctx={props} />
+            <SceneFrame scene={sc} prev={scenes[i - 1]} enter={enters[i]} exit={next} ctx={props} />
           </Sequence>
         );
       })}
