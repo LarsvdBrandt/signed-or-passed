@@ -1,6 +1,6 @@
 # Script: Blockbuster passes on Netflix
 
-Slug: 2026-10-15-blockbuster-passes-on-netflix · Format: long · Verdict: PASSED · Voice: Kokoro bm_george, speed 1.1
+Slug: 2026-10-15-blockbuster-passes-on-netflix · Format: long · Verdict: PASSED · Voice: Kokoro bm_george, speed 1.1 · Revision 1 (after fact check)
 
 ## 1. COLD OPEN (0:00-0:20)
 
@@ -14,7 +14,7 @@ Dallas, Texas. The year two thousand. This is where Blockbuster was born, back i
 
 > claims: c13, c14, c20, c22, c23, c24
 
-The man in charge is John Antioco. A retail lifer. He spent around twenty years at the convenience chain Seven-Eleven, then worked at Circle K, before he took the top job at Blockbuster. Antioco knows stores. He knows how to make them pay.
+The man in charge is John Antioco. A retail lifer. He spent around twenty years at the convenience chain Seven-Eleven, then ran Circle K and later Taco Bell, before he took the top job at Blockbuster in nineteen ninety-seven. Antioco knows stores. He knows how to make them pay.
 
 > claims: c26
 
@@ -40,7 +40,7 @@ So put yourself in John Antioco's shoes. Why would you say no?
 
 > claims: (none)
 
-First, the math. Netflix lost more money in that one year than the price it was asking. You would be paying fifty million dollars for a business that had just burned through more than fifty million dollars.
+First, the math. Netflix lost more money in that one year than the price it was asking. You would be paying fifty million dollars for a business on its way to losing more than fifty million dollars that year.
 
 > claims: c50, c6, c15
 
@@ -48,9 +48,9 @@ And buying a company means buying its losses, too. Next year, and the year after
 
 > claims: c6
 
-Second, the mood. The dot-com bubble was bursting. Internet companies that lost money were suddenly being doubted, and Netflix was exactly that kind of company.
+Second, the mood. In two thousand, the dot-com bubble peaked and began to burst. Internet companies that lost money were suddenly being doubted, and Netflix was exactly that kind of company.
 
-> claims: c6 (dot-com context: research section 3, s1; no claim id, see Notes)
+> claims: c54, c6
 
 Third, the scale. Netflix had about three hundred thousand subscribers. Blockbuster had thousands of stores, and its revenue was still growing, up about eleven percent on the year before. Why bet on a tiny website when your own shops are doing just fine?
 
@@ -82,7 +82,7 @@ Blockbuster said no. There was no deal.
 
 > claims: c13, c15
 
-But how that no was delivered depends on who you ask. Marc Randolph tells the famous version. In his twenty nineteen book, That Will Never Work, he recalls Antioco struggling not to laugh. In twenty twenty-three, he reportedly said Blockbuster "laughed us out of the room." Keep in mind: that is how Randolph remembers it.
+But how that no was delivered depends on who you ask. Marc Randolph tells the famous version. In his twenty nineteen book, That Will Never Work, he recalls Antioco struggling not to laugh. In twenty twenty-three, he wrote on Twitter that Blockbuster "laughed us out of the room." Keep in mind: that is how Randolph remembers it.
 
 > claims: c17, c18
 
@@ -100,7 +100,7 @@ So one of the most famous rejections in business rests on three memories, told n
 
 ## 6. AFTERMATH
 
-Netflix kept going. On the twenty-ninth of May, two thousand and two, it went public. That means it sold shares on the stock market for the first time. Fifteen dollars a share. Eighty-two and a half million dollars raised. At that price, the whole company was valued at roughly three hundred and ten million dollars. About six times the number it had named in Dallas. By then, Netflix had more than six hundred thousand subscribers, about double what it had in two thousand, and more than eleven and a half thousand titles. The standard plan cost nineteen dollars and ninety-five cents a month.
+Netflix kept going. In May two thousand and two, it went public. That means it sold shares on the stock market for the first time. Fifteen dollars a share. Eighty-two and a half million dollars raised. At that price, the whole company was valued at roughly three hundred and ten million dollars. About six times the number it had named in Dallas. By then, Netflix had more than six hundred thousand subscribers, about double what it had in two thousand, and more than eleven and a half thousand titles. The standard plan cost nineteen dollars and ninety-five cents a month.
 
 > claims: c10, c9, c7, c15
 
@@ -108,7 +108,7 @@ And Blockbuster? This is the part of the story people usually skip. Blockbuster 
 
 > claims: c21, c24, c27, c28
 
-The numbers swung hard. In two thousand and five, Blockbuster reported a net loss of five hundred and eighty-eight million dollars. More than half of that was a write-down, an accounting admission that some assets were worth less than the books said. That same year, the activist investor Carl Icahn bought a stake of nearly ten percent. An activist investor buys a big slice of a company to push it in a new direction.
+The numbers swung hard. In two thousand and five, Blockbuster reported a net loss of five hundred and eighty-eight million dollars. More than half of that was a write-down, an accounting admission that some assets were worth less than the books said. By then, the activist investor Carl Icahn had built a stake of nearly ten percent, and in May two thousand and five he won a seat on the board. An activist investor buys a big slice of a company to push it in a new direction.
 
 > claims: c32, c33
 
@@ -116,11 +116,11 @@ Then, in the autumn of two thousand and six, came Total Access. Rent your discs 
 
 > claims: c29, c30, c31
 
-Antioco says Total Access brought Netflix back to the table, and that serious talks between the two companies began in early two thousand and seven. That is his account. Nobody else has confirmed it.
+Antioco says Total Access brought Netflix back to the table, and that serious talks between the two companies began in early two thousand and seven. That is his account.
 
 > claims: c52
 
-But inside Blockbuster, a different fight had begun. In January two thousand and seven, the board offered Antioco a bonus of two point two eight million dollars. He said he was owed seven point six five million. In March, they settled. His exit payment was just under five million dollars, instead of the thirteen and a half million his old contract would have paid. Antioco left, and Jim Keyes took over as CEO that same year. The man who had launched Total Access was gone.
+But inside Blockbuster, a different fight had begun. In January two thousand and seven, the board offered Antioco a bonus of two point two eight million dollars. He said he was owed seven point six five million. In March, they settled. His lump-sum exit payment was just under five million dollars, instead of the thirteen and a half million his old contract would have paid. Antioco left, and Jim Keyes took over as CEO that same year. The man who had launched Total Access was gone.
 
 > claims: c34, c35, c29
 
@@ -148,23 +148,32 @@ Fifty million dollars, on the table in Dallas. Blockbuster passed.
 
 ## 8. LESSON
 
-When a small company could one day replace your core business, don't only ask what it's worth today; ask what it would cost you if it wins. And once you start your own move to the new model, fund it and see it through, even while the old business still pays the bills.
+When a small company could one day replace your core business, don't only ask what it's worth today; ask what it would cost you if it wins.
 
 So, would you have signed? Tell me in the comments.
 
-> claims: c30, c34 (lesson; interpretation, no new facts)
+> claims: (none; interpretation, no new facts)
 
 ## Notes
 
 - **Word count (spoken narration):** about 1,540 words (headings, claims lines and notes excluded).
-- **Estimated duration:** about 9 minutes 20 seconds at Kokoro speed 1.1 (about 165 spoken words per minute), including the 3-second freeze pause. Freeze lands at about word 665, around 4:00 (roughly 43% in).
+- **Estimated duration:** about 9 minutes 20 seconds at Kokoro speed 1.1 (about 165 spoken words per minute), including the 3-second freeze pause. Freeze lands at about word 680, around 4:05 (roughly 44% in).
+- **Revision 1, fact-check fixes (all 7):**
+  1. AFTERMATH IPO: "On the twenty-ninth of May" (closing date) became "In May two thousand and two, it went public" (trading began 23 May 2002).
+  2. AFTERMATH Icahn: now "By then ... had built a stake of nearly ten percent, and in May two thousand and five he won a seat on the board" (13D: buying from 11 Nov 2004, 9.7% of Class A by Apr 2005).
+  3. AFTERMATH c52: deleted "Nobody else has confirmed it." Kept "That is his account."
+  4. PRESSURE c50: "had just burned through" became "on its way to losing more than fifty million dollars that year" (no hindsight).
+  5. PRESSURE dot-com: "In two thousand, the dot-com bubble peaked and began to burst." New claim c54 (Nasdaq/dot-com peak 10 Mar 2000, https://en.wikipedia.org/wiki/Dot-com_bubble), added to the research claims table.
+  6. SET THE SCENE c26: "then ran Circle K and later Taco Bell, before he took the top job at Blockbuster in nineteen ninety-seven."
+  7. LESSON: one lesson only (the second sentence about funding the transition is cut).
+  Optional polish applied: Randolph's 2023 line now "he wrote on Twitter that..." (Fortune confirms the tweet); "His lump-sum exit payment" (total severance reported higher elsewhere).
 - **Lars's checks:**
-  - $50M: c15, verified as the number named by all three accounts (Randolph, Hastings, Antioco). The narration says Netflix "named its price" and avoids calling it a firm sale offer, because the nature of the offer is disputed.
-  - "Laughed out of the room": attributed only to Randolph and flagged as his recollection (c17 for the 2019 book, c18 for the 2023 "laughed us out of the room" attribution, "reportedly"). Antioco's denial (c16, direct LinkedIn quote) and Hastings's "curiosity" (c19, "reportedly", secondhand) sit next to it.
+  - $50M: c15, named by all three accounts (Randolph, Hastings, Antioco). The narration says Netflix "named its price" and avoids calling it a firm sale offer.
+  - "Laughed out of the room": attributed only to Randolph and flagged as his recollection (c17, c18). Antioco's denial (c16, direct LinkedIn quote) and Hastings's "curiosity" (c19, "reportedly", secondhand) sit next to it.
   - Fairness to Antioco: Pressure section (loss bigger than the price, dot-com mood, ~300k subs vs thousands of stores, growing core business, Viacom as parent).
   - Total Access fight and the 2010 bankruptcy: Aftermath (c27-c36, c39-c41).
 - **Meeting date:** kept to "two thousand" (c14 disputed). "Even the month" refers to that dispute.
-- **For the fact-checker: unverified claims used** (single secondary source or search summary): c22 (Blockbuster 2000 revenue ~$4.96B, +11%; used for "close to five billion", "up about eleven percent", and the 1% math in c51), c23 ("thousands of stores"; c21's verified 9,094 peak in 2004 is a fallback), c26 (Seven-Eleven ~20 years), c27 (Blockbuster Online 2004), c28 (late fees dropped Jan 2005), c33 (Icahn ~10%, 2005), c35 (Keyes CEO 2007), c45 (streaming 2007), c52 (Antioco's 2007 talks claim, labelled as his account), c19 (Hastings, labelled "reportedly"). If c22 can't be confirmed, change "Close to five billion dollars a year in revenue" to "Billions of dollars a year in revenue", drop "up about eleven percent on the year before", and change "about one percent" to "a small fraction".
-- **Context lines without a claim id:** "The dot-com bubble was bursting..." (research section 3, s1: Netflix suffered losses during the bubble). Please add a claim or soften it. "Nobody could promise when Netflix would ever turn a profit" is framing, not a factual claim. The definitions (net loss, write-down, going public, activist investor, Chapter 11, franchise) are explanations, not claims.
-- **Quotes:** only two direct quotes. Antioco's LinkedIn sentence (c16) is verbatim as given in s7/s9; "2000" is written as a numeral inside the quote and read as "two thousand". "Laughed us out of the room" (c18) is marked "reportedly". "Struggling not to laugh" is paraphrased as Randolph's recollection, not quoted. Left out on purpose: "The dot-com hysteria is completely overblown" (Randolph's recollection, not in the claims table), the Apollo 13 late-fee story (c46, apocryphal), the Amazon offer (c12), and the bankruptcy assets/debt figures (c37, single source).
-- **Computed figures:** IPO value of ~$310M is about six times $50M (c10). 2025 revenue is about 900x $50M (c51, second part verified). "More than half" of the 2005 loss was the write-down ($341.9M of $588.1M, c32). "Just under five million" = $4.9875M (c34). "About double" subscribers: 600k+ in 2002 vs ~292k in 2000 (c9, c7).
+- **Still single-source / secondhand (hedged):** c19 (Hastings, "reportedly"), c52 (Antioco's 2007 talks claim, labelled as his account). c22 and c23 were confirmed by the fact checker from the Blockbuster FY2001 10-K; the +11% growth rests on an SEC full-text excerpt of Viacom's FY2000 10-K.
+- **Context lines without a claim id:** "Nobody could promise when Netflix would ever turn a profit" is framing, not a factual claim. The definitions (net loss, write-down, going public, activist investor, Chapter 11, franchise) are explanations, not claims.
+- **Quotes:** two direct quotes. Antioco's LinkedIn sentence (c16) is verbatim; "2000" inside the quote is read as "two thousand". "Laughed us out of the room" (c18) is Randolph's tweet as reported by Fortune. "Struggling not to laugh" is paraphrased as Randolph's recollection. Left out on purpose: "The dot-com hysteria is completely overblown" (Randolph's recollection), the Apollo 13 late-fee story (c46, apocryphal), the Amazon offer (c12), and the bankruptcy assets/debt figures (c37, single source).
+- **Computed figures:** IPO value of ~$310M is about six times $50M (c10). 2025 revenue is about 900x $50M (c51). "More than half" of the 2005 loss was the write-down ($341.9M of $588.1M, c32). "Just under five million" = $4.9875M (c34). "About double" subscribers: 600k+ in 2002 vs ~292k in 2000 (c9, c7).
