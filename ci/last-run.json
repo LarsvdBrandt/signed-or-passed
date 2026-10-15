@@ -2,11 +2,11 @@
   "status": "success",
   "jobStatus": "success",
   "triggerSha": "f613804fca43f9f77bb4de7958687603519fffef",
-  "slug": "2026-10-15-nike-signs-michael-jordan",
+  "slug": "2026-10-15-blockbuster-passes-on-netflix",
   "slugs": [
-    "2026-10-15-nike-signs-michael-jordan"
+    "2026-10-15-blockbuster-passes-on-netflix"
   ],
-  "finishedAt": "2026-10-15T19:12:45+00:00",
+  "finishedAt": "2026-10-15T19:17:39+00:00",
   "failedStep": null,
   "failedSlugs": [],
   "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38787668468"
