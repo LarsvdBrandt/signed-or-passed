@@ -12,7 +12,7 @@ import subprocess
 import numpy as np
 import soundfile as sf
 
-from common import ROOT, cuts, fail, load_spec, log
+from common import COLD_OPEN_SFX, ROOT, cuts, fail, load_spec, log
 from retention import beat_sfx_names
 
 # expression, duration, extra filter. No commas inside expressions (filtergraph separator).
@@ -39,6 +39,8 @@ def used_sfx(spec):
                 if cue.get("sfx"):
                     names.add(cue["sfx"])
     names |= beat_sfx_names(spec)  # automatic beat sounds (pipeline/retention.py)
+    if any(sc.get("coldOpen") for cut in cuts(spec) for sc in cut["scenes"]):
+        names |= {n for n, *_ in COLD_OPEN_SFX}  # cold-open whooshes (RETENTION-3)
     return sorted(names)
 
 

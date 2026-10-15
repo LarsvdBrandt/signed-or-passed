@@ -22,10 +22,18 @@ VERDICT_MIN = 2.8
 DEFAULT_SPEED = 1.15
 
 # Brand intro sting and end card: long videos, main cut only (render/src/components/brand.tsx).
-INTRO_SEC = 3.0
+# RETENTION-3: the sting is short (spec.brandIntro.durationSec, default 1.2 s, 0.6..1.5 s) and plays right AFTER the
+# hook (the first scene that is not a cold open, or spec.brandIntro.after), never before it.
+INTRO_SEC = 3.0  # full-length sting (previews); BRAND_INTRO_SFX is timed for this length
+BRAND_INTRO_DEFAULT_SEC = 1.2
+BRAND_INTRO_MIN_SEC = 0.6
+BRAND_INTRO_MAX_SEC = 1.5
 OUTRO_SEC = 6.0
-# (sfx, seconds from video start). Must match INTRO_PEN_FRAME / INTRO_STAMP_IMPACT in brand.tsx.
+# (sfx, seconds from the start of a 3 s sting). Must match INTRO_PEN_FRAME / INTRO_STAMP_IMPACT in brand.tsx;
+# a shorter sting is compressed the same way (brand_intro_sfx / introTiming in brand.tsx).
 BRAND_INTRO_SFX = [("pen", 0.2), ("stamp", 1.667)]
+# Cold open (scenes[].coldOpen, RETENTION-3): (sfx, "start" | "end" of the scene, offset sec, gainDb)
+COLD_OPEN_SFX = [("whoosh_fast", "start", 0.0, -4.0), ("whoosh_long", "end", -0.55, -3.0)]
 # (sfx, seconds from the start of the end card)
 BRAND_OUTRO_SFX = [("paper", 0.0)]
 
@@ -105,6 +113,49 @@ def cuts(spec):
 def branded(cut):
     """True when this cut gets the brand intro sting and end card (long main video only)."""
     return cut["name"] == "main" and cut["format"] == "long"
+
+
+def cold_open(sc):
+    """The cold-open settings of a scene (scenes[].coldOpen: true | {style, label, ...}) as a dict, or None."""
+    c = sc.get("coldOpen")
+    if not c:
+        return None
+    return {} if c is True else dict(c)
+
+
+def brand_intro_plan(spec, cut):
+    """(index of the scene after which the sting plays, duration sec) for a cut; (None, 0.0) = no sting.
+
+    spec.brandIntro: false = no sting; {after: sceneId} = after that scene; {durationSec} = 0.6..1.5 s (default 1.2).
+    Default position: right after the first scene that is not a cold open (the hook).
+    """
+    if not branded(cut):
+        return None, 0.0
+    bi = spec.get("brandIntro")
+    if bi is False or (isinstance(bi, dict) and bi.get("enabled") is False):
+        return None, 0.0
+    bi = bi if isinstance(bi, dict) else {}
+    dur = float(bi.get("durationSec") or BRAND_INTRO_DEFAULT_SEC)
+    dur = max(BRAND_INTRO_MIN_SEC, min(BRAND_INTRO_MAX_SEC, dur))
+    scenes = cut["scenes"]
+    if not scenes:
+        return None, 0.0
+    after = bi.get("after")
+    if after:
+        for i, sc in enumerate(scenes):
+            if sc["id"] == after:
+                return i, dur
+        fail(f"brandIntro.after: no scene '{after}' in {cut['name']}")
+    for i, sc in enumerate(scenes):
+        if not cold_open(sc):
+            return i, dur
+    return len(scenes) - 1, dur
+
+
+def brand_intro_sfx(duration):
+    """(sfx, seconds from the start of the sting) for a sting of this length (compressed like brand.tsx)."""
+    k = min(1.0, float(duration) / INTRO_SEC)
+    return [(n, round(round(t * 30 * k) / 30, 3)) for n, t in BRAND_INTRO_SFX]
 
 
 def is_test(slug):

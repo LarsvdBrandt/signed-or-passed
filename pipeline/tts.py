@@ -11,8 +11,9 @@ build_props turns it into a kinetic keyword); scenes[].voiceSpeed overrides spec
 Pace (RETENTION-5): default speed 1.15, every clip is trimmed of leading/trailing silence, 0.25 s between sentences,
 0.35 s at scene boundaries (common.SCENE_TAIL + SCENE_LEAD); longer pauses only with [pause N].
 
-Long main cuts get INTRO_SEC of silence before the first scene (brand intro sting) and OUTRO_SEC after the last
-scene (end card); both are recorded in timing.json as introSec / outroSec.
+Long main cuts get a short silent gap for the brand sting right AFTER the hook (common.brand_intro_plan: after the
+first scene that is not a cold open, or spec.brandIntro.after; 1.2 s by default) and OUTRO_SEC after the last scene
+(end card); timing.json records introSec (sting length), introAtSec (where it starts) and outroSec.
 """
 import json
 import os
@@ -24,8 +25,8 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, INTRO_SEC, OUTRO_SEC, ROOT, SCENE_LEAD, SCENE_TAIL,
-                    SENTENCE_GAP, VERDICT_MIN, branded, cut_dir, cuts, fail, load_spec, log, slug_arg,
+from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, OUTRO_SEC, ROOT, SCENE_LEAD, SCENE_TAIL,
+                    SENTENCE_GAP, VERDICT_MIN, brand_intro_plan, branded, cold_open, cut_dir, cuts, fail, load_spec, log, slug_arg,
                     split_sentences, strip_emphasis, write_json)
 
 SR = 24000
@@ -193,8 +194,11 @@ def snap(t):
     return round(t * FPS) / FPS
 
 
-def layout(engine, scenes, speed, intro=0.0, outro=0.0):
-    t = snap(intro)
+def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None):
+    """Scene timing. intro_after = index of the scene after which an `intro` s gap (brand sting) is inserted;
+    None with intro > 0 = the gap comes first (legacy)."""
+    t = snap(intro) if intro_after is None else 0.0
+    intro_at = 0.0
     out = []
     clips = []
     for i, sc in enumerate(scenes):
@@ -225,11 +229,16 @@ def layout(engine, scenes, speed, intro=0.0, outro=0.0):
             "id": sc["id"], "kind": sc["kind"], "start": round(start, 3), "end": round(end, 3),
             "voiceStart": sents[0]["start"] if sents else start, "voiceEnd": voice_end,
             "sfx": sc.get("sfx"), "sentences": sents,
+            **({"coldOpen": True} if cold_open(sc) else {}),
         })
-        log(f"  scene {sc['id']:<8} {sc['kind']:<12} {start:7.2f} -> {end:7.2f}")
+        log(f"  scene {sc['id']:<8} {sc['kind']:<12} {start:7.2f} -> {end:7.2f}{'  (cold open)' if cold_open(sc) else ''}")
         t = end
+        if intro > 0 and intro_after == i:
+            intro_at = t
+            t = snap(t + intro)
+            log(f"  brand sting       {intro_at:7.2f} -> {t:7.2f}")
     total = snap(t + outro)
-    return out, clips, total
+    return out, clips, total, intro_at
 
 
 def main():
@@ -241,10 +250,11 @@ def main():
     engine = make_engine(engine_name, voice, v.get("speaker"))
     speed = float(v.get("speed") or engine.default_speed)
     for cut in cuts(spec):
-        intro = INTRO_SEC if branded(cut) else 0.0
+        intro_after, intro = brand_intro_plan(spec, cut)
         outro = OUTRO_SEC if branded(cut) else 0.0
-        log(f"TTS {args.slug}/{cut['name']} engine={engine_name} voice={voice} speed={speed} intro={intro}s outro={outro}s")
-        scenes, clips, total = layout(engine, cut["scenes"], speed, intro, outro)
+        log(f"TTS {args.slug}/{cut['name']} engine={engine_name} voice={voice} speed={speed} sting={intro}s "
+            f"(after scene #{intro_after}) outro={outro}s")
+        scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after)
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -257,7 +267,7 @@ def main():
         sf.write(str(d / "voice.wav"), buf, SR, subtype="PCM_16")
         write_json(d / "timing.json", {
             "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3),
-            "introSec": intro, "outroSec": outro, "engine": engine_name, "voice": voice, "speed": speed,
+            "introSec": intro, "introAtSec": round(intro_at, 3), "outroSec": outro, "engine": engine_name, "voice": voice, "speed": speed,
             "scenes": scenes,
         })
         log(f"  total {total:.2f}s -> {d / 'voice.wav'}")

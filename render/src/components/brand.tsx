@@ -77,25 +77,39 @@ export const DashedRule: React.FC<{top: string | number; progress?: number; from
   );
 };
 
-/** 3 s logo sting at the start of every long video: rules draw, Signed writes on (pen), PASSED stamps down. */
-export const BrandIntro: React.FC = () => {
+/** Full sting length in frames; a shorter sting (spec.brandIntro.durationSec) is compressed by introTiming. */
+export const INTRO_FULL_FRAMES = 90;
+
+/** Key frames of a sting of `frames` length (compressed from the 3 s version; pipeline/common.brand_intro_sfx). */
+export const introTiming = (frames = INTRO_FULL_FRAMES) => {
+  const k = Math.min(1, Math.max(1, frames) / INTRO_FULL_FRAMES);
+  const r = (f: number) => Math.round(f * k);
+  return {k, rule: Math.max(2, r(16)), pen: r(INTRO_PEN_FRAME), sign: Math.max(4, r(32)), or0: r(36), or1: Math.max(r(36) + 1, r(42)), impact: r(INTRO_STAMP_IMPACT), drop: Math.max(2, r(6)), tag: frames >= 75};
+};
+
+/**
+ * Logo sting: rules draw, Signed writes on (pen), PASSED stamps down. 3 s in previews; in videos a short 1.2 s
+ * version right after the hook (RETENTION-3, pipeline/common.brand_intro_plan). The tagline only shows from 2.5 s.
+ */
+export const BrandIntro: React.FC<{frames?: number}> = ({frames = INTRO_FULL_FRAMES}) => {
   const frame = useCurrentFrame();
   const u = useUnit();
   const portrait = usePortrait();
+  const t = introTiming(frames);
   const size = (portrait ? 200 : 300) * u;
-  const rule = interpolate(frame, [0, 16], [0, 100], {...clamp, easing: Easing.out(Easing.cubic)});
-  const sign = interpolate(frame, [INTRO_PEN_FRAME, INTRO_PEN_FRAME + 32], [0, 1], {...clamp, easing: Easing.inOut(Easing.quad)});
-  const or = interpolate(frame, [36, 42], [0, 1], clamp);
-  const stampS = interpolate(frame, [INTRO_STAMP_IMPACT - 6, INTRO_STAMP_IMPACT], [1.6, 1], {...clamp, easing: Easing.in(Easing.quad)});
-  const stampO = interpolate(frame, [INTRO_STAMP_IMPACT - 6, INTRO_STAMP_IMPACT - 4], [0, 1], clamp);
+  const rule = interpolate(frame, [0, t.rule], [0, 100], {...clamp, easing: Easing.out(Easing.cubic)});
+  const sign = interpolate(frame, [t.pen, t.pen + t.sign], [0, 1], {...clamp, easing: Easing.inOut(Easing.quad)});
+  const or = interpolate(frame, [t.or0, t.or1], [0, 1], clamp);
+  const stampS = interpolate(frame, [t.impact - t.drop, t.impact], [1.6, 1], {...clamp, easing: Easing.in(Easing.quad)});
+  const stampO = interpolate(frame, [t.impact - t.drop, t.impact - t.drop + 2], [0, 1], clamp);
   let sx = 0;
   let sy = 0;
-  if (frame >= INTRO_STAMP_IMPACT && frame < INTRO_STAMP_IMPACT + 8) {
-    const d = 1 - (frame - INTRO_STAMP_IMPACT) / 8;
+  if (frame >= t.impact && frame < t.impact + 8) {
+    const d = 1 - (frame - t.impact) / 8;
     sx = Math.sin(frame * 2.3) * 12 * d * u;
     sy = Math.cos(frame * 3.1) * 8 * d * u;
   }
-  const tag = interpolate(frame, [58, 70], [0, 1], clamp);
+  const tag = t.tag ? interpolate(frame, [58, 70], [0, 1], clamp) : 0;
   return (
     <AbsoluteFill style={{backgroundColor: C.paper, justifyContent: 'center', alignItems: 'center', transform: `translate(${sx}px, ${sy}px)`}}>
       <DashedRule top="27%" progress={rule} />
@@ -108,13 +122,65 @@ export const BrandIntro: React.FC = () => {
   );
 };
 
-/** End card (last seconds of a long video): lockup + banner lines; leaves room for YouTube end-screen elements. */
-export const EndCard: React.FC = () => {
+export type NextTeaser = {title: string; kicker?: string; verdict?: 'SIGNED' | 'PASSED'} | null | undefined;
+
+/** 'Next story' card on the end card (spec.nextTeaser, RETENTION-3): left half, the right half stays free for the
+ * YouTube end-screen video element. */
+const TeaserCard: React.FC<{teaser: NonNullable<NextTeaser>}> = ({teaser}) => {
+  const frame = useCurrentFrame();
+  const u = useUnit();
+  const portrait = usePortrait();
+  const p = interpolate(frame, [TRANSITION_FRAMES + 8, TRANSITION_FRAMES + 22], [0, 1], {...clamp, easing: Easing.out(Easing.back(1.4))});
+  const arrow = Math.sin(frame / 5) * 8 * u;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: portrait ? '8%' : '6%',
+        width: portrait ? '84%' : '46%',
+        top: portrait ? '52%' : '40%',
+        opacity: p,
+        transform: `translateX(${(1 - p) * -60 * u}px) rotate(${-1.2 * p}deg)`,
+        background: '#ffffff',
+        border: `${4 * u}px solid ${C.board}`,
+        boxShadow: `${12 * u}px ${12 * u}px 0 ${C.board}`,
+        padding: `${30 * u}px ${36 * u}px`,
+      }}
+    >
+      <div style={{fontFamily: FONT_MONO, fontWeight: 700, fontSize: 28 * u, letterSpacing: 4 * u, color: C.stamp}}>
+        {(teaser.kicker || 'NEXT STORY').toUpperCase()} <span style={{display: 'inline-block', transform: `translateX(${arrow}px)`}}>→</span>
+      </div>
+      <div style={{fontFamily: FONT_HEAD, fontWeight: 800, fontSize: 56 * u, lineHeight: 1.08, color: C.board, marginTop: 14 * u}}>{teaser.title}</div>
+      {teaser.verdict ? (
+        <div style={{marginTop: 18 * u}}>
+          <StampBox size={40 * u} text={teaser.verdict} colour={teaser.verdict === 'SIGNED' ? C.ink : C.stamp} />
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+/** End card (last 6 s of a long video): lockup + banner lines, optional 'next story' teaser (spec.nextTeaser);
+ * leaves room for YouTube end-screen elements. */
+export const EndCard: React.FC<{teaser?: NextTeaser}> = ({teaser}) => {
   const frame = useCurrentFrame();
   const u = useUnit();
   const portrait = usePortrait();
   const a = interpolate(frame, [TRANSITION_FRAMES, TRANSITION_FRAMES + 14], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
   const b = interpolate(frame, [TRANSITION_FRAMES + 10, TRANSITION_FRAMES + 24], [0, 1], clamp);
+  if (teaser && teaser.title) {
+    return (
+      <AbsoluteFill style={{backgroundColor: C.paper}}>
+        <DashedRule top="8%" />
+        <DashedRule top="92%" />
+        <div style={{position: 'absolute', top: portrait ? '14%' : '12%', left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', opacity: a, transform: `scale(${0.94 + 0.06 * a})`}}>
+          <LogoLockup size={(portrait ? 140 : 130) * u} vertical={portrait} />
+          <div style={{fontFamily: FONT_MONO, fontSize: 28 * u, color: C.board, marginTop: 10 * u, opacity: b}}>{ENDCARD_SUB}</div>
+        </div>
+        <TeaserCard teaser={teaser} />
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill style={{backgroundColor: C.paper, alignItems: 'center', justifyContent: 'center'}}>
       <DashedRule top="12%" />

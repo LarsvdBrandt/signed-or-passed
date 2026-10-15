@@ -24,7 +24,7 @@ import subprocess
 import urllib.parse
 
 import musicgen
-from common import (BRAND_INTRO_SFX, BRAND_OUTRO_SFX, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
+from common import (BRAND_OUTRO_SFX, COLD_OPEN_SFX, brand_intro_sfx, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
                     log, read_json, slug_arg, work_dir, write_json)
 from fetch_assets import download
 from retention import beat_sfx_events
@@ -227,10 +227,14 @@ def sfx_events(timing, cues=None):
             if not cue.get("sfx"):
                 continue
             events.append((cue["sfx"], sc["start"] + float(cue.get("atSec") or 0.0), float(cue.get("gainDb") or 0.0)))
+        if sc.get("coldOpen"):
+            for name, anchor, off, gain in COLD_OPEN_SFX:
+                events.append((name, (sc["start"] if anchor == "start" else sc["end"]) + off, gain))
     intro = float(timing.get("introSec") or 0)
+    intro_at = float(timing.get("introAtSec") or 0)
     outro = float(timing.get("outroSec") or 0)
     if intro > 0:
-        events += [(n, off, 0.0) for n, off in BRAND_INTRO_SFX if off < intro]
+        events += [(n, intro_at + off, 0.0) for n, off in brand_intro_sfx(intro) if off < intro]
     if outro > 0:
         events += [(n, total - outro + off, 0.0) for n, off in BRAND_OUTRO_SFX]
     return [(n, max(0.0, t), g) for n, t, g in events if t < total]

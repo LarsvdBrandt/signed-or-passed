@@ -27,6 +27,8 @@ export type Scene = {
   beats?: Beat[];
   /** false = no auto beats for this scene */
   autoBeats?: boolean;
+  /** cold open / flash-forward (RETENTION-3): true | {style, label, rampSec, desaturate, flash} */
+  coldOpen?: any;
   startFrame: number;
   durationFrames: number;
   sentences: Sentence[];
@@ -55,8 +57,12 @@ export type VideoProps = {
   width: number;
   height: number;
   totalFrames: number;
-  /** Brand intro sting length (frames) before the first scene; 0 = none. */
+  /** Brand sting length (frames); 0 = none. */
   introFrames?: number;
+  /** Frame where the sting starts (RETENTION-3: right after the hook); 0 = before the first scene. */
+  introAtFrame?: number;
+  /** 'Next story' teaser on the end card (spec.nextTeaser). */
+  nextTeaser?: {title: string; kicker?: string; verdict?: 'SIGNED' | 'PASSED'} | null;
   /** End card length (frames) after the last scene; 0 = none. */
   outroFrames?: number;
   scenes: Scene[];

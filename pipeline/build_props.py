@@ -69,6 +69,8 @@ def main():
             "height": h,
             "totalFrames": max(1, frame(timing["totalSec"])),
             "introFrames": frame(float(timing.get("introSec") or 0)),
+            "introAtFrame": frame(float(timing.get("introAtSec") or 0)),
+            "nextTeaser": (spec.get("nextTeaser") or None) if float(timing.get("outroSec") or 0) > 0 else None,
             "outroFrames": frame(float(timing.get("outroSec") or 0)),
             "scenes": scenes,
             "words": [{"text": x["text"], "startFrame": frame(x["start"]), "endFrame": frame(x["end"])} for x in words],
@@ -86,7 +88,7 @@ def main():
         log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), theme {theme}, "
             f"look {look if isinstance(look, str) else ('custom' if look else 'none')}, {n_fx} scenes with effects, "
             f"transition {tr_name} ({n_tr} scene overrides), {n_lt} lower thirds, captions {caption_style or 'theme'}, "
-            f"intro {props['introFrames']} / outro {props['outroFrames']} frames, {len(beat_log)} beats "
+            f"sting {props['introFrames']} at {props['introAtFrame']} / outro {props['outroFrames']} frames, {len(beat_log)} beats "
             f"(auto {'on' if auto_beats else 'off'}), {len(props['keywords'])} keywords (captions.long {captions['long']})")
 
 

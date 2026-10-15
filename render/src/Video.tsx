@@ -26,6 +26,7 @@ import {TransitionLayer, resolveTransition, type ResolvedTransition} from './tra
 import {isParallax} from './transitions/parallax';
 import {BeatCamera, BeatOverlays, swapsOf} from './retention/beats';
 import {KeywordLayer} from './retention/keywords';
+import {COLD_OPEN_FLASH_FRAMES, COLD_OPEN_FLASH_LEAD, ColdOpenFlash, ColdOpenLayer, coldOpenOf} from './retention/coldopen';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
   const v = scene.visual || {};
@@ -148,11 +149,13 @@ const SceneFrame: React.FC<{scene: Scene; prev?: Scene; enter: ResolvedTransitio
   <TransitionLayer enter={enter} exit={exit} exitAt={scene.durationFrames} seed={scene.id}>
     <EffectsStack effects={resolveEffects(ctx.look, scene.effects)} seed={scene.id} duration={scene.durationFrames}>
       <AbsoluteFill style={themeContentStyle()}>
-        <BeatCamera scene={scene} ctx={ctx}>
-          <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
-            <SwappableContent scene={scene} prev={prev} ctx={ctx} />
-          </Camera>
-        </BeatCamera>
+        <ColdOpenLayer cfg={coldOpenOf(scene, ctx.fps || 30)} duration={scene.durationFrames}>
+          <BeatCamera scene={scene} ctx={ctx}>
+            <Camera motion={scene.kind === 'illustration' && isParallax(motionOf(scene.motion).type) ? null : scene.motion} duration={scene.durationFrames}>
+              <SwappableContent scene={scene} prev={prev} ctx={ctx} />
+            </Camera>
+          </BeatCamera>
+        </ColdOpenLayer>
         <BeatOverlays scene={scene} />
         {scene.lowerThird ? <LowerThird lt={scene.lowerThird} duration={scene.durationFrames} /> : null}
       </AbsoluteFill>
@@ -166,28 +169,36 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
   const fps = props.fps || 30;
   const scenes = props.scenes || [];
   const intro = Math.max(0, Math.round(props.introFrames || 0));
+  // RETENTION-3: the sting starts at introAtFrame (right after the hook); 0 = before the first scene (legacy props)
+  const introAt = intro > 0 ? Math.max(0, Math.round(props.introAtFrame || 0)) : 0;
+  const introEnd = introAt + intro;
   const outro = Math.max(0, Math.round(props.outroFrames || 0));
   const lastScene = scenes[scenes.length - 1];
-  const lastEnd = lastScene ? lastScene.startFrame + lastScene.durationFrames : intro;
+  const lastEnd = lastScene ? lastScene.startFrame + lastScene.durationFrames : introEnd;
   const total = Math.max(1, Math.round(props.totalFrames || lastEnd + outro));
   const outroStart = Math.max(0, Math.min(lastEnd, total - 1));
-  const inBody = frame >= intro && frame < lastEnd;
-  // the transition INTO each scene (none for the very first scene when there is no intro)
-  const enters: Array<ResolvedTransition | null> = scenes.map((sc, i) => (i > 0 || intro > 0 ? resolveTransition(sc.transition, props.transition, fps) : null));
-  const firstEnter = enters[0];
+  const firstStart = scenes.length ? scenes[0].startFrame : 0;
+  const inSting = intro > 0 && frame >= introAt && frame < introEnd;
+  const inBody = frame >= firstStart && frame < lastEnd && !inSting;
+  // the scene that ends where the sting starts (hard cut into the sting), and the one that enters over it
+  const beforeSting = intro > 0 && introAt > 0 ? scenes.findIndex((sc) => sc.startFrame + sc.durationFrames >= introAt) : -1;
+  const afterSting = intro > 0 ? (introAt > 0 ? beforeSting + 1 : 0) : -1;
+  // the transition INTO each scene (none for the very first scene when no sting precedes it)
+  const enters: Array<ResolvedTransition | null> = scenes.map((sc, i) => (i > 0 || afterSting === 0 ? resolveTransition(sc.transition, props.transition, fps) : null));
+  const stingEnter = afterSting >= 0 && afterSting < scenes.length ? enters[afterSting] : null;
   return (
     <AbsoluteFill style={{backgroundColor: C.paper}}>
       <ThemeDefs />
       {intro > 0 ? (
-        <Sequence name="brand-intro" from={0} durationInFrames={intro + (firstEnter ? firstEnter.frames : TRANSITION_FRAMES)}>
-          <BrandIntro />
+        <Sequence name="brand-intro" from={introAt} durationInFrames={intro + (stingEnter ? stingEnter.frames : TRANSITION_FRAMES)}>
+          <BrandIntro frames={intro} />
         </Sequence>
       ) : null}
       {scenes.map((sc, i) => {
         const last = i === scenes.length - 1;
-        const next = !last ? enters[i + 1] : null;
+        const next = !last && i !== beforeSting ? enters[i + 1] : null;
         // the outgoing scene stays visible under the next scene's transition
-        const extra = next ? next.frames : outro > 0 ? TRANSITION_FRAMES : 0;
+        const extra = i === beforeSting ? 0 : next ? next.frames : outro > 0 ? TRANSITION_FRAMES : 0;
         return (
           <Sequence key={sc.id} name={`${sc.kind}:${sc.id}`} from={sc.startFrame} durationInFrames={sc.durationFrames + extra}>
             <SceneFrame scene={sc} prev={scenes[i - 1]} enter={enters[i]} exit={next} ctx={props} />
@@ -197,10 +208,20 @@ export const VideoMain: React.FC<VideoProps> = (props) => {
       {outro > 0 ? (
         <Sequence name="end-card" from={outroStart} durationInFrames={Math.max(1, total - outroStart)}>
           <PaperSheet slide>
-            <EndCard />
+            <EndCard teaser={props.nextTeaser} />
           </PaperSheet>
         </Sequence>
       ) : null}
+      {scenes.map((sc) => {
+        const co = coldOpenOf(sc, fps);
+        if (!co || !co.flash) return null;
+        const end = sc.startFrame + sc.durationFrames;
+        return (
+          <Sequence key={`flash-${sc.id}`} name={`cold-open-flash:${sc.id}`} from={Math.max(0, end - COLD_OPEN_FLASH_LEAD)} durationInFrames={COLD_OPEN_FLASH_FRAMES}>
+            <ColdOpenFlash />
+          </Sequence>
+        );
+      })}
       <ThemeOverlay />
       {inBody ? <DateTag scenes={scenes} /> : null}
       {inBody ? <Watermark /> : null}

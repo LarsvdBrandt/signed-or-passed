@@ -25,6 +25,11 @@ def main():
             errors.append(f"slug '{spec['slug']}' does not match folder '{args.slug}'")
         source_ids = {s["id"] for s in spec.get("sources") or []}
         asset_ids = {a["id"] for a in spec.get("assets") or []}
+        bi = spec.get("brandIntro")
+        if isinstance(bi, dict) and bi.get("after"):
+            main_ids = {sc["id"] for sc in spec.get("scenes") or []}
+            if bi["after"] not in main_ids:
+                errors.append(f"brandIntro.after: no scene '{bi['after']}' in the main video")
         for cut in cuts(spec):
             seen = set()
             for sc in cut["scenes"]:
