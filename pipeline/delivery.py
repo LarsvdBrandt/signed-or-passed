@@ -25,8 +25,9 @@ identical, and the result is reproducible for the same spec.
 
 VOICE-8 channel tuning (Lars 2026-10-15: "more emotion, more human, slightly slower"): the table above is the BASE;
 tts.py's Chatterbox engine adds CHANNEL_TUNING on top unless spec.voice overrides it: exaggeration +0.15 (cap 1.0),
-cfg_weight -0.10 (floor 0.25) = more expressive, more deliberate pacing (Chatterbox's own guidance), a global pace of
-0.94 (pitch-preserving time-stretch after generation), sentence gaps and style pauses x1.15 and a 0.25 s punch beat.
+cfg_weight -0.10 (floor 0.25) = more expressive, more deliberate pacing (Chatterbox's own guidance), sentence gaps
+and style pauses x1.15 and a 0.25 s punch beat. VOICE-10a: NO time-stretch (pace 1.0; the style speed factors above
+apply to Kokoro/Piper only, Chatterbox is never stretched).
 Target: 145-155 spoken words per minute (tts.py reports the measured wpm).
 """
 import hashlib
@@ -48,7 +49,9 @@ STYLE_NAMES = tuple(STYLES)
 TAG_RE = re.compile(r"\[\s*(" + "|".join(STYLE_NAMES) + r")\s*\]\s*", re.I)
 PUNCH_PAUSE_SEC = 0.25
 # VOICE-8 channel defaults for engine chatterbox (spec.voice.exaggerationOffset / cfgOffset / pace / pauseScale)
-CHANNEL_TUNING = {"exaggerationOffset": 0.15, "cfgOffset": -0.10, "pace": 0.94, "pauseScale": 1.15}
+# VOICE-10a (Lars 2026-10-15 19:20 "worse, more static"): no time-stretch any more: pace 1.0 (an explicit
+# spec.voice.pace is clamped to 0.97-1.0); "slightly slower" comes from pauses (pauseScale) and cfg_weight only.
+CHANNEL_TUNING = {"exaggerationOffset": 0.15, "cfgOffset": -0.10, "pace": 1.0, "pauseScale": 1.15}
 CFG_FLOOR = 0.25
 
 BIG_RE = re.compile(
