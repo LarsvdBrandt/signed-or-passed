@@ -43,7 +43,10 @@ if [ -n "${GITHUB_ACTIONS:-}" ]; then
   shopt -s nullglob
   files=("$OUT"/video.mp4 "$OUT"/short-*.mp4 "$OUT"/preview*.mp4 "$OUT"/sound-board.mp4 "$OUT"/sfx-library.zip "$OUT"/music-board.mp4 "$OUT"/music-library.zip "$OUT"/voice-samples.mp4 "$OUT"/voice-samples.zip "$OUT"/thumbnail.png "$OUT"/captions.srt "$OUT"/short-*.srt "$OUT"/metadata.json "$OUT"/render-report.json)
   shopt -u nullglob
-  $S "release:$slug" bash ci/release.sh "$tag" "$slug" "${files[@]}"
+  # nullglob only drops unmatched WILDCARD patterns: literal paths (sound-board.mp4 etc., now rendered by the
+  # library workflow) stayed in the list and made 'gh release upload' fail. Keep only files that exist.
+  existing=(); for f in "${files[@]}"; do if [ -f "$f" ]; then existing+=("$f"); fi; done
+  $S "release:$slug" bash ci/release.sh "$tag" "$slug" "${existing[@]}"
 fi
 
 $S "qa-gate:$slug" python pipeline/qa.py --slug "$slug" --gate

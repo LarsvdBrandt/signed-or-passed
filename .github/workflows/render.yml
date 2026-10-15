@@ -6,6 +6,7 @@ on:
     paths:
       - 'productions/**/spec.json'
       - 'ci/trigger.txt'
+      - 'ci/rerender.txt'
   workflow_dispatch:
     inputs:
       slug:
@@ -56,6 +57,13 @@ jobs:
             echo "$changed"
             slugs=$(echo "$changed" | grep -E '^productions/[^/]+/spec\.json$' | cut -d/ -f2 || true)
             if echo "$changed" | grep -qx 'ci/trigger.txt'; then slugs="$slugs 0000-sample"; fi
+            # Factory re-render without touching a production's files: every line '<slug>' (after an optional
+            # timestamp, '#' starts a comment) of ci/rerender.txt whose productions/<slug>/spec.json exists
+            if echo "$changed" | grep -qx 'ci/rerender.txt'; then
+              for s in $(sed 's/#.*//' ci/rerender.txt | grep -Eo '[a-z0-9][a-z0-9-]*[a-z0-9]' || true); do
+                if [ -f "productions/$s/spec.json" ]; then echo "Re-render requested: $s"; slugs="$slugs $s"; fi
+              done
+            fi
             # Catch up on renders that were lost because a newer push replaced a pending run
             # (concurrency keeps only one pending run): every real production whose spec.json
             # was committed after its render-report.json (or that has none yet) is rendered too.

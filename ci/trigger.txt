@@ -1,1 +1,1 @@
-iteration 38 · 2026-10-15T08:20:00Z · first run of the per-production matrix workflow: sample re-verify (true-peak limiter, dead-air QA, release update in place) + catch-up of 2026-10-15-blockbuster-passes-on-netflix (no release yet)
+2026-10-15T08:36:44Z
