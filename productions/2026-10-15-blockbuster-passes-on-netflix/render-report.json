@@ -2,7 +2,7 @@
   "ok": false,
   "slug": "2026-10-15-blockbuster-passes-on-netflix",
   "test": false,
-  "generatedAt": "2026-10-15T15:07:27+00:00",
+  "generatedAt": "2026-10-15T15:56:26+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,12 +17,12 @@
     {
       "name": "video.mp4: duration 480-720s",
       "ok": true,
-      "detail": "526.2s"
+      "detail": "557.1s"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 526.20s vs timing 526.20s"
+      "detail": "video 557.07s vs timing 557.07s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -32,7 +32,7 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.0 dBTP"
+      "detail": "-1.5 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -42,7 +42,7 @@
     {
       "name": "video.mp4: visual changes/min >= 20",
       "ok": true,
-      "detail": "22.1 changes/min (measured), 0.9 planned beats/min, 16.5 sfx/min",
+      "detail": "21.2 changes/min (measured), 0.9 planned beats/min, 15.6 sfx/min",
       "level": "warn"
     },
     {
@@ -53,23 +53,23 @@
     {
       "name": "video.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "2.5s at 54.0s"
+      "detail": "2.2s at 57.0s"
     },
     {
       "name": "video.mp4: brand sting after the hook",
       "ok": true,
-      "detail": "sting at 2.3s"
+      "detail": "sting at 2.7s"
     },
     {
       "name": "video.mp4: on-screen number/keyword in the first 8 s",
       "ok": true,
-      "detail": "kinetic-text m001@0.0s, counter m002@3.5s, kinetic-text m003@6.5s",
+      "detail": "kinetic-text m001@0.0s, counter m002@3.9s, kinetic-text m003@6.9s",
       "level": "warn"
     },
     {
       "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
-      "ok": false,
-      "detail": "-32.0 dB at 228.4s",
+      "ok": true,
+      "detail": "-91.0 dB at 240.6s",
       "level": "warn"
     },
     {
@@ -84,23 +84,23 @@
     },
     {
       "name": "short-short-1.mp4: duration 45-60s",
-      "ok": false,
-      "detail": "43.7s"
+      "ok": true,
+      "detail": "48.2s"
     },
     {
       "name": "short-short-1.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 43.73s vs timing 43.73s"
+      "detail": "video 48.23s vs timing 48.23s"
     },
     {
       "name": "short-short-1.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.4 LUFS"
+      "detail": "-14.3 LUFS"
     },
     {
       "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.8 dBTP"
+      "detail": "-2.9 dBTP"
     },
     {
       "name": "short-short-1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -110,7 +110,7 @@
     {
       "name": "short-short-1.mp4: visual changes/min >= 20",
       "ok": true,
-      "detail": "20.6 changes/min (measured), 0.0 planned beats/min, 24.7 sfx/min",
+      "detail": "24.9 changes/min (measured), 0.0 planned beats/min, 22.4 sfx/min",
       "level": "warn"
     },
     {
@@ -121,7 +121,7 @@
     {
       "name": "short-short-1.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "1.0s at 21.5s"
+      "detail": "0.8s at 19.2s"
     },
     {
       "name": "short-short-1.mp4: on-screen number/keyword in the first 8 s",
@@ -132,7 +132,7 @@
     {
       "name": "short-short-1.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 20.0s",
+      "detail": "-91.0 dB at 24.6s",
       "level": "warn"
     },
     {
@@ -148,12 +148,12 @@
     {
       "name": "short-short-2.mp4: duration 45-60s",
       "ok": true,
-      "detail": "48.0s"
+      "detail": "51.4s"
     },
     {
       "name": "short-short-2.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 47.97s vs timing 47.97s"
+      "detail": "video 51.43s vs timing 51.43s"
     },
     {
       "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
@@ -172,8 +172,8 @@
     },
     {
       "name": "short-short-2.mp4: visual changes/min >= 20",
-      "ok": false,
-      "detail": "17.5 changes/min (measured), 0.0 planned beats/min, 21.3 sfx/min",
+      "ok": true,
+      "detail": "28.0 changes/min (measured), 0.0 planned beats/min, 19.8 sfx/min",
       "level": "warn"
     },
     {
@@ -195,7 +195,7 @@
     {
       "name": "short-short-2.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 24.9s",
+      "detail": "-91.0 dB at 26.7s",
       "level": "warn"
     },
     {
@@ -226,12 +226,12 @@
     {
       "name": "voice: ASR word error rate <= 8 %",
       "ok": true,
-      "detail": "5.3 % (base.en, 1365 words)"
+      "detail": "3.0 % (base.en, 1205 words)"
     },
     {
       "name": "voice: no sentence with WER > 30 %",
       "ok": false,
-      "detail": "0.67 'A retail lifer.' heard 'A retail life-er.'; 0.33 'DVDs by mail.' heard 'TvT's by mail.'; 1.50 '[pause, 1] Blockbuster passed.' heard 'Pause 1 Blockbuster Past.'; 0.67 'And Reed Hastings?' heard 'and retastings.'; 0.33 'And no deal.' heard 'and a no deal.'; 0.40 'The offering alone raises eighty-two and a half million.' heard 'The offering alone raises $82.5 million.'; 0.50 'Nineteen dollars ninety-five a month.' heard '$19.95 a month.'; 0.36 'His old contract would have paid thirteen and a half million.' heard 'His old contract would have paid $13.5 million.'; 0.50 'Twenty-third of September, two thousand and ten.' heard '23rd of September 2010.'; 0.33 'In Bend, Oregon.' heard 'and Bend, Oregon.'; 0.67 '[pause, 0.8] Blockbuster said no.' heard 'Pause, derhoutit, Blockbuster said, no.'; 0.50 'Blockbuster passed.' heard 'Blockbuster past.'; 1.00 '[pause, 0.8] Nobody can prove it.' he"
+      "detail": "0.50 'And Blockbuster said no.' heard 'and Brock Buster said no.'; 0.33 'What was said.' heard 'What was sad?'; 0.40 'So you're in Antioco's chair.' heard 'So, you're an Antiochos chair.'; 0.67 'No store rent.' heard 'No storefront.'; 0.33 'And Reed Hastings?' heard 'and read Hastings.'; 0.50 'So did one no in Dallas kill Blockbuster?' heard 'SOTED 1-NO-EN-DALLUS-KILL-BLOCKBUSTER? //'; 0.50 'Blockbuster passed.' heard 'Blockbuster Past.'"
     },
     {
       "name": "voice: no Kokoro fallback sentences",
@@ -240,15 +240,21 @@
       "level": "warn"
     },
     {
+      "name": "voice: pace 145-155 words/min",
+      "ok": false,
+      "detail": "169.8 wpm (articulation 179.5, pace 0.88, pauses x1.15)",
+      "level": "warn"
+    },
+    {
       "name": "voice: liveliness (F0 std, semitones)",
       "ok": true,
-      "detail": "5.45 st (per minute [5.61, 5.54, 5.17, 5.38, 5.5, 5.14, 5.19, 5.64, 5.86])",
+      "detail": "5.6 st (per minute [5.37, 5.68, 5.39, 5.96, 5.28, 5.6, 5.71, 5.72, 5.6, 5.72])",
       "level": "info"
     },
     {
       "name": "description: >= 3 chapters",
       "ok": true,
-      "detail": "13 chapters"
+      "detail": "14 chapters"
     },
     {
       "name": "description: synthetic voice disclosed",
@@ -257,31 +263,31 @@
     }
   ],
   "durations": {
-    "main": 526.2,
-    "short-short-1": 43.73,
-    "short-short-2": 47.97
+    "main": 557.07,
+    "short-short-1": 48.23,
+    "short-short-2": 51.43
   },
   "audio": {
     "video.mp4": {
-      "lufs": -14.3,
-      "truePeakDb": -2.05,
-      "lra": 3.2,
+      "lufs": -14.27,
+      "truePeakDb": -1.53,
+      "lra": 2.9,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-1.mp4": {
-      "lufs": -14.37,
-      "truePeakDb": -2.79,
-      "lra": 3.4,
+      "lufs": -14.32,
+      "truePeakDb": -2.9,
+      "lra": 3.7,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-2.mp4": {
-      "lufs": -14.31,
+      "lufs": -14.28,
       "truePeakDb": -2.82,
-      "lra": 2.6,
+      "lra": 2.9,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
@@ -292,34 +298,34 @@
       "beats": 8,
       "beatsPerMin": 0.9,
       "sfx": 145,
-      "sfxPerMin": 16.5,
+      "sfxPerMin": 15.6,
       "firstVisualChangeSec": 0.25,
-      "visualChanges": 194,
-      "visualChangesPerMin": 22.1,
-      "longestStaticSec": 2.5,
-      "longestStaticAtSec": 54.0,
-      "revealSilenceDb": -32.0
+      "visualChanges": 197,
+      "visualChangesPerMin": 21.2,
+      "longestStaticSec": 2.25,
+      "longestStaticAtSec": 57.0,
+      "revealSilenceDb": -91.0
     },
     "short-short-1": {
       "beats": 0,
       "beatsPerMin": 0.0,
       "sfx": 18,
-      "sfxPerMin": 24.7,
+      "sfxPerMin": 22.4,
       "firstVisualChangeSec": 0.25,
-      "visualChanges": 15,
-      "visualChangesPerMin": 20.6,
-      "longestStaticSec": 1.0,
-      "longestStaticAtSec": 21.5,
+      "visualChanges": 20,
+      "visualChangesPerMin": 24.9,
+      "longestStaticSec": 0.75,
+      "longestStaticAtSec": 19.25,
       "revealSilenceDb": -91.0
     },
     "short-short-2": {
       "beats": 0,
       "beatsPerMin": 0.0,
       "sfx": 17,
-      "sfxPerMin": 21.3,
+      "sfxPerMin": 19.8,
       "firstVisualChangeSec": 0.25,
-      "visualChanges": 14,
-      "visualChangesPerMin": 17.5,
+      "visualChanges": 24,
+      "visualChangesPerMin": 28.0,
       "longestStaticSec": 0.0,
       "longestStaticAtSec": null,
       "revealSilenceDb": -91.0
@@ -329,101 +335,86 @@
     "engine": "chatterbox",
     "reference": "default",
     "clips": 240,
-    "clipWer": 0.0624,
-    "retried": 22,
+    "exaggerationOffset": 0.15,
+    "cfgOffset": -0.1,
+    "clipWer": 0.0347,
+    "retried": 8,
     "badSentences": [
       {
-        "text": "A retail lifer.",
-        "wer": 0.667,
-        "asr": "A retail life-er."
+        "text": "And Blockbuster said no.",
+        "wer": 0.5,
+        "asr": "and Brock Buster said no."
       },
       {
-        "text": "DVDs by mail.",
+        "text": "What was said.",
         "wer": 0.333,
-        "asr": "TvT's by mail."
+        "asr": "What was sad?"
       },
       {
-        "text": "[pause, 1] Blockbuster passed.",
-        "wer": 1.5,
-        "asr": "Pause 1 Blockbuster Past."
+        "text": "So you're in Antioco's chair.",
+        "wer": 0.4,
+        "asr": "So, you're an Antiochos chair."
+      },
+      {
+        "text": "No store rent.",
+        "wer": 0.667,
+        "asr": "No storefront."
       },
       {
         "text": "And Reed Hastings?",
-        "wer": 0.667,
-        "asr": "and retastings."
-      },
-      {
-        "text": "And no deal.",
         "wer": 0.333,
-        "asr": "and a no deal."
+        "asr": "and read Hastings."
       },
       {
-        "text": "The offering alone raises eighty-two and a half million.",
-        "wer": 0.4,
-        "asr": "The offering alone raises $82.5 million."
-      },
-      {
-        "text": "Nineteen dollars ninety-five a month.",
+        "text": "So did one no in Dallas kill Blockbuster?",
         "wer": 0.5,
-        "asr": "$19.95 a month."
-      },
-      {
-        "text": "His old contract would have paid thirteen and a half million.",
-        "wer": 0.364,
-        "asr": "His old contract would have paid $13.5 million."
-      },
-      {
-        "text": "Twenty-third of September, two thousand and ten.",
-        "wer": 0.5,
-        "asr": "23rd of September 2010."
-      },
-      {
-        "text": "In Bend, Oregon.",
-        "wer": 0.333,
-        "asr": "and Bend, Oregon."
-      },
-      {
-        "text": "[pause, 0.8] Blockbuster said no.",
-        "wer": 0.667,
-        "asr": "Pause, derhoutit, Blockbuster said, no."
+        "asr": "SOTED 1-NO-EN-DALLUS-KILL-BLOCKBUSTER? //"
       },
       {
         "text": "Blockbuster passed.",
         "wer": 0.5,
-        "asr": "Blockbuster past."
-      },
-      {
-        "text": "[pause, 0.8] Nobody can prove it.",
-        "wer": 1.0,
-        "asr": "Cause 0.8. Nobody can prove it."
-      },
-      {
-        "text": "A meeting in Dallas.",
-        "wer": 0.5,
-        "asr": "I'm eating in Dallas."
+        "asr": "Blockbuster Past."
       }
     ],
     "fallbackSentences": [],
-    "wer": 0.0527,
+    "pace": {
+      "words": 1339,
+      "speechSec": 473.1,
+      "wpm": 169.8,
+      "articulationWpm": 179.5,
+      "pace": 0.88,
+      "pauseScale": 1.15,
+      "targetWpm": [
+        145.0,
+        155.0
+      ],
+      "paceDefault": 0.94,
+      "calibratedWpm": 169.8,
+      "tempoFilter": {
+        "rubberband": 645
+      }
+    },
+    "wer": 0.0299,
     "asrModel": "base.en",
-    "words": 1365,
+    "words": 1205,
     "liveliness": {
       "metric": "std of F0 in semitones (librosa.pyin)",
-      "overall": 5.46,
+      "overall": 5.63,
       "perMinute": [
-        5.61,
-        5.54,
-        5.17,
-        5.38,
-        5.5,
-        5.14,
-        5.19,
-        5.64,
-        5.86
+        5.37,
+        5.68,
+        5.39,
+        5.96,
+        5.28,
+        5.6,
+        5.71,
+        5.72,
+        5.6,
+        5.72
       ],
-      "mean": 5.45
+      "mean": 5.6
     },
-    "seconds": 526.2
+    "seconds": 557.1
   },
   "warnings": []
 }
