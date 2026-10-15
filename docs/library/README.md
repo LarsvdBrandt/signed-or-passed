@@ -30,6 +30,7 @@ separately from production renders.
 | Infographics | kind `infographic` | `render/src/infographics` | `preview-infographics.mp4` | [infographics.md](infographics.md) |
 | Typography | kinds `kinetic-text`, `chapter`; `scenes[].lowerThird`; `captionStyle` | `render/src/typography` | `preview-typography.mp4` | [typography.md](typography.md) |
 | Scene templates | kind `template` | `render/src/templates` | `preview-templates.mp4` | [templates.md](templates.md) |
+| Retention (beats, auto beats, **emphasis**, kinetic keywords, beat sounds, pace) | `scenes[].beats`, `autoBeats`, `captions`, `sfxDensity`, `**word**` in narration | `render/src/retention/`, `pipeline/retention.py` | sample render (release `sample`) | [retention.md](retention.md) |
 | Showcase | - | `render/src/compositions/LibraryReel.tsx` | `library-reel.mp4` | this file |
 
 ## Audio library

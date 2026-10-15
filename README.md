@@ -2,7 +2,7 @@
 
 Turns `productions/<slug>/spec.json` into a finished YouTube video (MP4 + Shorts + thumbnail + captions + metadata)
 on free GitHub-hosted runners. Everything is open source: **Remotion** (React video), **Kokoro** TTS (voice
-`bm_george`, default speed 1.1; licence-checked **Piper** voices for other languages), **ffmpeg** + numpy (sound
+`bm_george`, default speed 1.15; licence-checked **Piper** voices for other languages), **ffmpeg** + numpy (sound
 effects, generated music, mix, loudness). No paid APIs, no API keys.
 
 ## How it works
@@ -59,7 +59,7 @@ committed (`ci/runs/<slug>.json`): a lost render is caught up automatically, a f
 | `brand/` | palette, fonts (URLs, OFL), music licences (`music/licenses.csv`), recorded sound manifest (`sfx/manifest.csv`), voice catalogue (`voices.json`) |
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
-| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library; `musicgen.py` = generated music; `voice_samples.py` = voice board |
+| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library; `musicgen.py` = generated music; `voice_samples.py` = voice board; `retention.py` = beats, keywords, beat sounds |
 | `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `EffectsPreview`, `TransitionPreview`, `InfographicPreview`, `TypographyPreview`, `TemplatePreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
@@ -71,6 +71,7 @@ committed (`ci/runs/<slug>.json`): a lost render is caught up automatically, a f
 | `render/src/infographics/` | animated infographics (scene kind `infographic`, see Infographics) |
 | `render/src/typography/` | kinetic text presets, lower thirds, chapter cards, Shorts caption styles (see Typography) |
 | `render/src/templates/` | era-aware scene templates (scene kind `template`, see Scene templates) |
+| `render/src/retention/` | visual beats, auto camera beats, kinetic keywords (see Retention) |
 | `render/src/geo/` | shared Natural Earth helpers (country lookup, region boxes) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
 | `render/src/themes/` | theme engine and presets (see Themes) |
@@ -224,7 +225,7 @@ No faces, no logos, company names as typography only.
 
 Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
 is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec`, `dateTag`,
-`lowerThird` and `voiceSpeed`.
+`lowerThird`, `voiceSpeed`, `beats` and `autoBeats`.
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
@@ -251,11 +252,20 @@ Every component has an entrance animation (via `enter`) and small idle animation
   FlipCalendar (`pages[]`, `label` = month), Hourglass (`seconds`)
 - Backdrops: CityBackdrop, OfficeBackdrop, BoardroomBackdrop (+ the era backdrops above)
 
+## Retention: beats, keywords, pace (docs/library/retention.md)
+Something changes on screen every 2-3 s: `scenes[].beats` (punch-in/out, shake, whip, flash, kinetic text, pop-in
+illustration, counter, swap of the visual) at a second or at a spoken word; scenes without beats get subtle **auto
+camera beats** every 2.5 s (`autoBeats: false` turns them off). `**word**` in a narration = emphasis: shown as a big
+kinetic keyword on the word. `spec.captions.long` = `keywords` (default: emphasis + numbers, amounts and years as big
+text) | `full` (word-by-word captions) | `off`. Beats get automatic sounds under the voice (`spec.sfxDensity`
+low|mid|high, default mid).
+
 ## Timing
-Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.35 s, 0.25 s between
-sentences, 0.45 s tail; question scenes add `holdSec` (3-2-1 countdown); verdict scenes last at least 2.8 s;
-`minDurationSec` extends a scene (use it for map, city, growth, photo-wall, document and infographic scenes). Each new
-scene slides in like a sheet of paper (12 frames) unless a `transition` is set.
+Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.2 s (first scene
+0.3 s), 0.25 s between sentences, 0.15 s tail (0.35 s between scenes); question scenes add `holdSec` (3-2-1
+countdown); verdict scenes last at least 2.8 s; `minDurationSec` extends a scene (use it for map, city, growth,
+photo-wall, document and infographic scenes). Each new scene slides in like a sheet of paper (12 frames) unless a
+`transition` is set. `[pause 0.6]` (or `[PAUSE]` = 0.5 s) adds a deliberate pause.
 
 ## QA (render-report.json)
 Duration (long 8-12 min, short 45-60 s; `0000-*` test productions are exempt), resolution, audio present,
@@ -283,9 +293,9 @@ recordings of `brand/music/manifest.csv`. `source: none` renders without music. 
 `spec.voice = {engine, voice, speaker?, speed?}`. Engines: `kokoro` (default, Apache-2.0, English + es/fr/hi/it/pt)
 and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.
 `nl_BE-rdh-medium`, `nl_NL-alex-medium`, `nl_NL-mls-medium`, `en_US-ljspeech-high`; CC BY voices are credited in the
-description). `[pause 0.5]` in a narration inserts 0.5 s of silence (not spoken, not in captions);
-`scenes[].voiceSpeed` (0.5-2.0) overrides the speed for one scene. Catalogue and licence rule:
-`docs/library/voices.md`; listen in `voice-samples.mp4`.
+description). `[pause 0.5]` in a narration inserts 0.5 s of silence (`[PAUSE]` = 0.5 s; not spoken, not in
+captions); `**word**` marks an emphasised word (see Retention); `scenes[].voiceSpeed` (0.5-2.0) overrides the speed
+for one scene. Catalogue and licence rule: `docs/library/voices.md`; listen in `voice-samples.mp4`.
 
 ## Local use
 `make install`, `make render SLUG=0000-sample`, `make studio` (Remotion Studio with the Preview composition).

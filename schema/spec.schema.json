@@ -24,6 +24,9 @@
       ]
     },
     "transition": {"$ref": "#/$defs/transition", "description": "default transition into every scene (render/src/transitions, docs/library/effects.md); omit for the house paper-slide"},
+    "captions": {"type": "object", "description": "long-form captions (docs/library/retention.md); Shorts keep their word-by-word captions", "properties": {"long": {"enum": ["keywords", "full", "off"], "description": "keywords (default): numbers, amounts, years and **emphasis** as big kinetic text; full: word-by-word captions; off"}, "style": {"type": ["string", "null"], "description": "keywords: stamp | ink | board (default: stamp for emphasis, board for numbers); full: a captionStyle"}}, "additionalProperties": false},
+    "autoBeats": {"type": "boolean", "description": "auto camera beats for scenes without beats (default true)"},
+    "sfxDensity": {"enum": ["low", "mid", "high"], "description": "automatic beat sounds (whoosh on punch/whip, pop on kinetic/pop/emphasis, tick on counters), well under the voice; default mid (docs/library/retention.md)"},
     "captionStyle": {
       "enum": ["bold-pop", "karaoke-highlight", "boxed", "minimal", null],
       "description": "burned-in Shorts captions (render/src/typography/captions.tsx, docs/library/typography.md); omit for the theme's own caption style"
@@ -36,7 +39,7 @@
         "engine": {"enum": ["kokoro", "piper"]},
         "voice": {"type": "string", "description": "kokoro: a Kokoro v1.0 voice id (bm_george, af_heart, ef_dora ...); piper: a voice id listed in brand/voices.json (nl_BE-rdh-medium ...)"},
         "speaker": {"type": "integer", "minimum": 0, "description": "piper multi-speaker voices only (nl_NL-mls-medium: 0-51)"},
-        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.1 for kokoro, 1.0 for piper"}
+        "speed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "speaking speed; default 1.15 for kokoro, 1.0 for piper"}
       },
       "allOf": [
         {"if": {"properties": {"engine": {"const": "kokoro"}}}, "then": {"properties": {"voice": {"pattern": "^[abefhip][fm]_[a-z]+$"}}}},
@@ -167,13 +170,51 @@
         "durationSec": {"type": "number", "exclusiveMinimum": 0, "description": "default 4.5 (cut at the scene end)"}
       }
     },
+    "beat": {
+      "type": "object",
+      "required": ["at", "do"],
+      "description": "a visual beat (docs/library/retention.md)",
+      "properties": {
+        "at": {"description": "seconds from the scene start, or a word/phrase of the narration (first occurrence)", "oneOf": [{"type": "number", "minimum": 0}, {"type": "string", "minLength": 1}]},
+        "do": {"enum": ["punch-in", "punch-out", "shake", "flash", "kinetic", "pop", "swap", "counter", "whip"]},
+        "scale": {"type": "number", "minimum": 0.1, "maximum": 3, "description": "punch-in zoom (default 1.15); pop: illustration scale (default 0.8)"},
+        "intensity": {"type": "number", "minimum": 0, "maximum": 3, "description": "shake strength (default 1)"},
+        "direction": {"enum": ["left", "right"], "description": "whip direction"},
+        "colour": {"type": "string", "description": "flash / kinetic colour: brand colour name or hex"},
+        "text": {"type": "string", "description": "kinetic: the text"},
+        "position": {"enum": ["top", "center", "lower"], "description": "kinetic / counter position"},
+        "durationSec": {"type": "number", "minimum": 0.2},
+        "component": {"type": "string", "description": "pop: illustration component (render/src/illustrations)"},
+        "props": {"type": "object"},
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "enter": {"type": "string"},
+        "kind": {"type": "string", "description": "swap: scene kind of the new visual layer (default: same kind)"},
+        "visual": {"type": "object", "description": "swap: the new visual"},
+        "onScreenText": {"type": ["string", "null"]},
+        "from": {"type": "number"},
+        "to": {"type": "number"},
+        "prefix": {"type": "string"},
+        "suffix": {"type": "string"},
+        "decimals": {"type": "integer", "minimum": 0, "maximum": 3},
+        "countSec": {"type": "number", "minimum": 0.2},
+        "label": {"type": "string"},
+        "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "override the automatic beat sound (null = none)"}
+      },
+      "allOf": [
+        {"if": {"properties": {"do": {"const": "kinetic"}}}, "then": {"required": ["text"]}},
+        {"if": {"properties": {"do": {"const": "pop"}}}, "then": {"required": ["component"]}},
+        {"if": {"properties": {"do": {"const": "swap"}}}, "then": {"required": ["visual"]}},
+        {"if": {"properties": {"do": {"const": "counter"}}}, "then": {"required": ["to"]}}
+      ]
+    },
     "scene": {
       "type": "object",
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
         "kind": {"enum": ["title", "illustration", "template", "evidence", "chart", "counter", "infographic", "kinetic-text", "chapter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
-        "narration": {"type": "string", "minLength": 1, "description": "spoken text; '[pause 0.5]' inserts 0.5 s of silence (not spoken, not captioned)"},
+        "narration": {"type": "string", "minLength": 1, "description": "spoken text; '[pause 0.5]' inserts 0.5 s of silence ('[PAUSE]' = 0.5 s; not spoken, not captioned); '**word**' marks an emphasised word or phrase: spoken normally, shown as a big kinetic keyword timed to the word (docs/library/retention.md)"},
         "voiceSpeed": {"type": "number", "minimum": 0.5, "maximum": 2.0, "description": "overrides voice.speed for this scene"},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
@@ -187,6 +228,8 @@
         "transition": {"$ref": "#/$defs/transition", "description": "transition INTO this scene (overrides spec.transition)"},
         "effects": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}, "description": "overlay effects on this scene (docs/library/effects.md), merged over spec.look"},
         "lowerThird": {"oneOf": [{"$ref": "#/$defs/lowerThird"}, {"type": "null"}]},
+        "beats": {"type": "array", "maxItems": 40, "items": {"$ref": "#/$defs/beat"}, "description": "visual beats; a scene without beats gets subtle auto camera beats every ~2.5 s (docs/library/retention.md)"},
+        "autoBeats": {"type": "boolean", "description": "false = no auto camera beats for this scene"},
         "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
         "sfxCues": {
           "type": "array",
