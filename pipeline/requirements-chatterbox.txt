@@ -1,0 +1,6 @@
+# Separate venv for the Chatterbox engine (pipeline/tts.py creates it on first use; torch 2.6.0 CPU is installed
+# first from download.pytorch.org). Kept apart from requirements.txt: chatterbox pins torch 2.6 / transformers 4.46,
+# Kokoro needs torch 2.5.1 / transformers 4.48.
+chatterbox-tts==0.1.2
+faster-whisper==1.1.1
+soundfile==0.12.1
