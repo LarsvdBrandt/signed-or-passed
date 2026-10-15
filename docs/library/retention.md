@@ -17,9 +17,10 @@ The editorial rules behind this live in the workspace memory "Signed or Passed R
 | Cold open / flash-forward | `scenes[].coldOpen` | none |
 | Brand sting after the hook | `spec.brandIntro {after, durationSec}` / `false` | 1.2 s after the first scene that is not a cold open |
 | End card teaser | `spec.nextTeaser {title, kicker, verdict}` | plain end card (6 s) |
+| Music energy per scene | `scenes[].musicEnergy` low/mid/high/drop/stop | none = the bed's own sections |
+| Riser, silence before the reveal, verdict impact | `spec.sound {autoRisers, revealPauseSec, verdictImpact}` | on, 0.6 s, on |
 
-Still to come in this phase (see factory-status): music energy per scene, risers / silence before the reveal,
-retention QA checks.
+Still to come in this phase (see factory-status): retention QA checks.
 
 ## Visual beats (`scenes[].beats`)
 
@@ -139,3 +140,52 @@ transition. Shorts never get a sting. Old timing files without `introAtSec` keep
 The end card stays 6 s. With `"nextTeaser": {"title": "The man who turned down the Beatles", "kicker": "Next story",
 "verdict": "PASSED"}` it shows a smaller logo on top and a "NEXT STORY ->" card on the left half; the right half stays
 free for the YouTube end-screen video element. Without it the classic centred end card is shown.
+
+## Music energy (`scenes[].musicEnergy`)
+
+The music follows the acts. `musicEnergy` on a scene sets the energy from that scene on, until the next scene that sets
+one (before the first one: `mid`). Without `musicEnergy` anywhere the bed keeps its own built-in sections (old specs).
+
+| Energy | Generated bed (`musicdyn.bed_energy`) | Library track |
+|---|---|---|
+| `low` | filtered pad + arpeggio, no bass, no drums (about 6 dB under mid) | 55 % |
+| `mid` | pad, bass, arpeggio, lead; no drums | 80 % |
+| `high` | everything incl. drums, filter fully open | 100 % |
+| `drop` | only a muffled pad (breakdown, tension); the next `mid`/`high` slams back in within 30 ms | 30 % |
+| `stop` | no music | 0 % |
+
+Moving up from `low` sweeps the filter open over 1.5 s; going down takes 0.3-0.4 s. A typical long-form curve:
+
+```json
+{"id": "s00", "kind": "counter", "coldOpen": {"label": "LATER"}, "musicEnergy": "high", ...},
+{"id": "s01", "kind": "title", "musicEnergy": "low", ...},
+{"id": "s05", "kind": "map", "musicEnergy": "mid", ...},
+{"id": "s20", "kind": "timeline", "musicEnergy": "high", ...},
+{"id": "s30", "kind": "question", "musicEnergy": "drop", ...},
+{"id": "s31", "kind": "reveal", "musicEnergy": "high", ...},
+{"id": "s34", "kind": "lesson", "musicEnergy": "low", ...}
+```
+
+Rule of thumb: `high` for the cold open and the turning points, `low` for context and the lesson, `drop` on the
+question (the groove comes back on the reveal), `stop` only for a dramatic quote. The voice always ducks the music.
+
+## Riser, silence before the reveal, impact (`spec.sound`)
+
+Automatic, no spec needed (defaults shown):
+
+```json
+"sound": {"autoRisers": true, "revealPauseSec": 0.6, "verdictImpact": true}
+```
+
+- **Reveal** = the first `reveal` scene of a cut, else its first `verdict` scene (cold opens are skipped);
+  `common.reveal_index`.
+- **Silence**: `tts.py` holds the scene before the reveal `revealPauseSec` longer (0-1.5 s; 0 = off) and records
+  `revealAtSec` / `revealPauseSec` in `timing.json`; `mix.py` silences the music there and drops sfx that would play
+  in it, so voice, music and sfx all stop right before the reveal.
+- **Risers**: a 2 s riser (`riser`, the last 2 s of the sfxlib sound, -4 dB) ends exactly at the start of every
+  question scene and exactly where the silence before the reveal begins (riser -> silence -> reveal). No riser in
+  the first 0.5 s or across the brand sting.
+- **Impact**: `impact_boom` (-2 dB) at the start of every verdict scene (with the pen / stamp and the stinger), and a
+  softer one (-6 dB) at the start of a separate `reveal` scene.
+
+Applies to the main video and the Shorts.

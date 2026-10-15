@@ -22,6 +22,7 @@ Two sources, both safe for monetised YouTube:
 | `source` | `auto` (library track with that mood if one exists, else generated), `generated`, `library`, `none` | `auto` |
 | `track` | file name (with or without extension) or title of a `brand/music/manifest.csv` recording; implies `source: library` | none |
 | `stingers` | `true` / `false`: musical hits at question scenes (`question`) and verdict scenes (`signed`, `passed`) | `true` |
+| `scenes[].musicEnergy` | low / mid / high / drop / stop per scene (sticky): re-arranges the generated bed per act, a gain curve for library tracks (docs/library/retention.md) | none = built-in sections |
 
 The bed is generated per cut (main video and every short) exactly as long as the narration (`timing.json`), with
 the seed `<slug>:<cut>` so a re-render sounds identical. It is ducked under the voice (sidechain) and the final
