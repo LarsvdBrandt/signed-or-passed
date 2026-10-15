@@ -3,7 +3,7 @@
   "slug": "0000-sample",
   "format": "long",
   "verdict": "PASSED",
-  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.15},
+  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.15, "pauses": {}},
   "music": {"mood": "tense", "era": "modern", "source": "generated", "stingers": true},
   "captionStyle": "bold-pop",
   "captions": {"long": "keywords"},
@@ -39,6 +39,7 @@
       {"label": "THE DEADLINE", "component": "Hourglass"}
     ]}, "sfxCues": [{"sfx": "camera_shutter", "atSec": 0.4}, {"sfx": "camera_shutter", "atSec": 1.1}, {"sfx": "tension_drone", "atSec": 0.0, "gainDb": -12}], "minDurationSec": 5},
     {"id": "s15", "kind": "quote", "narration": "A quote appears with its source, and a tag when it is disputed.", "visual": {"text": "This is a placeholder quote for testing.", "speaker": "Test Speaker", "sourceId": "src1", "status": "disputed"}, "sfx": "record_scratch"},
+    {"id": "s15b", "kind": "template", "narration": "A ready-made scene sets the room: the test board meets around one table.", "visual": {"template": "boardroom-meeting", "era": "eighties", "labels": {"left": "Test Founder", "right": "Test Board", "document": "TEST OFFER", "banner": "TEST BOARDROOM"}}, "sfx": "whoosh", "minDurationSec": 5},
     {"id": "s16", "kind": "document", "narration": "The test contract writes itself, line by line. Then it is stamped.", "visual": {"title": "TEST AGREEMENT", "lines": ["The parties agree to the test terms", "set out in this document.", "Price, date and conditions", "are placeholders."], "verdict": "PASSED", "party": "Test Company"}, "sfx": "paper", "minDurationSec": 6},
     {"id": "s16b", "kind": "kinetic-text", "musicEnergy": "high", "narration": "It all comes down to one question.", "visual": {"preset": "stamp-text", "text": "SIGN\nOR PASS?", "background": "paper", "rotate": -8}, "minDurationSec": 3},
     {"id": "s17", "kind": "question", "musicEnergy": "drop", "narration": "So. [pause 0.6] Would you sign? Or would you pass?", "visual": {"question": "Sign the test contract?", "options": ["SIGN", "PASS"], "holdSec": 3}, "sfxCues": [{"sfx": "clock_tick", "atSec": 2.0, "gainDb": -4}]},
