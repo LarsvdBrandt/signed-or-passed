@@ -65,7 +65,7 @@
   "thumbnail": {"bigText": "0000 · $1M", "headline": "The test offer they passed", "verdict": "PASSED", "illustration": "Contract"},
   "shorts": [
     {"id": "s1", "scenes": [
-      {"id": "sh1", "kind": "illustration", "narration": "One test. One decision.", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"id": "sh1", "kind": "illustration", "narration": "One test. One decision. Two companies meet at the table, the lawyers wait outside, and everybody knows this handshake will be remembered for years.", "visual": {"background": "BoardroomBackdrop", "layers": [
         {"component": "Person", "props": {"pose": "handshake", "colour": "ink"}, "x": 38, "y": 60, "scale": 1.2, "enter": "slide-right"},
         {"component": "Person", "props": {"pose": "handshake", "colour": "board", "flip": true}, "x": 62, "y": 60, "scale": 1.2, "enter": "slide-left"}
       ]}, "sfx": "whoosh"},

@@ -1,1 +1,1 @@
-2026-10-15T21:57:32Z RETENTION-8 Shorts rhythm punches (build_props.py)
+2026-10-15T22:24:00Z RETENTION-8 verify: sample Short sh1 lengthened to ~10 s (4 rhythm punches)
