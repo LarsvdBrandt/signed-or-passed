@@ -27,6 +27,7 @@
     "captions": {"type": "object", "description": "long-form captions (docs/library/retention.md); Shorts keep their word-by-word captions", "properties": {"long": {"enum": ["keywords", "full", "off"], "description": "keywords (default): numbers, amounts, years and **emphasis** as big kinetic text; full: word-by-word captions; off"}, "style": {"type": ["string", "null"], "description": "keywords: stamp | ink | board (default: stamp for emphasis, board for numbers); full: a captionStyle"}}, "additionalProperties": false},
     "autoBeats": {"type": "boolean", "description": "auto camera beats for scenes without beats (default true)"},
     "sfxDensity": {"enum": ["low", "mid", "high"], "description": "automatic beat sounds (whoosh on punch/whip, pop on kinetic/pop/emphasis, tick on counters), well under the voice; default mid (docs/library/retention.md)"},
+    "sound": {"type": "object", "additionalProperties": false, "description": "RETENTION-4b automatic sound design (docs/library/retention.md). Defaults: a 2 s riser into every question scene and into the silence before the reveal, 0.6 s of silence (voice, music, sfx) right before the reveal (the first 'reveal' scene, else the first 'verdict'), impact_boom on the verdict.", "properties": {"autoRisers": {"type": "boolean", "default": true}, "revealPauseSec": {"type": "number", "minimum": 0, "maximum": 1.5, "default": 0.6, "description": "0 = no silence before the reveal"}, "verdictImpact": {"type": "boolean", "default": true}}},
     "brandIntro": {
       "description": "RETENTION-3: the logo sting of the main video. Default (absent or {}) = 1.2 s right AFTER the hook (the first scene that is not coldOpen), never before it. false = no sting (docs/library/retention.md).",
       "oneOf": [
@@ -245,6 +246,7 @@
         "lowerThird": {"oneOf": [{"$ref": "#/$defs/lowerThird"}, {"type": "null"}]},
         "beats": {"type": "array", "maxItems": 40, "items": {"$ref": "#/$defs/beat"}, "description": "visual beats; a scene without beats gets subtle auto camera beats every ~2.5 s (docs/library/retention.md)"},
         "autoBeats": {"type": "boolean", "description": "false = no auto camera beats for this scene"},
+        "musicEnergy": {"enum": ["low", "mid", "high", "drop", "stop"], "description": "RETENTION-4b: music energy from this scene on (sticky until the next scene that sets one; 'mid' before the first). low = filtered pad + arp, mid = no drums, high = everything, drop = filtered pad only (the groove slams back in at the next mid/high), stop = no music. Without musicEnergy anywhere the bed keeps its own sections."},
         "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
         "sfxCues": {
           "type": "array",
