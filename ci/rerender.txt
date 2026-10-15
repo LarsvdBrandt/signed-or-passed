@@ -1,9 +1,7 @@
 # Pushing a change to this file renders the listed productions again without editing their files.
-# 2026-10-15T15:35Z: v3 failed the QA gate on a '[pause 1]' marker broken by the punch beat (spoken as 'pause, one')
-#   and on number-format WER false positives; fixed in delivery.punch_text + pipeline/textnorm.py. Renders with VOICE-8.
-# 2026-10-15T15:40Z: again with tts.py + qa.py of the same fix (8bd3f54 missed them).
-# 2026-10-15T15:55Z: Nike (run 38757883687, pre-fix 75a0cde) failed the QA gate on number-format and word-boundary
-#   ASR false positives ('$65' vs 'sixty-five', 'arrival' vs 'a rival'); re-rendered with textnorm + the CER rule.
-#   Blockbuster too: its pending 5ae6d98 render is replaced by this one (same fix + the word-boundary CER rule).
+# 2026-10-15T18:45Z: VOICE-11 (Lars: the voice itself back to NORMAL, keep the sentences and pauses): channel default
+#   = variant C of voice-test-2 (Chatterbox default voice, natural speed / no stretch, no VOICE-8 offsets, paragraph
+#   generation, pauses x1.15 + 0.25 s punch beat, pace guard opt-in). Both specs have no voice overrides, so the new
+#   default applies without touching their files.
 2026-10-15-blockbuster-passes-on-netflix
 2026-10-15-nike-signs-michael-jordan

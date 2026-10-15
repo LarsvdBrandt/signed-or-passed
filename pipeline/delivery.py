@@ -24,9 +24,9 @@ Micro-prosody: every sentence gets a seeded +-5% speed and +-0.04 exaggeration v
 identical, and the result is reproducible for the same spec.
 
 VOICE-8 channel tuning (Lars 2026-10-15: "more emotion, more human, slightly slower"): the table above is the BASE;
-tts.py's Chatterbox engine adds CHANNEL_TUNING on top unless spec.voice overrides it: exaggeration +0.15 (cap 1.0),
-cfg_weight -0.10 (floor 0.25) = more expressive, more deliberate pacing (Chatterbox's own guidance), sentence gaps
-and style pauses x1.15 and a 0.25 s punch beat. VOICE-10a: NO time-stretch (pace 1.0; the style speed factors above
+tts.py's Chatterbox engine applies CHANNEL_TUNING unless spec.voice overrides it. VOICE-11: no exaggeration / cfg
+offsets any more (the VOICE-8 +0.15 / -0.10 made the voice static), sentence gaps and style pauses x1.15 and a 0.25 s
+punch beat, paragraph generation on. VOICE-10a: NO time-stretch (pace 1.0; the style speed factors above
 apply to Kokoro/Piper only, Chatterbox is never stretched).
 Target: 145-155 spoken words per minute (tts.py reports the measured wpm).
 """
@@ -51,7 +51,11 @@ PUNCH_PAUSE_SEC = 0.25
 # VOICE-8 channel defaults for engine chatterbox (spec.voice.exaggerationOffset / cfgOffset / pace / pauseScale)
 # VOICE-10a (Lars 2026-10-15 19:20 "worse, more static"): no time-stretch any more: pace 1.0 (an explicit
 # spec.voice.pace is clamped to 0.97-1.0); "slightly slower" comes from pauses (pauseScale) and cfg_weight only.
-CHANNEL_TUNING = {"exaggerationOffset": 0.15, "cfgOffset": -0.10, "pace": 1.0, "pauseScale": 1.15}
+# VOICE-11 (Lars 2026-10-15): the voice itself back to NORMAL = variant C of voice-test-2: no VOICE-8 offsets
+# (exaggeration 0.5 / cfg 0.5 base + the VOICE-3 delivery offsets), no stretch, paragraph generation, pauses x1.15
+# (+ 0.25 s punch beat); the pace guard only runs when spec.voice.targetWpm is set explicitly.
+CHANNEL_TUNING = {"exaggerationOffset": 0.0, "cfgOffset": 0.0, "pace": 1.0, "pauseScale": 1.15, "paragraphs": True,
+                  "paceGuard": False}
 CFG_FLOOR = 0.25
 
 BIG_RE = re.compile(

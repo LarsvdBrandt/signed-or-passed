@@ -36,9 +36,10 @@ VOICE-8 channel tuning (delivery.CHANNEL_TUNING, overridable per spec): spec.voi
 cfgOffset (-0.10, floor 0.25) shift every style, spec.voice.pauseScale (1.15) lengthens sentence gaps and style pauses.
 VOICE-10a: Chatterbox clips are NEVER time-stretched by default (the 0.88 rubberband stretch of VOICE-8 smeared the
 prosody): pace is 1.0 and an explicit spec.voice.pace is clamped to 0.97-1.0; style speed factors are ignored for
-Chatterbox. Pace guard: unless spec.voice.pace or pauseScale is set, the main cut is measured after generation and
-only the PAUSES are nudged (pauseScale 1.0-1.6) toward spec.voice.targetWpm (default [145, 155]).
-VOICE-10b PARAGRAPHS (spec.voice.paragraphs, chatterbox only): Chatterbox speaks 1-4 consecutive sentences of a scene
+Chatterbox. Pace guard (VOICE-11: opt-in, only when spec.voice.targetWpm is set and pace / pauseScale are not): the
+main cut is measured after generation and only the PAUSES are nudged (pauseScale 1.0-1.6) toward targetWpm.
+VOICE-11 channel default (variant C of voice-test-2): no offsets, paragraphs on, pauses x1.15, natural speed.
+VOICE-10b PARAGRAPHS (spec.voice.paragraphs, chatterbox only; default true since VOICE-11): Chatterbox speaks 1-4 consecutive sentences of a scene
 (one thought, <= 45 words / 250 characters, same delivery family, no [pause] marker inside) in ONE call so the
 intonation flows across sentences; the chunk takes the strongest delivery inside it. The worker transcribes the chunk
 with faster-whisper word timestamps, aligns them to the known sentences and cuts the clip at the quietest point
@@ -790,7 +791,8 @@ def main():
     speed = float(v.get("speed") or engine.default_speed)
     tuned = engine_name == "chatterbox"  # VOICE-8 channel tuning; other engines only when the spec sets it
     pace = float(v.get("pace") or (dlv.CHANNEL_TUNING["pace"] if tuned else 1.0))
-    paragraphs = tuned and bool(v.get("paragraphs"))
+    # VOICE-11: paragraph generation is the channel default for Chatterbox (spec.voice.paragraphs false opts out)
+    paragraphs = tuned and bool(v.get("paragraphs", dlv.CHANNEL_TUNING["paragraphs"]))
     pause_scale = float(v.get("pauseScale") or (dlv.CHANNEL_TUNING["pauseScale"] if tuned else 1.0))
     band = [float(x) for x in (v.get("targetWpm") or [145, 155])]
     tuning = {"pace": pace, "pauseScale": pause_scale, "targetWpm": band, "paragraphs": paragraphs,
@@ -818,7 +820,9 @@ def main():
     elif shard:
         log(f"engine {engine_name} needs no fan-out: nothing to do for shard {args.shard}")
         return
-    if tuned and not v.get("pace") and not v.get("pauseScale") and plans:
+    # VOICE-11: the pace guard is opt-in (spec.voice.targetWpm); by default the natural Chatterbox speed + pauses x1.15
+    guard = bool(v.get("targetWpm")) or dlv.CHANNEL_TUNING["paceGuard"]
+    if tuned and guard and not v.get("pace") and not v.get("pauseScale") and plans:
         main_cut = cuts(spec)[0]
         pause_scale, measured = calibrate_pauses(engine, spec, main_cut, speed, plans.get(main_cut["name"]), pace,
                                                  pause_scale, band, chunks.get(main_cut["name"]))
