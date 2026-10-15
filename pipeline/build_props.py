@@ -21,6 +21,30 @@ def breath_beats(beats, breaths, start, end):
     return sorted(out, key=lambda x: x["frame"])
 
 
+RHYTHM_EVERY_SEC = 2.0   # Shorts: a camera punch at most every 2 s in a stretch without a beat
+RHYTHM_MARGIN_SEC = 1.0  # ... never closer than 1 s to the scene start / end or another beat
+RHYTHM_SCALE = 1.12
+NO_RHYTHM_KINDS = {"question", "verdict"}
+
+
+def rhythm_beats(beats, scene, start, end):
+    """RETENTION-8: in a Short every stretch longer than ~2 s without a beat gets snappy, silent camera punches
+    (punch-in 1.12x / punch-out, alternating), so the vertical cut keeps >= 20 visual changes per minute. Question and
+    verdict scenes keep their hold; scenes[].autoBeats false turns it off. Explicit beats stay as they are."""
+    if scene.get("kind") in NO_RHYTHM_KINDS or scene.get("autoBeats") is False:
+        return beats
+    every, margin, dur = int(RHYTHM_EVERY_SEC * FPS), int(RHYTHM_MARGIN_SEC * FPS), end - start
+    out, marks, zoomed = list(beats), [0] + [b["frame"] for b in beats] + [dur], False
+    for a, b in zip(marks, marks[1:]):
+        f = a + every
+        while f <= b - margin and f <= dur - margin:
+            zoomed = not zoomed
+            out.append({"do": "punch-in", "scale": RHYTHM_SCALE, "frame": f, "auto": "rhythm", "sfx": None} if zoomed
+                       else {"do": "punch-out", "frame": f, "auto": "rhythm", "sfx": None})
+            f += every
+    return sorted(out, key=lambda x: x["frame"])
+
+
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
@@ -53,9 +77,12 @@ def main():
             beats = resolve_beats(sc, sw, frame, start, warn)
             if auto_beats:
                 beats = breath_beats(beats, breaths.get(sc["id"]) or [], start, end)
+                if cut["format"] != "long":
+                    beats = rhythm_beats(beats, sc, start, end)
             keywords += scene_keywords(sc, sw, frame, end)
             beat_log += [{"sec": round((start + b["frame"]) / FPS, 3), "do": b.get("do"), "sceneId": sc["id"],
-                          **({"sfx": b["sfx"]} if "sfx" in b else {})} for b in beats]
+                          **({"sfx": b["sfx"]} if "sfx" in b else {}),
+                          **({"auto": b["auto"]} if b.get("auto") else {})} for b in beats]
             scenes.append({
                 **sc,
                 "narration": strip_emphasis(sc.get("narration")),

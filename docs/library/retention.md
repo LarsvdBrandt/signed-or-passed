@@ -59,6 +59,13 @@ A scene without `beats` gets a subtle camera change every 2.5 s (punch-in 1.07x,
 alternating, eased over 14 frames, order seeded by the scene id), so no frame stays static for more than ~3 s.
 Question scenes keep their hold still. Turn it off with `"autoBeats": false` on a scene or for the whole spec.
 
+**Shorts rhythm (RETENTION-8).** In a Short (vertical cut) every stretch of more than ~2 s without a beat also gets
+snappy, silent camera punches: punch-in 1.12x / punch-out, alternating, every 2 s, never closer than 1 s to the scene
+start, the scene end or another beat (explicit beats and VOICE-12 breath punches stay as they are). This keeps the
+vertical cuts at >= 20 measured visual changes per minute. Question and verdict scenes keep their hold; the same
+`"autoBeats": false` (scene or spec) turns it off. The long video is unchanged. In `beats.json` these beats carry
+`"auto": "rhythm"`.
+
 ## Emphasis and kinetic keywords
 
 `**word**` (or `**a phrase**`) in a narration is spoken normally (the asterisks are removed before TTS and never
