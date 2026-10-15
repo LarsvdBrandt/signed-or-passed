@@ -1,8 +1,9 @@
 # Infographics library (scene kind `infographic`)
 
-Animated data graphics in the house style (3px Board-black outlines, brand colours only, no gradients, figures in
-IBM Plex Mono). They follow the active theme (`spec.theme`). Code: `render/src/infographics/` (`charts.tsx`,
-`charts2.tsx`, registry in `index.tsx`).
+Animated data graphics and diagrams in the house style (3px Board-black outlines, brand colours only, no gradients,
+figures in IBM Plex Mono). They follow the active theme (`spec.theme`). Code: `render/src/infographics/`
+(`charts.tsx`, `charts2.tsx`, `charts3.tsx`, registry in `index.tsx`). All 17 types are shown in
+`preview-infographics.mp4` (InfographicPreview composition, 6 s per type).
 
 ```json
 {"id": "s07", "kind": "infographic", "narration": "...",
@@ -15,6 +16,8 @@ Common fields: `type`, `title` (kicker top-left; default `scene.onScreenText`), 
 `data` (per type, below). Colours: `colour` = brand name (`ink`, `stamp`, `board`, `grey`, `greyLight`) or hex;
 default palette order ink, stamp, board, grey, greyLight. Give data scenes `minDurationSec` 5-7 so the animation can
 finish.
+
+## Data types (need `sourceId`)
 
 | type | data | animation |
 |---|---|---|
@@ -33,10 +36,25 @@ finish.
 | `money-stacks` | `{items: [{label, value, colour?}]}` (max 6) | banknote piles grow to scale; amounts count up |
 | `what-could-buy` | `{amount, price, item, icon?: box \| house \| car \| person \| coin \| bag, max?: 100, colour?}` | "$1M = 40 cars" counts up; icon grid pops in (1 icon = N items above `max`) |
 
-Diagram types without data (`org-chart`, `family-tree`, `flow`) are planned (INFOGRAPHICS-3) and need no `sourceId`.
+## Diagrams (no `sourceId` needed)
+
+| type | data | animation |
+|---|---|---|
+| `org-chart` | `{root: {label, title?, highlight?, colour?, children: [...]}}` or flat `{nodes: [{id, label, title?, parent?}]}` | boxes drop in level by level, connectors draw; highlighted node in stamp orange |
+| `family-tree` | `{root: {label, years?, partner?: {label, years?} \| "name", highlight?, children: [...]}}` or flat `{nodes: [{id, label, years?, parent?, partner?}]}` | generations appear top-down; partners joined with a double line |
+| `flow` | `{steps: [{id?, label, note?, shape?: box \| decision \| start \| end, colour?, highlight?}], links?: [{from, to, label?}], direction?: horizontal \| vertical, numbered?}` | steps pop in one by one, arrows draw between them; without `links` the steps are chained in order |
+
+Example:
+
+```json
+{"kind": "infographic", "visual": {"type": "flow", "title": "How the deal worked",
+  "data": {"steps": [{"label": "Offer", "shape": "start"}, {"label": "Due diligence"},
+                     {"label": "Sign?", "shape": "decision", "highlight": true}, {"label": "Closed", "shape": "end"}]}}}
+```
 
 ## Add a type
 1. Write a `React.FC<InfoProps>` (`{v, scene, ctx}`) in `render/src/infographics/` (use `usePlot`, `ease`, `fmt`,
    `colourAt` from `shared.ts`; read `C`, `FONT_*`, `STROKE` at render time so themes apply).
 2. Register it in `INFOGRAPHICS` (`index.tsx`), add it to `$defs/infographicType` in `schema/spec.schema.json` and
    describe `data` here. Diagrams without data: add the type to `NO_SOURCE_INFOGRAPHICS` in `pipeline/validate_spec.py`.
+3. Add demo data to the InfographicPreview composition so it shows up in `preview-infographics.mp4`.

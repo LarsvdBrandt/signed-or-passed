@@ -2,7 +2,7 @@
 from common import (add_warning, cut_dir, cuts, fmt_ts, is_test, load_spec, log, out_dir, read_json, slug_arg,
                     work_dir, write_json)
 
-KEY_KINDS = {"title", "question", "reveal", "verdict", "lesson", "evidence", "timeline", "map"}
+KEY_KINDS = {"title", "question", "reveal", "verdict", "lesson", "evidence", "timeline", "map", "chapter"}
 MIN_CHAPTER = 10.0
 
 
@@ -12,6 +12,8 @@ def label_for(sc):
         return sc["onScreenText"]
     if k == "title":
         return v.get("title") or "Intro"
+    if k == "chapter" and v.get("title"):
+        return v["title"]
     fixed = {"question": "Would you sign?", "reveal": "What happened", "verdict": "The verdict", "lesson": "The lesson"}
     if k in fixed:
         return fixed[k]
@@ -38,6 +40,17 @@ def chapters(scenes, timing):
     return ch if len(ch) >= 3 else []
 
 
+def music_credit(slug):
+    """Credit line for a library track; generated (musicgen, CC0) and no music need none."""
+    music_path = work_dir(slug) / "music.json"
+    if not music_path.exists():
+        return ""
+    m = read_json(music_path)
+    if m.get("kind") in ("generated", "none"):
+        return ""
+    return (m.get("attribution_text") or "").strip() or f"{m.get('title')} by {m.get('artist')} ({m.get('license')})"
+
+
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
@@ -58,13 +71,11 @@ def main():
     if assets:
         parts.append("Image credits\n" + "\n".join(
             f"- {a['attribution']} ({a['license']}) {a.get('sourcePage', '')}".rstrip() for a in assets.values()))
-    music_path = work_dir(args.slug) / "music.json"
-    if music_path.exists():
-        m = read_json(music_path)
-        credit = (m.get("attribution_text") or "").strip() or f"{m.get('title')} by {m.get('artist')} ({m.get('license')})"
+    credit = music_credit(args.slug)
+    if credit:
         parts.append("Music\n" + credit)
-    parts.append("Illustrations and sound effects: Signed or Passed. People are shown as faceless figures; "
-                 "no real likenesses or logos are used.\nNarrated with a synthetic voice.")
+    parts.append("Illustrations, music and sound effects: Signed or Passed, unless credited above. People are shown as "
+                 "faceless figures; no real likenesses or logos are used.\nNarrated with a synthetic voice.")
     description = "\n\n".join(parts)
     if len(description) > 5000:
         add_warning(args.slug, f"description is {len(description)} chars; truncated to 5000")
