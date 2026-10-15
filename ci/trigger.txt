@@ -1,1 +1,1 @@
-2026-10-15T22:24:00Z RETENTION-8 verify: sample Short sh1 lengthened to ~10 s (4 rhythm punches)
+2026-10-15T22:55:00Z RETENTION-9 long-format rhythm + QA change-peak counter

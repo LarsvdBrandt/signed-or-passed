@@ -11,6 +11,7 @@ judges the overall rate (words / whole main cut, target 135-145 wpm) and the rep
 """
 import json
 import re
+import statistics
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -23,7 +24,8 @@ SCAN_W, SCAN_H, SCAN_FPS = 64, 36, 4
 STATIC_DIFF = 0.15          # mean abs grey difference over 0.5 s below this = nothing moves (slow pans score >= 0.15)
 FIRST_CHANGE_DIFF = 2.0     # a real cut / pop within the first 1.5 s
 FIRST_CHANGE_SEC = 1.5
-CHANGE_GAP_SEC = 0.75       # visual changes closer together than this (continuous motion) count as one
+CHANGE_GAP_SEC = 0.75       # visual changes closer together than this count as one
+PEAK_RATIO, PEAK_WIN = 2.0, 4  # a change must be >= 2x the median frame step of the surrounding +/-1 s (4 scan steps)
 STATIC_WARN_SEC, STATIC_FAIL_SEC = 4.0, 6.0
 BREATH_HOLD_MAX_SEC = 1.8   # VOICE-12: intentional pauses up to this length are exempt from the static / dead-air scan
 HOOK_KEYWORD_SEC = 8.0
@@ -54,6 +56,22 @@ def silences(path):
     starts = [float(x) for x in re.findall(r"silence_start: (-?[0-9.]+)", p.stderr)]
     ends = [float(x) for x in re.findall(r"silence_end: (-?[0-9.]+)", p.stderr)]
     return starts, ends
+
+
+def count_change_peaks(step):
+    """RETENTION-9: distinct visual changes = frame steps >= FIRST_CHANGE_DIFF that are a local maximum, stand out at
+    least PEAK_RATIO x above the median step of the surrounding +/-1 s (so continuous motion is not counted, but a camera
+    punch or pop on top of moving characters is) and lie >= CHANGE_GAP_SEC after the previous counted change."""
+    count, last = 0, -9.0
+    for i, v in enumerate(step):
+        if v < FIRST_CHANGE_DIFF or (i > 0 and step[i - 1] > v) or (i + 1 < len(step) and step[i + 1] > v):
+            continue
+        near = [step[j] for j in range(max(0, i - PEAK_WIN), min(len(step), i + PEAK_WIN + 1)) if abs(j - i) > 1]
+        if near and v < PEAK_RATIO * statistics.median(near):
+            continue
+        if i / SCAN_FPS - last >= CHANGE_GAP_SEC:
+            count, last = count + 1, i / SCAN_FPS
+    return count
 
 
 def frame_diffs(path):
@@ -116,13 +134,15 @@ def retention_checks(slug, cut, path, timing, dur, check):
         half, step = scan
         first = next((i / SCAN_FPS for i, v in enumerate(step) if v >= FIRST_CHANGE_DIFF), None)
         stats["firstVisualChangeSec"] = first
-        changes, last = 0, -9.0
+        merged, last = 0, -9.0
         for i, v in enumerate(step):
             if v >= FIRST_CHANGE_DIFF:
                 if i / SCAN_FPS - last >= CHANGE_GAP_SEC:
-                    changes += 1
+                    merged += 1
                 last = i / SCAN_FPS
+        changes = count_change_peaks(step)
         stats["visualChanges"] = changes
+        stats["visualChangesMerged"] = merged  # pre-RETENTION-9 count: any run of changes < 0.75 s apart counts once
         stats["visualChangesPerMin"] = round(changes / minutes, 1)
         check(f"{fname}: visual changes/min >= {CHANGES_PER_MIN_TARGET}", stats["visualChangesPerMin"] >= CHANGES_PER_MIN_TARGET,
               f"{stats['visualChangesPerMin']} changes/min (measured), {stats['beatsPerMin']} planned beats/min, "

@@ -21,25 +21,35 @@ def breath_beats(beats, breaths, start, end):
     return sorted(out, key=lambda x: x["frame"])
 
 
-RHYTHM_EVERY_SEC = 2.0   # Shorts: a camera punch at most every 2 s in a stretch without a beat
-RHYTHM_MARGIN_SEC = 1.0  # ... never closer than 1 s to the scene start / end or another beat
-RHYTHM_SCALE = 1.12
+RHYTHM = {  # RETENTION-8 (Shorts) / RETENTION-9 (long): snap camera punches in stretches without a beat
+    "short": {"every": 2.0, "margin": 1.0, "scale": 1.12},
+    "long": {"every": 3.0, "margin": 1.5, "scale": 1.07},
+}
 NO_RHYTHM_KINDS = {"question", "verdict"}
+NO_RHYTHM_KINDS_LONG = NO_RHYTHM_KINDS | {"reveal"}
 
 
-def rhythm_beats(beats, scene, start, end):
-    """RETENTION-8: in a Short every stretch longer than ~2 s without a beat gets snappy, silent camera punches
-    (punch-in 1.12x / punch-out, alternating), so the vertical cut keeps >= 20 visual changes per minute. Question and
-    verdict scenes keep their hold; scenes[].autoBeats false turns it off. Explicit beats stay as they are."""
-    if scene.get("kind") in NO_RHYTHM_KINDS or scene.get("autoBeats") is False:
+def rhythm_beats(beats, scene, start, end, fmt="vertical", marks_extra=()):
+    """RETENTION-8/9: every stretch without a beat gets snappy, silent camera punches (punch-in / punch-out,
+    alternating): in a Short every 2 s at 1.12x, in the long video every 3 s at 1.07x (keyword pop-ups count as marks
+    there; only in scenes that already carry beats, because a scene without beats keeps the renderer's own 2.5 s camera
+    drift from retention/beats.tsx), never closer than the margin to the scene start / end or another
+    beat, so every cut keeps >= 20 measured visual changes per minute. Question and verdict scenes (and the reveal in the long video) keep their hold;
+    scenes[].autoBeats false turns it off. Explicit beats stay as they are."""
+    long = fmt == "long"
+    no = NO_RHYTHM_KINDS_LONG if long else NO_RHYTHM_KINDS
+    if scene.get("kind") in no or scene.get("autoBeats") is False or (long and not beats):
         return beats
-    every, margin, dur = int(RHYTHM_EVERY_SEC * FPS), int(RHYTHM_MARGIN_SEC * FPS), end - start
-    out, marks, zoomed = list(beats), [0] + [b["frame"] for b in beats] + [dur], False
-    for a, b in zip(marks, marks[1:]):
+    r = RHYTHM["long" if long else "short"]
+    every, margin, dur = int(r["every"] * FPS), int(r["margin"] * FPS), end - start
+    pts = sorted({0, dur, *[b["frame"] for b in beats if 0 <= b["frame"] <= dur],
+                  *[m for m in marks_extra if 0 < m < dur]})
+    out, zoomed = list(beats), False
+    for a, b in zip(pts, pts[1:]):
         f = a + every
         while f <= b - margin and f <= dur - margin:
             zoomed = not zoomed
-            out.append({"do": "punch-in", "scale": RHYTHM_SCALE, "frame": f, "auto": "rhythm", "sfx": None} if zoomed
+            out.append({"do": "punch-in", "scale": r["scale"], "frame": f, "auto": "rhythm", "sfx": None} if zoomed
                        else {"do": "punch-out", "frame": f, "auto": "rhythm", "sfx": None})
             f += every
     return sorted(out, key=lambda x: x["frame"])
@@ -75,11 +85,12 @@ def main():
             start, end = frame(t["start"]), frame(t["end"])
             sw = [w for w in words if w.get("sceneId") == sc["id"]]
             beats = resolve_beats(sc, sw, frame, start, warn)
+            kws = scene_keywords(sc, sw, frame, end)
             if auto_beats:
                 beats = breath_beats(beats, breaths.get(sc["id"]) or [], start, end)
-                if cut["format"] != "long":
-                    beats = rhythm_beats(beats, sc, start, end)
-            keywords += scene_keywords(sc, sw, frame, end)
+                kw_marks = [k["startFrame"] - start for k in kws] if cut["format"] == "long" else []
+                beats = rhythm_beats(beats, sc, start, end, cut["format"], kw_marks)
+            keywords += kws
             beat_log += [{"sec": round((start + b["frame"]) / FPS, 3), "do": b.get("do"), "sceneId": sc["id"],
                           **({"sfx": b["sfx"]} if "sfx" in b else {}),
                           **({"auto": b["auto"]} if b.get("auto") else {})} for b in beats]
