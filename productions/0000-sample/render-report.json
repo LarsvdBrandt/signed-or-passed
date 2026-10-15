@@ -1,8 +1,8 @@
 {
-  "ok": false,
+  "ok": true,
   "slug": "0000-sample",
   "test": true,
-  "generatedAt": "2026-10-15T12:42:23+00:00",
+  "generatedAt": "2026-10-15T12:54:00+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -22,7 +22,7 @@
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 145.60s vs timing 145.60s"
+      "detail": "video 145.57s vs timing 145.57s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -31,8 +31,8 @@
     },
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
-      "ok": false,
-      "detail": "-0.4 dBTP"
+      "ok": true,
+      "detail": "-2.2 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -42,7 +42,7 @@
     {
       "name": "video.mp4: visual changes/min >= 20",
       "ok": true,
-      "detail": "23.1 changes/min (measured), 4.9 planned beats/min, 16.9 sfx/min",
+      "detail": "23.9 changes/min (measured), 4.9 planned beats/min, 16.9 sfx/min",
       "level": "warn"
     },
     {
@@ -172,21 +172,21 @@
     }
   ],
   "durations": {
-    "main": 145.6,
+    "main": 145.57,
     "short-s1": 15.37
   },
   "audio": {
     "video.mp4": {
       "lufs": -14.22,
-      "truePeakDb": -0.43,
+      "truePeakDb": -2.21,
       "lra": 3.9,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-s1.mp4": {
-      "lufs": -14.19,
-      "truePeakDb": -2.92,
+      "lufs": -14.25,
+      "truePeakDb": -2.94,
       "lra": 3.6,
       "silences": 0,
       "longestSilenceSec": 0.0,
@@ -200,8 +200,8 @@
       "sfx": 41,
       "sfxPerMin": 16.9,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 56,
-      "visualChangesPerMin": 23.1,
+      "visualChanges": 58,
+      "visualChangesPerMin": 23.9,
       "longestStaticSec": 2.25,
       "longestStaticAtSec": 78.0,
       "revealSilenceDb": -91.0
