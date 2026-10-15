@@ -1,0 +1,289 @@
+{
+  "version": 1,
+  "slug": "2026-10-15-blockbuster-passes-on-netflix",
+  "format": "long",
+  "verdict": "PASSED",
+  "theme": "signed-or-passed",
+  "voice": {"engine": "kokoro", "voice": "bm_george", "speed": 1.1},
+  "music": {"mood": "tense", "era": "2000s", "source": "auto", "stingers": true},
+  "captionStyle": "bold-pop",
+  "scenes": [
+    {"id": "s01", "kind": "kinetic-text", "narration": "Fifty million dollars. That was the price on a small, money-losing start-up that mailed DVDs to people's homes.", "visual": {"preset": "word-pop", "text": "$50 MILLION", "accent": ["$50"], "background": "board"}, "sfx": "coin_drop", "minDurationSec": 5},
+    {"id": "s02", "kind": "illustration", "narration": "The company it was pitched to had thousands of stores.", "motion": "parallax", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 22, "y": 58, "scale": 1.0, "depth": 0.4, "enter": "slide-up"},
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 62, "scale": 1.15, "depth": 0.6, "enter": "slide-up", "delaySec": 0.3},
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 79, "y": 58, "scale": 1.0, "depth": 0.4, "enter": "slide-up", "delaySec": 0.6}
+    ]}},
+    {"id": "s03", "kind": "illustration", "narration": "Today, that start-up is Netflix, worth hundreds of billions of dollars.", "motion": "push-in", "visual": {"background": "OfficeBackdrop", "layers": [
+      {"component": "Laptop", "props": {"label": "NETFLIX"}, "x": 50, "y": 56, "scale": 1.3, "enter": "pop"},
+      {"component": "MoneyStack", "x": 24, "y": 68, "scale": 1.1, "enter": "slide-up", "delaySec": 0.4},
+      {"component": "FallingChart", "props": {"direction": "up"}, "x": 78, "y": 54, "scale": 1.0, "enter": "slide-left", "delaySec": 0.7}
+    ]}, "effects": ["sparkles"]},
+    {"id": "s04", "kind": "map", "narration": "The company with the stores was Blockbuster. It is down to one last store, in Oregon.", "visual": {"focus": "USA", "focusLabel": "United States", "zoomTo": "city", "city": {"name": "Bend, Oregon", "lat": 44.06, "lon": -121.31}, "pins": [{"lat": 44.06, "lon": -121.31, "label": "Bend, Oregon"}]}, "transition": "whip-pan", "sfx": "whoosh", "minDurationSec": 8},
+    {"id": "s05", "kind": "shot", "narration": "So, sitting in that chair, would you have bought it?", "visual": {"shot": "SlowPushIn", "props": {"text": "THE OFFER"}}, "sfxCues": [{"sfx": "tension_drone", "atSec": 0.0, "gainDb": -12}], "minDurationSec": 4},
+
+    {"id": "s06", "kind": "chapter", "narration": "Dallas, Texas. The year two thousand.", "visual": {"number": 1, "title": "Dallas, 2000", "label": "Chapter"}, "transition": "wipe-left", "sfx": "paper", "dateTag": "DALLAS · 2000"},
+    {"id": "s07", "kind": "map", "narration": "This is where Blockbuster was born, back in nineteen eighty-five, and by now it is everywhere.", "visual": {"focus": "USA", "focusLabel": "United States", "zoomTo": "city", "city": {"name": "Dallas", "lat": 32.78, "lon": -96.8}, "globe": false, "pins": [{"lat": 32.78, "lon": -96.8, "label": "Dallas"}]}, "minDurationSec": 8},
+    {"id": "s08", "kind": "growth", "narration": "Thousands of stores.", "visual": {"from": 1, "to": 7677, "label": "stores, end of 2000 (incl. franchises)", "sourceId": "s13"}, "sfx": "pop", "minDurationSec": 5},
+    {"id": "s09", "kind": "counter", "narration": "Close to five billion dollars a year in revenue.", "visual": {"from": 0, "to": 4.96, "unit": "$ billion", "style": "plain", "label": "Blockbuster revenue, 2000", "sourceId": "s13"}, "sfx": "cash_register", "minDurationSec": 4},
+    {"id": "s10", "kind": "illustration", "narration": "And it is not even fully its own boss: its parent company is the media giant Viacom.", "visual": {"background": "paper", "layers": [
+      {"component": "Building", "props": {"type": "office", "label": "VIACOM"}, "x": 50, "y": 36, "scale": 1.3, "enter": "drop"},
+      {"component": "Arrow", "props": {"direction": "down"}, "x": 50, "y": 58, "scale": 0.8, "enter": "fade", "delaySec": 0.5},
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 78, "scale": 0.9, "enter": "slide-up", "delaySec": 0.8}
+    ]}},
+    {"id": "s11", "kind": "illustration", "narration": "The man in charge is John Antioco. A retail lifer.", "lowerThird": {"style": "bar", "title": "John Antioco", "subtitle": "CEO, Blockbuster", "atSec": 0.6}, "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Character", "props": {"pose": "arms-crossed", "costume": "suit", "colour": "ink", "label": "JOHN ANTIOCO"}, "x": 50, "y": 62, "scale": 1.4, "enter": "slide-up"},
+      {"component": "Spotlight", "x": 50, "y": 40, "scale": 1.2, "enter": "fade", "delaySec": 0.3}
+    ]}, "motion": "push-in"},
+    {"id": "s12", "kind": "timeline", "narration": "He spent around twenty years at the convenience chain Seven-Eleven, then ran Circle K and later Taco Bell, before he took the top job at Blockbuster in nineteen ninety-seven.", "visual": {"events": [{"date": "1970", "label": "Joins Seven-Eleven"}, {"date": "1991", "label": "Circle K"}, {"date": "1996", "label": "Taco Bell"}, {"date": "1997", "label": "CEO of Blockbuster"}]}, "transition": "push"},
+    {"id": "s13", "kind": "illustration", "narration": "Antioco knows stores. He knows how to make them pay.", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "STORE"}, "x": 30, "y": 58, "scale": 1.1, "enter": "slide-up"},
+      {"component": "Character", "props": {"pose": "walk", "costume": "suit", "colour": "ink", "hold": "moneybag"}, "x": 62, "y": 66, "scale": 1.2, "enter": "slide-left", "delaySec": 0.3},
+      {"component": "CoinRain", "x": 80, "y": 40, "scale": 0.9, "enter": "fade", "delaySec": 0.6}
+    ]}, "sfxCues": [{"sfx": "cash_register", "atSec": 1.8, "gainDb": -6}]},
+    {"id": "s14", "kind": "illustration", "narration": "Now picture a meeting room at Blockbuster's headquarters. On one side, Blockbuster's executives. On the other, three visitors from California.", "motion": "push-in", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Desk", "x": 50, "y": 74, "scale": 1.7, "enter": "slide-up"},
+      {"component": "Character", "props": {"pose": "sit", "costume": "suit", "colour": "ink"}, "x": 22, "y": 62, "scale": 1.05, "enter": "slide-right", "delaySec": 0.3},
+      {"component": "Character", "props": {"pose": "sit", "costume": "suit", "colour": "grey"}, "x": 34, "y": 62, "scale": 1.05, "enter": "slide-right", "delaySec": 0.5},
+      {"component": "Character", "props": {"pose": "sit", "costume": "casual", "colour": "stamp", "flip": true}, "x": 62, "y": 62, "scale": 1.05, "enter": "slide-left", "delaySec": 1.2},
+      {"component": "Character", "props": {"pose": "sit", "costume": "casual", "colour": "stamp", "flip": true}, "x": 74, "y": 62, "scale": 1.05, "enter": "slide-left", "delaySec": 1.4},
+      {"component": "Character", "props": {"pose": "sit", "costume": "casual", "colour": "stamp", "flip": true}, "x": 86, "y": 62, "scale": 1.05, "enter": "slide-left", "delaySec": 1.6}
+    ]}, "dateTag": "DALLAS · 2000"},
+    {"id": "s15", "kind": "city", "narration": "Reed Hastings and Marc Randolph founded Netflix in nineteen ninety-seven, in a small town called Scotts Valley.", "visual": {"era": "modern", "density": "low", "label": "Scotts Valley, California · 1997"}, "minDurationSec": 6},
+    {"id": "s16", "kind": "illustration", "narration": "With them is their finance chief, Barry McCarthy.", "visual": {"background": "CubicleBackdrop", "layers": [
+      {"component": "Character", "props": {"pose": "stand", "costume": "casual", "colour": "stamp", "label": "REED HASTINGS", "hold": "briefcase"}, "x": 24, "y": 62, "scale": 1.2, "enter": "slide-up"},
+      {"component": "Character", "props": {"pose": "stand", "costume": "casual", "colour": "stamp", "label": "MARC RANDOLPH"}, "x": 50, "y": 62, "scale": 1.2, "enter": "slide-up", "delaySec": 0.3},
+      {"component": "Character", "props": {"pose": "wave", "costume": "suit", "colour": "stamp", "label": "BARRY McCARTHY"}, "x": 76, "y": 62, "scale": 1.2, "enter": "slide-up", "delaySec": 0.7}
+    ]}, "lowerThird": {"style": "tab", "title": "Barry McCarthy", "subtitle": "Finance chief, Netflix", "atSec": 0.8}},
+    {"id": "s17", "kind": "illustration", "narration": "Netflix rents DVDs by mail.", "visual": {"background": "CubicleBackdrop", "layers": [
+      {"component": "DVD", "props": {"label": "DVD"}, "x": 24, "y": 56, "scale": 1.2, "enter": "pop"},
+      {"component": "Envelope", "props": {"label": "NETFLIX"}, "x": 52, "y": 58, "scale": 1.2, "enter": "slide-right", "delaySec": 0.4},
+      {"component": "Truck", "props": {"label": "MAIL"}, "x": 80, "y": 70, "scale": 0.9, "enter": "slide-right", "delaySec": 0.8}
+    ]}, "sfx": "whoosh"},
+    {"id": "s18", "kind": "split-flap", "narration": "Since September nineteen ninety-nine, customers pay a flat monthly subscription.", "visual": {"rows": ["SINCE SEPT 1999", "FLAT MONTHLY FEE"], "accentRow": 1}, "sfx": "typewriter_keys"},
+    {"id": "s19", "kind": "infographic", "narration": "You pick your films on a website, and the discs arrive in your mailbox.", "onScreenText": "How it works", "visual": {"type": "flow", "title": "How it works", "data": {"steps": [{"label": "Pick films on a website", "shape": "start"}, {"label": "Discs arrive by mail"}, {"label": "Watch, return, repeat", "shape": "end"}], "direction": "horizontal", "numbered": true}}, "minDurationSec": 5},
+    {"id": "s20", "kind": "illustration", "narration": "And DVD is spreading fast.", "visual": {"background": "CubicleBackdrop", "layers": [
+      {"component": "DVD", "x": 20, "y": 54, "scale": 1.0, "enter": "pop"},
+      {"component": "DVD", "x": 40, "y": 62, "scale": 1.2, "enter": "pop", "delaySec": 0.3},
+      {"component": "DVD", "x": 62, "y": 54, "scale": 1.4, "enter": "pop", "delaySec": 0.6},
+      {"component": "DVD", "x": 84, "y": 62, "scale": 1.6, "enter": "pop", "delaySec": 0.9}
+    ]}, "sfxCues": [{"sfx": "pop", "atSec": 0.4}, {"sfx": "pop", "atSec": 0.7}, {"sfx": "pop", "atSec": 1.0}]},
+    {"id": "s21", "kind": "infographic", "narration": "By the end of the following year, about twenty-five million American households will own a DVD player, nearly double the year before.", "visual": {"type": "ticker", "title": "US households with a DVD player, end of 2001", "unit": "M", "sourceId": "s4", "data": {"from": 0, "to": 25, "label": "million households"}}, "transition": "wipe-up", "minDurationSec": 6},
+    {"id": "s22", "kind": "counter", "narration": "That year, Americans will spend twenty-one billion dollars renting and buying videos.", "visual": {"from": 0, "to": 21, "unit": "$ billion", "style": "money", "label": "US spend on video rentals and purchases, 2001", "sourceId": "s4"}, "sfx": "coin_drop", "minDurationSec": 5},
+    {"id": "s23", "kind": "illustration", "narration": "A huge market. And Blockbuster stands right at its front door.", "motion": "push-in", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 54, "scale": 1.5, "enter": "slide-up"},
+      {"component": "Crowd2", "props": {"count": 10, "seed": 7, "costumes": ["casual", "suit"], "poses": ["walk", "stand"]}, "x": 50, "y": 82, "scale": 0.8, "enter": "fade", "delaySec": 0.5}
+    ]}},
+    {"id": "s24", "kind": "infographic", "narration": "Now look at Netflix's numbers for two thousand. About three hundred thousand subscribers.", "visual": {"type": "ticker", "title": "Netflix, 2000", "sourceId": "s4", "data": {"from": 0, "to": 292000, "label": "subscribers, end of 2000"}}, "minDurationSec": 5},
+    {"id": "s25", "kind": "chart", "narration": "Revenue for the year: thirty-five point nine million dollars. And a net loss of fifty-seven point four million.", "visual": {"type": "bar", "series": [{"label": "Revenue 2000", "value": 35.9}, {"label": "Net loss 2000", "value": 57.4}], "unit": "$ million", "sourceId": "s4"}, "sfxCues": [{"sfx": "error_buzz", "atSec": 4.0, "gainDb": -12}]},
+    {"id": "s26", "kind": "kinetic-text", "narration": "A net loss means that after every bill is paid, the company is that much in the red. Netflix is spending far more than it earns.", "visual": {"preset": "highlighter-marker", "lines": ["NET LOSS", "After every bill is paid,", "the company is in the red"], "accent": ["in the red"]}},
+    {"id": "s27", "kind": "illustration", "narration": "Then the Netflix team names its price. Fifty million dollars.", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Desk", "x": 50, "y": 74, "scale": 1.6, "enter": "slide-up"},
+      {"component": "Contract", "props": {"label": "$50,000,000"}, "x": 50, "y": 60, "scale": 1.3, "enter": "slide-right", "delaySec": 0.6},
+      {"component": "Character", "props": {"pose": "point", "costume": "casual", "colour": "stamp", "flip": true}, "x": 78, "y": 58, "scale": 1.1, "enter": "slide-left", "delaySec": 0.3},
+      {"component": "Character", "props": {"pose": "thinking", "costume": "suit", "colour": "ink"}, "x": 22, "y": 58, "scale": 1.1, "enter": "slide-right", "delaySec": 0.3}
+    ]}, "sfx": "paper", "sfxCues": [{"sfx": "cash_register", "atSec": 1.6, "gainDb": -6}]},
+    {"id": "s28", "kind": "photo-wall", "narration": "Everyone who has told this story agrees on that number.", "visual": {"cards": [{"label": "RANDOLPH", "component": "Person", "props": {"pose": "standing", "colour": "stamp"}}, {"label": "HASTINGS", "component": "Person", "props": {"pose": "standing", "colour": "stamp"}}, {"label": "ANTIOCO", "component": "Person", "props": {"pose": "standing", "colour": "ink"}}, {"label": "$50 MILLION", "component": "Contract", "props": {"label": "$50M"}}], "links": [[0, 3], [1, 3], [2, 3]]}, "sfxCues": [{"sfx": "camera_shutter", "atSec": 0.4}, {"sfx": "camera_shutter", "atSec": 1.0}], "minDurationSec": 5},
+    {"id": "s29", "kind": "kinetic-text", "narration": "Almost everything else about this meeting is disputed. Even the month. Hold that thought.", "visual": {"preset": "typewriter", "lines": ["Everything else:", "disputed.", "Even the month."], "background": "ink"}, "sfx": "typewriter_keys"},
+
+    {"id": "s30", "kind": "chapter", "narration": "So put yourself in John Antioco's shoes. Why would you say no?", "visual": {"number": 2, "title": "Why say no?", "label": "Chapter"}, "transition": "wipe-left", "sfx": "paper"},
+    {"id": "s31", "kind": "versus", "narration": "First, the math. Netflix lost more money in that one year than the price it was asking.", "visual": {"left": {"label": "Netflix net loss, 2000", "value": 57.4, "unit": "$M", "component": "FallingChart", "props": {"direction": "down"}}, "right": {"label": "Asking price", "value": 50, "unit": "$M", "component": "PriceTag", "props": {"label": "$50M"}}, "unit": "$ million", "sourceId": "s4"}},
+    {"id": "s32", "kind": "counter", "narration": "You would be paying fifty million dollars for a business on its way to losing more than fifty million dollars that year.", "visual": {"from": 0, "to": 50, "unit": "$ million", "style": "money", "label": "The asking price", "sourceId": "s7"}, "minDurationSec": 5},
+    {"id": "s33", "kind": "illustration", "narration": "And buying a company means buying its losses, too. Next year, and the year after that.", "visual": {"background": "paper", "layers": [
+      {"component": "FlipCalendar", "props": {"pages": ["2001", "2002", "2003"], "label": "LOSSES"}, "x": 32, "y": 52, "scale": 1.2, "enter": "drop"},
+      {"component": "FallingChart", "props": {"direction": "down"}, "x": 70, "y": 54, "scale": 1.2, "enter": "slide-left", "delaySec": 0.5}
+    ]}},
+    {"id": "s34", "kind": "shot", "narration": "Nobody could promise when Netflix would ever turn a profit.", "visual": {"shot": "Fog", "props": {"text": "WHEN WOULD IT TURN A PROFIT?"}}, "minDurationSec": 4},
+    {"id": "s35", "kind": "illustration", "narration": "Second, the mood. In two thousand, the dot-com bubble peaked and began to burst.", "visual": {"background": "CubicleBackdrop", "layers": [
+      {"component": "EarlyWebsite", "props": {"label": "http://www.dotcom.example"}, "x": 30, "y": 52, "scale": 1.2, "enter": "pop"},
+      {"component": "FallingChart", "props": {"direction": "down"}, "x": 72, "y": 54, "scale": 1.2, "enter": "slide-left", "delaySec": 0.6}
+    ]}, "effects": [{"id": "dust", "intensity": 0.6}], "dateTag": "2000", "sfxCues": [{"sfx": "impact_boom", "atSec": 2.4, "gainDb": -10}]},
+    {"id": "s36", "kind": "illustration", "narration": "Internet companies that lost money were suddenly being doubted, and Netflix was exactly that kind of company.", "visual": {"background": "CubicleBackdrop", "layers": [
+      {"component": "Crowd2", "props": {"count": 8, "seed": 3, "costumes": ["suit"], "poses": ["shrug", "arms-crossed"], "label": "INVESTORS"}, "x": 36, "y": 70, "scale": 0.75, "enter": "fade"},
+      {"component": "EarlyWebsite", "props": {"label": "NETFLIX.COM"}, "x": 76, "y": 52, "scale": 1.1, "enter": "slide-left", "delaySec": 0.5}
+    ]}},
+    {"id": "s37", "kind": "versus", "narration": "Third, the scale. Netflix had about three hundred thousand subscribers. Blockbuster had thousands of stores.", "visual": {"left": {"label": "Netflix", "value": 292000, "unit": "subscribers", "component": "Laptop"}, "right": {"label": "Blockbuster", "value": 7677, "unit": "stores", "component": "StoreFront"}, "sourceId": "s4"}},
+    {"id": "s38", "kind": "kinetic-text", "narration": "And its revenue was still growing, up about eleven percent on the year before. Why bet on a tiny website when your own shops are doing just fine?", "visual": {"preset": "word-pop", "lines": ["Revenue still growing:", "up about 11%"], "accent": ["11%"], "sourceId": "s13"}},
+    {"id": "s39", "kind": "illustration", "narration": "And fourth, who really decides?", "visual": {"background": "OfficeBackdrop", "layers": [
+      {"component": "Character", "props": {"pose": "thinking", "costume": "suit", "colour": "ink", "label": "JOHN ANTIOCO"}, "x": 50, "y": 62, "scale": 1.4, "enter": "slide-up"},
+      {"component": "Gavel", "x": 80, "y": 62, "scale": 1.0, "enter": "pop", "delaySec": 0.6}
+    ]}},
+    {"id": "s40", "kind": "infographic", "narration": "Blockbuster answered to Viacom. Whether Antioco could have bought Netflix on his own, we simply don't know.", "visual": {"type": "org-chart", "title": "Who decides?", "data": {"root": {"label": "VIACOM", "title": "Parent company", "children": [{"label": "BLOCKBUSTER", "children": [{"label": "John Antioco", "title": "CEO", "highlight": true}]}]}}}, "minDurationSec": 6},
+    {"id": "s41", "kind": "kinetic-text", "narration": "But there is a case for yes, too.", "visual": {"preset": "word-pop", "text": "The case for YES", "accent": ["YES"], "background": "paper"}, "transition": "fade"},
+    {"id": "s42", "kind": "infographic", "narration": "Fifty million dollars was about one percent of Blockbuster's yearly revenue. It could afford it.", "visual": {"type": "percent-ring", "title": "$50M vs. a year of revenue", "sourceId": "s13", "data": {"value": 1, "label": "of Blockbuster's yearly revenue"}}, "minDurationSec": 5},
+    {"id": "s43", "kind": "illustration", "narration": "The risk wasn't the price. The risk was the idea: a rental business with no stores at all. No shelves. No counters. No rent.", "onScreenText": "NO SHELVES · NO COUNTERS · NO RENT", "visual": {"background": "paper", "layers": [
+      {"component": "Laptop", "props": {"label": "NO STORES"}, "x": 50, "y": 54, "scale": 1.4, "enter": "pop"},
+      {"component": "Envelope", "x": 22, "y": 62, "scale": 1.0, "enter": "slide-right", "delaySec": 0.5},
+      {"component": "DVD", "x": 80, "y": 60, "scale": 1.0, "enter": "slide-left", "delaySec": 0.8}
+    ]}},
+    {"id": "s44", "kind": "illustration", "narration": "And DVD was spreading fast. If renting by mail caught on, customers might one day stop walking into Blockbuster at all.", "motion": "pan-right", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 24, "y": 56, "scale": 1.3, "enter": "none"},
+      {"component": "Crowd2", "props": {"count": 8, "seed": 11, "costumes": ["casual"], "poses": ["walk"]}, "x": 62, "y": 76, "scale": 0.75, "enter": "slide-right", "delaySec": 0.4}
+    ]}},
+    {"id": "s45", "kind": "kinetic-text", "narration": "For about one percent of a year's revenue, Blockbuster could own the very thing that might replace it. Cheap insurance? Or an expensive distraction?", "visual": {"preset": "highlighter-marker", "lines": ["Cheap insurance?", "Or an expensive distraction?"], "accent": ["Or an expensive distraction?"]}},
+
+    {"id": "s46", "kind": "chapter", "narration": "So here you are. Dallas, two thousand.", "visual": {"number": 3, "title": "You decide", "label": "Chapter"}, "transition": "wipe-left", "sfx": "paper", "dateTag": "DALLAS · 2000"},
+    {"id": "s47", "kind": "illustration", "narration": "A start-up losing more in a year than its own price tag. Your own business, still growing.", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "FallingChart", "props": {"direction": "down", "label": "NETFLIX"}, "x": 22, "y": 54, "scale": 1.2, "enter": "slide-right"},
+      {"component": "DecisionChair", "x": 50, "y": 62, "scale": 1.3, "enter": "drop", "delaySec": 0.3},
+      {"component": "FallingChart", "props": {"direction": "up", "label": "YOURS"}, "x": 78, "y": 54, "scale": 1.2, "enter": "slide-left", "delaySec": 0.6}
+    ]}, "effects": ["vignette"]},
+    {"id": "s48", "kind": "question", "narration": "Fifty million dollars on the table. Would you sign?", "visual": {"question": "Would you sign?", "options": ["SIGN", "PASS"], "holdSec": 3}, "transition": "fade", "sfxCues": [{"sfx": "clock_tick", "atSec": 2.5, "gainDb": -4}], "dateTag": "DALLAS · 2000"},
+
+    {"id": "s49", "kind": "reveal", "narration": "Blockbuster said no. There was no deal.", "visual": {"text": "Blockbuster said no."}, "transition": "flash", "effects": ["paper-scraps"], "sfx": "reveal_stinger"},
+    {"id": "s50", "kind": "photo-wall", "narration": "But how that no was delivered depends on who you ask.", "visual": {"cards": [{"label": "MARC RANDOLPH", "component": "Person", "props": {"pose": "pointing", "colour": "stamp"}}, {"label": "REED HASTINGS", "component": "Person", "props": {"pose": "standing", "colour": "stamp"}}, {"label": "JOHN ANTIOCO", "component": "Person", "props": {"pose": "arms-crossed", "colour": "ink"}}]}, "sfxCues": [{"sfx": "camera_shutter", "atSec": 0.5}], "minDurationSec": 4},
+    {"id": "s51", "kind": "illustration", "narration": "Marc Randolph tells the famous version. In his twenty nineteen book, That Will Never Work, he recalls Antioco struggling not to laugh.", "lowerThird": {"style": "underline", "title": "Marc Randolph", "subtitle": "Netflix co-founder · his recollection", "atSec": 0.6}, "visual": {"background": "paper", "layers": [
+      {"component": "Character", "props": {"pose": "talk", "costume": "casual", "colour": "stamp", "label": "MARC RANDOLPH"}, "x": 30, "y": 62, "scale": 1.3, "enter": "slide-up"},
+      {"component": "Newspaper", "props": {"label": "THAT WILL NEVER WORK (2019)"}, "x": 72, "y": 54, "scale": 1.2, "enter": "pop", "delaySec": 0.6}
+    ]}},
+    {"id": "s52", "kind": "quote", "narration": "In twenty twenty-three, he wrote on Twitter that Blockbuster \"laughed us out of the room.\" Keep in mind: that is how Randolph remembers it.", "visual": {"text": "laughed us out of the room", "speaker": "Marc Randolph, on Twitter, 2023 (his recollection)", "sourceId": "s12", "status": "disputed"}, "sfx": "paper"},
+    {"id": "s53", "kind": "illustration", "narration": "John Antioco remembers it very differently.", "visual": {"background": "paper", "layers": [
+      {"component": "Character", "props": {"pose": "arms-crossed", "costume": "suit", "colour": "ink", "label": "JOHN ANTIOCO"}, "x": 50, "y": 62, "scale": 1.4, "enter": "slide-up"}
+    ]}, "transition": "push"},
+    {"id": "s54", "kind": "quote", "narration": "In twenty twenty-one, he wrote on LinkedIn: \"I can say with complete confidence that there were never any serious acquisition talks in 2000.\"", "visual": {"text": "I can say with complete confidence that there were never any serious acquisition talks in 2000.", "speaker": "John Antioco, on LinkedIn, 2021", "sourceId": "s9", "status": "verified"}, "sfx": "paper"},
+    {"id": "s55", "kind": "illustration", "narration": "He says he wasn't even part of the meeting. He only stopped by to greet the guests.", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Desk", "x": 62, "y": 74, "scale": 1.4, "enter": "none"},
+      {"component": "Character", "props": {"pose": "wave", "costume": "suit", "colour": "ink", "label": "JOHN ANTIOCO"}, "x": 22, "y": 62, "scale": 1.3, "enter": "slide-right"},
+      {"component": "Character", "props": {"pose": "sit", "costume": "suit", "colour": "grey"}, "x": 56, "y": 62, "scale": 1.1, "enter": "fade", "delaySec": 0.4},
+      {"component": "Character", "props": {"pose": "sit", "costume": "casual", "colour": "stamp", "flip": true}, "x": 78, "y": 62, "scale": 1.1, "enter": "fade", "delaySec": 0.6}
+    ]}},
+    {"id": "s56", "kind": "illustration", "narration": "And Reed Hastings? He has reportedly said he doesn't think it was serious. More curiosity than anything else.", "lowerThird": {"style": "tab", "title": "Reed Hastings", "subtitle": "As reported by Variety, 2025", "atSec": 0.6}, "visual": {"background": "paper", "layers": [
+      {"component": "Character", "props": {"pose": "thinking", "costume": "casual", "colour": "stamp", "label": "REED HASTINGS"}, "x": 38, "y": 62, "scale": 1.4, "enter": "slide-up"},
+      {"component": "MagnifyingGlass", "x": 72, "y": 54, "scale": 1.2, "enter": "pop", "delaySec": 0.7}
+    ]}},
+    {"id": "s57", "kind": "infographic", "narration": "So one of the most famous rejections in business rests on three memories, told nearly two decades later or more.", "visual": {"type": "comparison-table", "title": "Three memories of one meeting", "sourceId": "s7", "data": {"columns": ["Randolph", "Hastings", "Antioco"], "rows": [{"label": "Remembered as", "values": ["Laughed out of the room", "Curiosity, not serious", "No serious talks"]}, {"label": "Told in", "values": ["2019, 2023", "2025 (reported)", "2021"]}]}}, "minDurationSec": 6},
+    {"id": "s58", "kind": "split-flap", "narration": "What everyone agrees on is simple. There was a meeting in Dallas. There was a number: fifty million dollars. And Blockbuster did not buy Netflix.", "visual": {"rows": ["MEETING: DALLAS", "PRICE: $50 MILLION", "DEAL: NONE"], "accentRow": 2, "sourceId": "s7"}, "sfx": "typewriter_keys", "minDurationSec": 7},
+
+    {"id": "s59", "kind": "chapter", "narration": "Netflix kept going.", "visual": {"number": 4, "title": "What came next", "label": "Chapter"}, "transition": "wipe-left", "sfx": "paper"},
+    {"id": "s60", "kind": "illustration", "narration": "In May two thousand and two, it went public. That means it sold shares on the stock market for the first time.", "visual": {"background": "OpenPlanBackdrop", "layers": [
+      {"component": "ShareCertificate", "props": {"label": "NETFLIX", "shares": "5,500,000"}, "x": 36, "y": 54, "scale": 1.3, "enter": "pop"},
+      {"component": "StockBoard", "x": 74, "y": 52, "scale": 1.1, "enter": "slide-left", "delaySec": 0.5}
+    ]}, "dateTag": "MAY 2002", "sfxCues": [{"sfx": "ui_success", "atSec": 1.2, "gainDb": -6}]},
+    {"id": "s61", "kind": "counter", "narration": "Fifteen dollars a share. Eighty-two and a half million dollars raised.", "visual": {"from": 0, "to": 82.5, "unit": "$ million", "style": "money", "label": "Raised in the IPO, $15 a share", "sourceId": "s4"}, "sfx": "cash_register", "minDurationSec": 5},
+    {"id": "s62", "kind": "versus", "narration": "At that price, the whole company was valued at roughly three hundred and ten million dollars. About six times the number it had named in Dallas.", "visual": {"left": {"label": "Named in Dallas, 2000", "value": 50, "unit": "$M", "component": "PriceTag", "props": {"label": "$50M"}}, "right": {"label": "IPO value, 2002", "value": 310, "unit": "$M", "component": "ShareCertificate", "props": {"label": "NETFLIX"}}, "unit": "$ million", "sourceId": "s4"}},
+    {"id": "s63", "kind": "chart", "narration": "By then, Netflix had more than six hundred thousand subscribers, about double what it had in two thousand, and more than eleven and a half thousand titles.", "visual": {"type": "bar", "series": [{"label": "End of 2000", "value": 292}, {"label": "May 2002", "value": 603}], "unit": "thousand subscribers", "sourceId": "s4"}},
+    {"id": "s64", "kind": "illustration", "narration": "The standard plan cost nineteen dollars and ninety-five cents a month.", "visual": {"background": "paper", "layers": [
+      {"component": "PriceTag", "props": {"label": "$19.95 / MONTH"}, "x": 50, "y": 50, "scale": 1.6, "enter": "drop"},
+      {"component": "Envelope", "x": 22, "y": 66, "scale": 1.0, "enter": "slide-right", "delaySec": 0.5},
+      {"component": "DVD", "x": 80, "y": 66, "scale": 1.0, "enter": "slide-left", "delaySec": 0.7}
+    ]}, "sfx": "click"},
+    {"id": "s65", "kind": "illustration", "narration": "And Blockbuster? This is the part of the story people usually skip. Blockbuster did not sit still.", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 36, "y": 56, "scale": 1.3, "enter": "slide-up"},
+      {"component": "Character", "props": {"pose": "run", "costume": "suit", "colour": "ink"}, "x": 72, "y": 66, "scale": 1.2, "enter": "slide-left", "delaySec": 0.4}
+    ]}, "transition": "push"},
+    {"id": "s66", "kind": "growth", "narration": "In two thousand and four, it hit its peak: nine thousand and ninety-four stores.", "visual": {"from": 7677, "to": 9094, "label": "stores at the 2004 peak", "sourceId": "s2"}, "minDurationSec": 5, "dateTag": "2004"},
+    {"id": "s67", "kind": "illustration", "narration": "That same year it split from Viacom and launched its own online rental service, Blockbuster Online.", "visual": {"background": "OpenPlanBackdrop", "layers": [
+      {"component": "Building", "props": {"type": "office", "label": "VIACOM"}, "x": 20, "y": 50, "scale": 1.0, "enter": "slide-up"},
+      {"component": "Arrow", "x": 44, "y": 54, "scale": 0.8, "enter": "fade", "delaySec": 0.4},
+      {"component": "Computer", "props": {"label": "BLOCKBUSTER ONLINE"}, "x": 72, "y": 54, "scale": 1.3, "enter": "pop", "delaySec": 0.8}
+    ]}, "dateTag": "2004"},
+    {"id": "s68", "kind": "kinetic-text", "narration": "In January two thousand and five, it dropped most late fees, the fines for bringing a movie back late.", "visual": {"preset": "strike-then-correct", "wrong": "LATE FEES", "right": "MOSTLY GONE"}, "sfx": "stamp", "dateTag": "JAN 2005"},
+    {"id": "s69", "kind": "counter", "narration": "The numbers swung hard. In two thousand and five, Blockbuster reported a net loss of five hundred and eighty-eight million dollars.", "visual": {"from": 0, "to": 588.1, "unit": "$ million", "style": "plain", "label": "Blockbuster net loss, 2005", "sourceId": "s6"}, "sfxCues": [{"sfx": "error_buzz", "atSec": 3.5, "gainDb": -12}], "minDurationSec": 5},
+    {"id": "s70", "kind": "infographic", "narration": "More than half of that was a write-down, an accounting admission that some assets were worth less than the books said.", "visual": {"type": "donut", "title": "Blockbuster 2005 net loss", "unit": "$M", "sourceId": "s6", "data": {"slices": [{"label": "Write-down", "value": 341.9}, {"label": "Everything else", "value": 246.2}], "highlight": 0, "centerLabel": "of a $588.1M loss"}}, "minDurationSec": 6},
+    {"id": "s71", "kind": "illustration", "narration": "By then, the activist investor Carl Icahn had built a stake of nearly ten percent, and in May two thousand and five he won a seat on the board.", "lowerThird": {"style": "bar", "title": "Carl Icahn", "subtitle": "Activist investor", "atSec": 0.6}, "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Character", "props": {"pose": "stand", "costume": "suit", "colour": "stamp", "label": "CARL ICAHN"}, "x": 30, "y": 62, "scale": 1.3, "enter": "slide-right"},
+      {"component": "DecisionChair", "x": 70, "y": 62, "scale": 1.2, "enter": "drop", "delaySec": 0.8}
+    ]}, "dateTag": "MAY 2005"},
+    {"id": "s72", "kind": "infographic", "narration": "An activist investor buys a big slice of a company to push it in a new direction.", "visual": {"type": "pie", "title": "An activist stake", "unit": "%", "sourceId": "s15", "data": {"slices": [{"label": "Icahn stake (nearly 10%)", "value": 9.7}, {"label": "All other shareholders", "value": 90.3}], "highlight": 0}}, "minDurationSec": 5},
+    {"id": "s73", "kind": "infographic", "narration": "Then, in the autumn of two thousand and six, came Total Access. Rent your discs online, then return them to a Blockbuster store and swap them for free.", "visual": {"type": "flow", "title": "Total Access", "data": {"steps": [{"label": "Rent discs online", "shape": "start"}, {"label": "Return them to a store"}, {"label": "Swap for a free rental", "shape": "end", "highlight": true}], "direction": "horizontal", "numbered": true}}, "sfx": "whoosh", "dateTag": "AUTUMN 2006", "minDurationSec": 7},
+    {"id": "s74", "kind": "shot", "narration": "Netflix had no stores to match that. And it worked.", "visual": {"shot": "RisingRocket", "props": {"text": "IT WORKED", "value": "+700K"}}, "minDurationSec": 4},
+    {"id": "s75", "kind": "infographic", "narration": "By the end of two thousand and six, Blockbuster's online service had about two point two million subscribers, seven hundred thousand of them added in the last three months of the year alone.", "visual": {"type": "ticker", "title": "Blockbuster Online, end of 2006", "unit": "M", "sourceId": "s6", "data": {"from": 0, "to": 2.2, "decimals": 1, "label": "million subscribers"}}, "minDurationSec": 6},
+    {"id": "s76", "kind": "counter", "narration": "The company was back in profit, too: fifty-four point seven million dollars for the year.", "visual": {"from": 0, "to": 54.7, "unit": "$ million", "style": "money", "label": "Blockbuster net income, 2006", "sourceId": "s6"}, "sfx": "cash_register", "minDurationSec": 5},
+    {"id": "s77", "kind": "illustration", "narration": "Antioco says Total Access brought Netflix back to the table, and that serious talks between the two companies began in early two thousand and seven. That is his account.", "lowerThird": {"style": "underline", "title": "Antioco's account", "subtitle": "Uncorroborated", "atSec": 0.6}, "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Handshake", "props": {"leftColour": "ink", "rightColour": "stamp"}, "x": 50, "y": 54, "scale": 1.5, "enter": "pop"}
+    ]}, "dateTag": "2007"},
+    {"id": "s78", "kind": "illustration", "narration": "But inside Blockbuster, a different fight had begun.", "visual": {"background": "BoardroomBackdrop", "layers": [
+      {"component": "Desk", "x": 50, "y": 76, "scale": 1.6, "enter": "none"},
+      {"component": "Character", "props": {"pose": "point", "costume": "suit", "colour": "grey"}, "x": 26, "y": 60, "scale": 1.2, "enter": "slide-right"},
+      {"component": "Character", "props": {"pose": "arms-crossed", "costume": "suit", "colour": "ink", "flip": true}, "x": 74, "y": 60, "scale": 1.2, "enter": "slide-left"}
+    ]}, "effects": ["vignette"], "sfxCues": [{"sfx": "tension_drone", "atSec": 0.0, "gainDb": -12}]},
+    {"id": "s79", "kind": "versus", "narration": "In January two thousand and seven, the board offered Antioco a bonus of two point two eight million dollars. He said he was owed seven point six five million.", "visual": {"left": {"label": "Board offered", "value": 2.28, "unit": "$M", "component": "MoneyStack"}, "right": {"label": "Antioco said he was owed", "value": 7.65, "unit": "$M", "component": "MoneyBag"}, "unit": "$ million", "sourceId": "s5"}, "dateTag": "JAN 2007"},
+    {"id": "s80", "kind": "chart", "narration": "In March, they settled. His lump-sum exit payment was just under five million dollars, instead of the thirteen and a half million his old contract would have paid.", "visual": {"type": "bar", "series": [{"label": "Old contract", "value": 13.5}, {"label": "Settlement", "value": 4.9875}], "unit": "$ million", "sourceId": "s5"}, "dateTag": "MARCH 2007"},
+    {"id": "s81", "kind": "shot", "narration": "Antioco left, and Jim Keyes took over as CEO that same year. The man who had launched Total Access was gone.", "visual": {"shot": "EmptyOffice", "props": {"text": "2007"}}, "minDurationSec": 5},
+    {"id": "s82", "kind": "illustration", "narration": "Also in two thousand and seven, Netflix started streaming. Films over the internet. No disc at all.", "visual": {"background": "OpenPlanBackdrop", "layers": [
+      {"component": "Laptop", "props": {"label": "STREAMING"}, "x": 50, "y": 54, "scale": 1.5, "enter": "pop"},
+      {"component": "WifiRouter", "x": 80, "y": 62, "scale": 1.0, "enter": "slide-left", "delaySec": 0.6}
+    ]}, "dateTag": "2007", "sfx": "notification_ding"},
+    {"id": "s83", "kind": "split-flap", "narration": "On the twenty-third of September, two thousand and ten, Blockbuster filed for Chapter Eleven.", "visual": {"rows": ["23 SEPT 2010", "BLOCKBUSTER", "CHAPTER 11"], "accentRow": 2}, "sfx": "typewriter_keys"},
+    {"id": "s84", "kind": "illustration", "narration": "That is American bankruptcy protection: a court holds off the lenders while a company tries to fix its debts.", "visual": {"background": "paper", "layers": [
+      {"component": "Gavel", "x": 30, "y": 54, "scale": 1.3, "enter": "drop"},
+      {"component": "Scales", "props": {"left": "DEBTS", "right": "ASSETS"}, "x": 70, "y": 54, "scale": 1.3, "enter": "slide-up", "delaySec": 0.5}
+    ]}, "sfxCues": [{"sfx": "impact_boom", "atSec": 0.8, "gainDb": -10}]},
+    {"id": "s85", "kind": "timeline", "narration": "In two thousand and eleven, Dish Network bought Blockbuster out of bankruptcy, with about one thousand seven hundred stores.", "visual": {"events": [{"date": "2010", "label": "Chapter 11"}, {"date": "2011", "label": "Dish buys it, about 1,700 stores"}, {"date": "2014", "label": "Last company-owned stores close"}]}},
+    {"id": "s86", "kind": "chart", "narration": "The last company-owned stores closed in early two thousand and fourteen.", "visual": {"type": "bar", "series": [{"label": "2004", "value": 9094}, {"label": "2011", "value": 1700}, {"label": "Today", "value": 1}], "unit": "stores", "sourceId": "s2"}, "sfx": "sad_trombone"},
+    {"id": "s87", "kind": "illustration", "narration": "Today, one franchised Blockbuster, run by a local owner under the famous name, is still open. In Bend, Oregon.", "visual": {"background": "CityBackdrop", "layers": [
+      {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 56, "scale": 1.5, "enter": "slide-up"}
+    ]}, "lowerThird": {"style": "tab", "title": "Bend, Oregon", "subtitle": "The last Blockbuster", "atSec": 0.8}, "effects": ["vignette"], "motion": "push-in"},
+    {"id": "s88", "kind": "counter", "narration": "And Netflix? In two thousand and twenty-five, it brought in forty-five point two billion dollars in revenue.", "visual": {"from": 0, "to": 45.2, "unit": "$ billion", "style": "money", "label": "Netflix revenue, 2025", "sourceId": "s1"}, "sfx": "cash_register", "minDurationSec": 5},
+    {"id": "s89", "kind": "infographic", "narration": "That is about nine hundred times the fifty million it once named in Dallas.", "visual": {"type": "bubble", "title": "The ask vs. a year of revenue", "unit": "$M", "sourceId": "s1", "data": {"bubbles": [{"label": "Named in Dallas, 2000", "value": 50}, {"label": "Revenue, 2025", "value": 45200}]}}, "minDurationSec": 5},
+    {"id": "s90", "kind": "illustration", "narration": "And the company is worth hundreds of billions of dollars.", "visual": {"background": "OfficeBackdrop", "layers": [
+      {"component": "Laptop", "props": {"label": "NETFLIX"}, "x": 50, "y": 56, "scale": 1.4, "enter": "pop"},
+      {"component": "MoneyStack", "x": 22, "y": 68, "scale": 1.2, "enter": "slide-up", "delaySec": 0.4},
+      {"component": "MoneyStack", "x": 80, "y": 68, "scale": 1.2, "enter": "slide-up", "delaySec": 0.6}
+    ]}, "effects": ["money-rain"]},
+    {"id": "s91", "kind": "kinetic-text", "narration": "So was that one no in Dallas what killed Blockbuster? Probably not on its own.", "visual": {"preset": "typewriter", "lines": ["Did one no", "kill Blockbuster?", "Probably not on its own."], "background": "paper"}, "sfx": "typewriter_keys"},
+    {"id": "s92", "kind": "illustration", "narration": "Blockbuster did fight for the online future, and for a while it was gaining ground.", "visual": {"background": "OpenPlanBackdrop", "layers": [
+      {"component": "Character", "props": {"pose": "run", "costume": "suit", "colour": "ink"}, "x": 30, "y": 66, "scale": 1.2, "enter": "slide-right"},
+      {"component": "FallingChart", "props": {"direction": "up", "label": "ONLINE"}, "x": 70, "y": 54, "scale": 1.3, "enter": "slide-left", "delaySec": 0.4}
+    ]}},
+    {"id": "s93", "kind": "shot", "narration": "Whether owning Netflix back in two thousand would have saved it, nobody can know.", "visual": {"shot": "Fog", "props": {"text": "NOBODY CAN KNOW"}}, "minDurationSec": 4},
+
+    {"id": "s94", "kind": "verdict", "narration": "Fifty million dollars, on the table in Dallas. [pause 0.4] Blockbuster passed.", "voiceSpeed": 0.95, "visual": {"verdict": "PASSED"}, "transition": "stamp-cut", "sfx": "stamp", "minDurationSec": 3},
+    {"id": "s95", "kind": "lesson", "narration": "When a small company could one day replace your core business, don't only ask what it's worth today; ask what it would cost you if it wins.", "visual": {"text": "Don't only ask what it's worth today. Ask what it would cost you if it wins."}, "effects": [{"id": "dust", "intensity": 0.5}]},
+    {"id": "s96", "kind": "kinetic-text", "narration": "So, would you have signed? Tell me in the comments.", "visual": {"preset": "word-pop", "text": "Would you have signed?", "accent": ["signed?"], "background": "paper"}}
+  ],
+  "assets": [],
+  "sources": [
+    {"id": "s1", "title": "Netflix, Inc. (Wikipedia)", "url": "https://en.wikipedia.org/wiki/Netflix,_Inc."},
+    {"id": "s2", "title": "Blockbuster (retailer) (Wikipedia)", "url": "https://en.wikipedia.org/wiki/Blockbuster_LLC"},
+    {"id": "s3", "title": "John Antioco (Wikipedia)", "url": "https://en.wikipedia.org/wiki/John_Antioco"},
+    {"id": "s4", "title": "Netflix, Inc. Form 424B4 IPO prospectus, SEC, 22 May 2002", "url": "https://www.sec.gov/Archives/edgar/data/1065280/000101287002002475/d424b4.htm"},
+    {"id": "s5", "title": "Blockbuster Inc. Form 8-K (Antioco settlement), SEC, 19 Mar 2007", "url": "https://www.sec.gov/Archives/edgar/data/0001085734/000119312507058743/d8k.htm"},
+    {"id": "s6", "title": "Blockbuster reports fourth quarter and full-year 2006 results, 27 Feb 2007", "url": "https://www.sec.gov/Archives/edgar/data/0001085734/000119312507040447/dex991.htm"},
+    {"id": "s7", "title": "Hastings Himself Downplays the $50M Blockbuster Legend (Stratrix)", "url": "https://www.stratrix.com/counterfactuals/why-blockbuster-didn-t-buy-netflix"},
+    {"id": "s8", "title": "The Blockbuster Autopsy (Jay Aldebert)", "url": "https://jayaldebert.com/autopsies/blockbuster"},
+    {"id": "s9", "title": "John F. Antioco, LinkedIn post, Dec 2021", "url": "https://www.linkedin.com/posts/johnantiococeo_id-like-to-respond-to-a-recent-post-that-activity-6879816247995957248-Tidj"},
+    {"id": "s10", "title": "John F. Antioco: What's the Real Story Behind the Blockbuster Netflix Saga? (LinkedIn Pulse, 1 Jun 2022)", "url": "https://www.linkedin.com/pulse/whats-real-story-behind-blockbuster-netflix-saga-john-f-antioco"},
+    {"id": "s11", "title": "Blockbuster CEO 'struggled not to laugh' at chance to buy Netflix, new book says (Yahoo News, 2019)", "url": "https://www.yahoo.com/news/blockbuster-ceo-struggled-not-laugh-191553438.html"},
+    {"id": "s12", "title": "Blockbuster 'laughed us out of the room,' recalls Netflix cofounder (Fortune, 14 Apr 2023)", "url": "https://fortune.com/2023/04/14/netflix-cofounder-marc-randolph-recalls-blockbuster-rejecting-chance-to-buy-it/"},
+    {"id": "s13", "title": "Blockbuster Inc. Form 10-K for FY2001, SEC, 2002", "url": "https://www.sec.gov/Archives/edgar/data/0001085734/000093066102000951/d10k.txt"},
+    {"id": "s14", "title": "Dot-com bubble (Wikipedia)", "url": "https://en.wikipedia.org/wiki/Dot-com_bubble"},
+    {"id": "s15", "title": "NBC News, 10 May 2005 (Icahn elected to the Blockbuster board)", "url": "https://www.nbcnews.com/id/wbna7805560"}
+  ],
+  "metadata": {
+    "title": "Blockbuster Passed on Netflix for $50M. Would You?",
+    "titleAlternatives": ["Would You Have Bought Netflix for $50 Million?", "Netflix Lost More Than Its Price. Would You Buy It?", "The Blockbuster CEO Who Passed on Netflix", "From 9,094 Stores to One: Blockbuster's $50M No"],
+    "description": "In 2000, a money-losing start-up that mailed DVDs to people's homes named its price: $50 million. The company across the table had thousands of stores and close to $5 billion in yearly revenue. Blockbuster did not buy Netflix.\n\nToday Netflix is worth hundreds of billions of dollars, and Blockbuster is down to one franchised store in Bend, Oregon. But the story is more complicated than the legend. Three people remember that meeting in Dallas in three different ways. Sit in John Antioco's chair and decide for yourself.\n\nWould you have signed? Tell us in the comments.",
+    "tags": ["blockbuster", "netflix", "blockbuster netflix", "blockbuster passed on netflix", "john antioco", "reed hastings", "marc randolph", "business decisions", "business history", "business case study", "why blockbuster failed", "blockbuster bankruptcy", "netflix history", "$50 million", "dvd by mail", "startup lessons", "signed or passed", "biggest business mistakes"],
+    "categoryId": "27",
+    "containsSyntheticMedia": false,
+    "madeForKids": false
+  },
+  "thumbnail": {"bigText": "$50M", "headline": "Would you buy Netflix?", "verdict": "PASSED", "illustration": "Contract"},
+  "shorts": [
+    {"id": "short-1", "scenes": [
+      {"id": "a01", "kind": "kinetic-text", "narration": "Fifty million dollars. That was the price on a small, money-losing start-up that mailed DVDs to people's homes.", "visual": {"preset": "word-pop", "text": "$50 MILLION", "accent": ["$50"], "background": "board"}, "sfx": "coin_drop"},
+      {"id": "a02", "kind": "illustration", "narration": "The company it was pitched to had thousands of stores.", "visual": {"background": "CityBackdrop", "layers": [
+        {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 30, "scale": 1.0, "enter": "slide-up"},
+        {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 55, "scale": 1.2, "enter": "slide-up", "delaySec": 0.3},
+        {"component": "StoreFront", "props": {"label": "BLOCKBUSTER"}, "x": 50, "y": 80, "scale": 1.0, "enter": "slide-up", "delaySec": 0.6}
+      ]}},
+      {"id": "a03", "kind": "versus", "narration": "Netflix lost more money in that one year than the price it was asking.", "visual": {"left": {"label": "Netflix net loss, 2000", "value": 57.4, "unit": "$M", "component": "FallingChart", "props": {"direction": "down"}}, "right": {"label": "Asking price", "value": 50, "unit": "$M", "component": "PriceTag", "props": {"label": "$50M"}}, "unit": "$ million", "sourceId": "s4"}},
+      {"id": "a04", "kind": "question", "narration": "Fifty million dollars on the table. Would you sign?", "visual": {"question": "Would you sign?", "options": ["SIGN", "PASS"], "holdSec": 3}, "transition": "fade"},
+      {"id": "a05", "kind": "reveal", "narration": "Blockbuster said no. There was no deal.", "visual": {"text": "Blockbuster said no."}, "transition": "flash", "sfx": "reveal_stinger"},
+      {"id": "a06", "kind": "counter", "narration": "In two thousand and twenty-five, Netflix brought in forty-five point two billion dollars in revenue. That is about nine hundred times the fifty million it once named in Dallas.", "visual": {"from": 0, "to": 45.2, "unit": "$ billion", "style": "money", "label": "Netflix revenue, 2025", "sourceId": "s1"}, "sfx": "cash_register"},
+      {"id": "a07", "kind": "verdict", "narration": "Fifty million dollars, on the table in Dallas. [pause 0.4] Blockbuster passed.", "voiceSpeed": 0.95, "visual": {"verdict": "PASSED"}, "transition": "stamp-cut", "sfx": "stamp", "minDurationSec": 3}
+    ]},
+    {"id": "short-2", "scenes": [
+      {"id": "b01", "kind": "photo-wall", "narration": "So one of the most famous rejections in business rests on three memories, told nearly two decades later or more.", "visual": {"cards": [{"label": "RANDOLPH", "component": "Person", "props": {"pose": "pointing", "colour": "stamp"}}, {"label": "HASTINGS", "component": "Person", "props": {"pose": "standing", "colour": "stamp"}}, {"label": "ANTIOCO", "component": "Person", "props": {"pose": "arms-crossed", "colour": "ink"}}]}, "minDurationSec": 4},
+      {"id": "b02", "kind": "illustration", "narration": "Marc Randolph tells the famous version. In his twenty nineteen book, That Will Never Work, he recalls Antioco struggling not to laugh.", "visual": {"background": "paper", "layers": [
+        {"component": "Character", "props": {"pose": "talk", "costume": "casual", "colour": "stamp", "label": "MARC RANDOLPH"}, "x": 50, "y": 38, "scale": 1.4, "enter": "slide-up"},
+        {"component": "Newspaper", "props": {"label": "THAT WILL NEVER WORK (2019)"}, "x": 50, "y": 72, "scale": 1.2, "enter": "pop", "delaySec": 0.6}
+      ]}},
+      {"id": "b03", "kind": "quote", "narration": "In twenty twenty-one, he wrote on LinkedIn: \"I can say with complete confidence that there were never any serious acquisition talks in 2000.\"", "visual": {"text": "I can say with complete confidence that there were never any serious acquisition talks in 2000.", "speaker": "John Antioco, on LinkedIn, 2021", "sourceId": "s9", "status": "verified"}, "sfx": "paper"},
+      {"id": "b04", "kind": "question", "narration": "So who do you believe?", "visual": {"question": "Who do you believe?", "holdSec": 3}, "transition": "fade"},
+      {"id": "b05", "kind": "split-flap", "narration": "What everyone agrees on is simple. There was a meeting in Dallas. There was a number: fifty million dollars. And Blockbuster did not buy Netflix.", "visual": {"rows": ["MEETING: DALLAS", "PRICE: $50 MILLION", "DEAL: NONE"], "accentRow": 2, "sourceId": "s7"}, "sfx": "typewriter_keys", "minDurationSec": 6},
+      {"id": "b06", "kind": "verdict", "narration": "Fifty million dollars, on the table in Dallas. [pause 0.4] Blockbuster passed.", "voiceSpeed": 0.95, "visual": {"verdict": "PASSED"}, "transition": "stamp-cut", "sfx": "stamp", "minDurationSec": 3}
+    ]}
+  ]
+}
