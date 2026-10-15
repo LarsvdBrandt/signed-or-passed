@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "0000-sample",
   "test": true,
-  "generatedAt": "2026-10-15T11:53:27+00:00",
+  "generatedAt": "2026-10-15T12:21:42+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,12 +17,12 @@
     {
       "name": "video.mp4: duration",
       "ok": true,
-      "detail": "145.0s (TEST production: exempt from 480-720s)"
+      "detail": "145.6s (TEST production: exempt from 480-720s)"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 145.00s vs timing 145.00s"
+      "detail": "video 145.60s vs timing 145.60s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
@@ -32,7 +32,7 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-1.8 dBTP"
+      "detail": "-1.2 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -52,12 +52,12 @@
     {
       "name": "short-s1.mp4: duration",
       "ok": true,
-      "detail": "14.8s (TEST production: exempt from 45-60s)"
+      "detail": "15.4s (TEST production: exempt from 45-60s)"
     },
     {
       "name": "short-s1.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 14.77s vs timing 14.77s"
+      "detail": "video 15.37s vs timing 15.37s"
     },
     {
       "name": "short-s1.mp4: loudness -14 LUFS (+/-1)",
@@ -67,7 +67,7 @@
     {
       "name": "short-s1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.8 dBTP"
+      "detail": "-3.0 dBTP"
     },
     {
       "name": "short-s1.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -111,22 +111,22 @@
     }
   ],
   "durations": {
-    "main": 145.0,
-    "short-s1": 14.77
+    "main": 145.6,
+    "short-s1": 15.37
   },
   "audio": {
     "video.mp4": {
       "lufs": -14.22,
-      "truePeakDb": -1.82,
-      "lra": 3.0,
+      "truePeakDb": -1.17,
+      "lra": 3.9,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-s1.mp4": {
-      "lufs": -14.15,
-      "truePeakDb": -2.84,
-      "lra": 2.8,
+      "lufs": -14.2,
+      "truePeakDb": -2.96,
+      "lra": 3.6,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
