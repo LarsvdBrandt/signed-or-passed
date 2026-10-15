@@ -61,6 +61,7 @@ from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, OUTRO_SEC, ROOT, S
                     slug_arg, sound_opts,
                     split_sentences, strip_emphasis, work_dir, write_json)
 import delivery as dlv
+import textnorm
 
 SR = 24000
 PAUSE_RE = re.compile(r"\[\s*pause(?:\s+([0-9]*\.?[0-9]+)\s*s?)?\s*\]", re.I)
@@ -433,15 +434,20 @@ class ChatterboxEngine:
 
     def report(self):
         clips = list(self.used.values())
+        for c in clips:  # re-score cached clips with the current normaliser (pipeline/textnorm.py)
+            if c.get("asr") is not None:
+                c["wer"] = round(textnorm.wer(c["text"], c["asr"]), 3)
+                c["cer"] = round(textnorm.cer(c["text"], c["asr"]), 3)
         words = [len(c["text"].split()) for c in clips]
         wers = [(c.get("wer") or 0.0) for c in clips]
         tot = sum(words) or 1
-        bad = [{"text": c["text"], "wer": c.get("wer"), "asr": c.get("asr")} for c in clips
-               if (c.get("wer") or 0) > 0.30]
+        bad = [{"text": c["text"], "wer": c.get("wer"), "cer": c.get("cer"), "asr": c.get("asr")} for c in clips
+               if textnorm.bad_sentence(c["text"], c.get("asr"))]
+        misheard = sum(1 for c in clips if (c.get("wer") or 0) > 0.30)
         return {"engine": "chatterbox", "reference": self.reference, "clips": len(clips),
                 "exaggerationOffset": self.ex_off, "cfgOffset": self.cfg_off,
                 "clipWer": round(sum(w * n for w, n in zip(wers, words)) / tot, 4),
-                "retried": sum(1 for c in clips if c.get("retried")), "badSentences": bad,
+                "retried": sum(1 for c in clips if c.get("retried")), "badSentences": bad, "misheardShortClips": misheard - len(bad),
                 "fallbackSentences": sorted(set(self.fallbacks))}
 
 

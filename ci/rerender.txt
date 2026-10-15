@@ -2,4 +2,5 @@
 # Pushing a change to this file renders the listed productions again without editing their files.
 # 2026-10-15T15:35Z: v3 failed the QA gate on a '[pause 1]' marker broken by the punch beat (spoken as 'pause, one')
 #   and on number-format WER false positives; fixed in delivery.punch_text + pipeline/textnorm.py. Renders with VOICE-8.
+# 2026-10-15T15:40Z: again with tts.py + qa.py of the same fix (8bd3f54 missed them).
 2026-10-15-blockbuster-passes-on-netflix

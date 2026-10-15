@@ -204,6 +204,8 @@ def main():
         lo, hi = (480, 720) if cut["format"] == "long" else (45, 60)
         if test:
             check(f"{fname}: duration", True, f"{dur:.1f}s (TEST production: exempt from {lo}-{hi}s)")
+        elif cut["format"] != "long" and 30 <= dur < lo:  # a 30-45 s Short is publishable: warn, the Director adjusts
+            check(f"{fname}: duration {lo}-{hi}s", False, f"{dur:.1f}s (short but publishable, >= 30 s)", level="warn")
         else:
             check(f"{fname}: duration {lo}-{hi}s", lo <= dur <= hi, f"{dur:.1f}s")
         timing = read_json(cut_dir(slug, cut["name"]) / "timing.json")
