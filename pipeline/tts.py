@@ -14,6 +14,9 @@ Pace (RETENTION-5): default speed 1.15, every clip is trimmed of leading/trailin
 Long main cuts get a short silent gap for the brand sting right AFTER the hook (common.brand_intro_plan: after the
 first scene that is not a cold open, or spec.brandIntro.after; 1.2 s by default) and OUTRO_SEC after the last scene
 (end card); timing.json records introSec (sting length), introAtSec (where it starts) and outroSec.
+RETENTION-4b: the scene before the reveal (common.reveal_index) holds spec.sound.revealPauseSec (default 0.6 s)
+longer, so voice, music and sfx fall silent right before the reveal; timing.json records revealAtSec and
+revealPauseSec.
 """
 import json
 import os
@@ -26,7 +29,8 @@ import numpy as np
 import soundfile as sf
 
 from common import (DEFAULT_SPEED, END_TAIL, FIRST_LEAD, FPS, OUTRO_SEC, ROOT, SCENE_LEAD, SCENE_TAIL,
-                    SENTENCE_GAP, VERDICT_MIN, brand_intro_plan, branded, cold_open, cut_dir, cuts, fail, load_spec, log, slug_arg,
+                    SENTENCE_GAP, VERDICT_MIN, brand_intro_plan, branded, cold_open, cut_dir, cuts, fail, load_spec, log, reveal_index,
+                    slug_arg, sound_opts,
                     split_sentences, strip_emphasis, write_json)
 
 SR = 24000
@@ -194,14 +198,20 @@ def snap(t):
     return round(t * FPS) / FPS
 
 
-def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None):
+def layout(engine, scenes, speed, intro=0.0, outro=0.0, intro_after=None, pause_before=None):
     """Scene timing. intro_after = index of the scene after which an `intro` s gap (brand sting) is inserted;
-    None with intro > 0 = the gap comes first (legacy)."""
+    None with intro > 0 = the gap comes first (legacy). pause_before = {scene index: seconds}: the previous scene
+    holds that much longer (silence before the reveal)."""
     t = snap(intro) if intro_after is None else 0.0
     intro_at = 0.0
     out = []
     clips = []
     for i, sc in enumerate(scenes):
+        p = float((pause_before or {}).get(i) or 0.0)
+        if p > 0 and out and not (intro > 0 and intro_after == i - 1):
+            t = snap(t + p)
+            out[-1]["end"] = round(t, 3)
+            log(f"  reveal pause      {p:.2f}s before {sc['id']}")
         start = t
         sp = float(sc.get("voiceSpeed") or speed)
         cur = start + (FIRST_LEAD if i == 0 else SCENE_LEAD)
@@ -254,7 +264,10 @@ def main():
         outro = OUTRO_SEC if branded(cut) else 0.0
         log(f"TTS {args.slug}/{cut['name']} engine={engine_name} voice={voice} speed={speed} sting={intro}s "
             f"(after scene #{intro_after}) outro={outro}s")
-        scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after)
+        ri = reveal_index(cut["scenes"])
+        pause = sound_opts(spec)["revealPauseSec"] if ri else 0.0
+        scenes, clips, total, intro_at = layout(engine, cut["scenes"], speed, intro, outro, intro_after,
+                                                {ri: pause} if pause > 0 else None)
         buf = np.zeros(int(total * SR) + SR, dtype=np.float32)
         for start, a in clips:
             i = int(start * SR)
@@ -268,6 +281,7 @@ def main():
         write_json(d / "timing.json", {
             "fps": FPS, "sampleRate": SR, "format": cut["format"], "totalSec": round(total, 3),
             "introSec": intro, "introAtSec": round(intro_at, 3), "outroSec": outro, "engine": engine_name, "voice": voice, "speed": speed,
+            **({"revealAtSec": scenes[ri]["start"], "revealPauseSec": pause} if ri else {}),
             "scenes": scenes,
         })
         log(f"  total {total:.2f}s -> {d / 'voice.wav'}")

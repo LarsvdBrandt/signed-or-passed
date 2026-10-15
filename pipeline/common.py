@@ -115,6 +115,36 @@ def branded(cut):
     return cut["name"] == "main" and cut["format"] == "long"
 
 
+# RETENTION-4b sound dynamics (docs/library/retention.md)
+MUSIC_ENERGIES = ("low", "mid", "high", "drop", "stop")
+REVEAL_PAUSE_DEFAULT = 0.6
+REVEAL_PAUSE_MAX = 1.5
+RISER_LEAD_SEC = 2.0
+AUTO_SOUND_SFX = ("riser", "impact_boom")
+
+
+def sound_opts(spec):
+    """spec.sound {autoRisers, revealPauseSec, verdictImpact} with the defaults (risers on, 0.6 s, impact on)."""
+    s = spec.get("sound") if isinstance(spec.get("sound"), dict) else {}
+    try:
+        pause = float(s.get("revealPauseSec", REVEAL_PAUSE_DEFAULT) or 0.0)
+    except (TypeError, ValueError):
+        pause = REVEAL_PAUSE_DEFAULT
+    return {"autoRisers": s.get("autoRisers", True) is not False,
+            "revealPauseSec": max(0.0, min(REVEAL_PAUSE_MAX, pause)),
+            "verdictImpact": s.get("verdictImpact", True) is not False}
+
+
+def reveal_index(scenes):
+    """Index of the reveal moment of a cut: the first 'reveal' scene, else the first 'verdict' scene (cold opens are
+    skipped), else None. Works on spec scenes and on timing.json scenes."""
+    for kind in ("reveal", "verdict"):
+        for i, sc in enumerate(scenes):
+            if sc.get("kind") == kind and not sc.get("coldOpen"):
+                return i
+    return None
+
+
 def cold_open(sc):
     """The cold-open settings of a scene (scenes[].coldOpen: true | {style, label, ...}) as a dict, or None."""
     c = sc.get("coldOpen")
