@@ -100,6 +100,14 @@ livelier at the build-up to a big number, a beat of suspense before the key word
 
 Base values; since VOICE-11 the channel default adds no offsets, so these are the values Chatterbox gets (an explicit
 `exaggerationOffset` / `cfgOffset` or `exaggeration` / `cfgWeight` in `spec.voice` shifts them all). On a retry after a bad ASR check the clip is generated with 0.2 less exaggeration.
+
+**VOICE-13 deep retry:** short clips (<= 4 words, e.g. *You're Nike.* / *Signed.*) are heard with 0.6 s of silence
+around them and beam 5 (base.en mishears isolated one- or two-word clips) and every clip still judged bad after two takes gets
+two more (up to 4: seeds +7919/+15838/+23757, exaggeration -0.2/-0.1/-0.3, stopping at the first good take). The best
+take wins on (bad, CER, WER); its `.json` gets `deepRetry: true`, `takes`, `text`. `pipeline/tts_redo.py` (run by
+render.yml before the TTS fan-out and before the render) drops older cached clips that are still judged bad, once, so
+they get this deep retry; the voice of every good clip stays exactly the same (cache hit).
+
 The speed column applies to Kokoro / Piper only (Chatterbox is never stretched, VOICE-10a).
 
 | style | exaggeration | cfg | speed | pause after | used for |
