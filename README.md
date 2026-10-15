@@ -2,7 +2,8 @@
 
 Turns `productions/<slug>/spec.json` into a finished YouTube video (MP4 + Shorts + thumbnail + captions + metadata)
 on free GitHub-hosted runners. Everything is open source: **Remotion** (React video), **Kokoro** TTS (voice
-`bm_george`, default speed 1.1), **ffmpeg** (sound effects, mix, loudness). No paid APIs, no API keys.
+`bm_george`, default speed 1.1; licence-checked **Piper** voices for other languages), **ffmpeg** + numpy (sound
+effects, generated music, mix, loudness). No paid APIs, no API keys.
 
 ## How it works
 1. Another agent (or you) commits `productions/<slug>/spec.json` (contract: `schema/spec.schema.json`, v1).
@@ -20,8 +21,13 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
    - **`preview-moods.mp4`**: every mood shot with its id and mood (silent)
    - **`preview-effects.mp4`**: every effect, look preset and particle overlay (silent)
    - **`preview-transitions.mp4`**: every transition and the parallax rig (silent)
+   - **`preview-infographics.mp4`**: every infographic and diagram type with placeholder data (silent)
+   - **`preview-typography.mp4`**: every kinetic-text preset, lower thirds, chapter card, Shorts caption styles (silent)
+   - **`preview-templates.mp4`**: every scene template in its default era + two others (silent)
    - **`sound-board.mp4`**: every sound of the sound library, with its name and category (with audio)
    - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + licence information
+   - **`music-board.mp4`** / **`music-library.zip`**: every generated mood bed, era flavour and stinger (CC0)
+   - **`voice-samples.mp4`** / **`voice-samples.zip`**: one sample sentence per voice of `brand/voices.json`
 4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`
    (via `ci/push-results.sh`: a plumbing commit on top of the current `main`, so concurrent pushes never conflict).
 5. Uploading to YouTube is **manual**: Actions > `upload` > Run workflow (slug, privacy, optional publishAt).
@@ -31,14 +37,19 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 - Actions > `render` > Run workflow with a slug, or
 - change `ci/trigger.txt` to re-render the test production `0000-sample`.
 
+Only one run waits in the queue: a newer push replaces a pending run. So every push run also renders each real
+production whose `spec.json` was committed after its `render-report.json` (or that has none yet): a lost render is
+caught up automatically. Real productions render first, `0000-sample` last; a failing production does not stop the
+others (`ci/render-all.sh`, `failedSlugs` in `ci/last-run.json`).
+
 ## Repo layout
 | Path | What |
 |---|---|
-| `brand/` | palette, fonts (URLs, OFL), music licences (`licenses.csv`), recorded sound manifest (`sfx/manifest.csv`) |
+| `brand/` | palette, fonts (URLs, OFL), music licences (`music/licenses.csv`), recorded sound manifest (`sfx/manifest.csv`), voice catalogue (`voices.json`) |
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
-| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library |
-| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `EffectPreview`, `TransitionPreview`, `SoundBoard` |
+| `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py`, `fetch_sfx.py` + `soundboard.py` = sound library; `musicgen.py` = generated music; `voice_samples.py` = voice board |
+| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `CharacterPreview`, `MoodPreview`, `EffectsPreview`, `TransitionPreview`, `InfographicPreview`, `TypographyPreview`, `TemplatePreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
 | `render/src/characters/` | the character rig: poses, era costumes, hats, held props, Crowd2 |
@@ -47,10 +58,12 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 | `render/src/effects/` | overlay effects, look presets and seeded particles (see Effects) |
 | `render/src/transitions/` | scene transitions and the parallax rig (see Effects) |
 | `render/src/infographics/` | animated infographics (scene kind `infographic`, see Infographics) |
+| `render/src/typography/` | kinetic text presets, lower thirds, chapter cards, Shorts caption styles (see Typography) |
+| `render/src/templates/` | era-aware scene templates (scene kind `template`, see Scene templates) |
 | `render/src/geo/` | shared Natural Earth helpers (country lookup, region boxes) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
 | `render/src/themes/` | theme engine and presets (see Themes) |
-| `ci/` | step runner, per-production render script, start marker, finalize script, result push, last-run files, trigger |
+| `ci/` | step runner, `render-all.sh` (order + catch-up), per-production render script, start marker, finalize script, result push, last-run files, trigger |
 | `docs/` | privacy policy and terms (for the YouTube API audit); `docs/library/` = library catalogues |
 
 ## Brand: intro and outro
@@ -126,10 +139,30 @@ All overlays are code (SVG filters, seeded particles): no stock footage, nothing
   parallax-orbit; each layer moves by its `depth`.
 
 ## Infographics (scene kind `infographic`)
-14 animated data graphics: bar-race, line-annotated, pie, donut, stacked-area, ranking, ticker (odometer),
+17 types. 14 animated data graphics: bar-race, line-annotated, pie, donut, stacked-area, ranking, ticker (odometer),
 percent-ring, bubble, comparison-table, calendar-heatmap, map-choropleth (Natural Earth, public domain), money-stacks
 and what-could-buy. `visual = {type, title?, unit?, sourceId, data}`; every data type needs a `sourceId` and shows
-"Source: ...". Data per type and how to add one: `docs/library/infographics.md`.
+"Source: ...". Plus 3 diagrams without `sourceId`: `org-chart`, `family-tree` and `flow` (steps with box / decision /
+start / end shapes; without `links` the steps are chained in order). Data per type and how to add one:
+`docs/library/infographics.md`; preview: `preview-infographics.mp4`.
+
+## Typography
+- Scene kind `kinetic-text`: `{preset, text | lines, accent?, background?, colour?, accentColour?, sourceId?}` with
+  11 presets: typewriter, word-pop, highlighter-marker, strike-then-correct, stamp-text, neon-flicker,
+  handwritten-reveal, newspaper-spin, split-flap, scrolling-ticker, quote-card.
+- `scenes[].lowerThird` on any scene: `{style, title, subtitle?, atSec?, durationSec?}`.
+- Scene kind `chapter`: `{number, title}` chapter card.
+- `spec.captionStyle` picks the burned-in Shorts caption style: `bold-pop`, `karaoke-highlight`, `boxed`, `minimal`;
+  default = the theme's own style.
+
+Everything follows the active theme. Catalogue: `docs/library/typography.md`; preview: `preview-typography.mp4`.
+
+## Scene templates (scene kind `template`)
+12 ready-made, era-aware scenes built from the illustration library: boardroom-meeting, phone-call-split-screen,
+signing-ceremony, rejection-letter, factory-floor, stock-market-crash, store-opening-queue, garage-startup,
+press-conference, courtroom, ship-departure, city-at-night-thinking. `visual = {template, era?, labels?, colours?,
+props?: {background?, layers?, overlays?}}`; the era (11 era kits) swaps backdrop, costumes and props. Example and
+slots per template: `docs/library/templates.md`; preview: `preview-templates.mp4`.
 
 ## Sound library
 - **Procedural**: 52 sound effects synthesised with numpy/ffmpeg (office, money, transitions, UI, impacts, crowd,
@@ -170,13 +203,17 @@ No faces, no logos, company names as typography only.
 | `document` | `{title, lines[], verdict: SIGNED\|PASSED, party?, signature?}` - contract writes itself, then signed or stamped |
 | `photo-wall` | `{cards[{label, component?, props?}], links?[[i,j]]}` - evidence cards with red string |
 | `shot` | `{shot, props?, label?}` - mood shot (see Mood shots) |
+| `kinetic-text` | `{preset, text\|lines, accent?, ...}` - animated typography (see Typography) |
+| `chapter` | `{number, title}` - chapter card |
+| `template` | `{template, era?, labels?, colours?, props?}` - staged scene (see Scene templates) |
 | `quote` | `{text, speaker, sourceId, status: verified\|disputed}` |
 | `question` | `{question, options: [SIGN, PASS], holdSec}` - freeze + desaturate + 3-2-1 |
 | `reveal`, `lesson` | `{text}` |
 | `verdict` | `{verdict}` - SIGNED signature (pen sfx) or PASSED stamp (stamp sfx) |
 
 Every chart, counter, infographic, versus, growth and quote shows "Source: <title>" in IBM Plex Mono when `sourceId`
-is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec` and `dateTag`.
+is set. Every scene also accepts `transition`, `effects`, `motion`, `sfx`, `sfxCues`, `minDurationSec`, `dateTag`,
+`lowerThird` and `voiceSpeed`.
 
 ### Illustration layers and motion
 Layer: `{component, props: {colour, label, pose, ...}, x, y (percent, centre), scale, enter, delaySec, depth?}`;
@@ -220,9 +257,22 @@ with the YouTube Data API v3 enabled; scopes `youtube.upload` and `youtube.force
 phone-verified channel.
 
 ## Music
-Add tracks to `brand/music/licenses.csv` (`file,url,title,artist,source,license,attribution_text,mood`). Only use
-licences that allow monetised YouTube use; credits are added to the description automatically. Without tracks, videos
-are rendered without music (warning in render-report.json). (Generated CC0 music beds are planned: MUSIC-1..3.)
+`spec.music = {mood, era, source, stingers}`. Default source `auto`: a library track with that mood if one exists,
+otherwise a bed **generated** by `pipeline/musicgen.py` (numpy oscillators, fixed seed `<slug>:<cut>`, no samples:
+CC0 by construction, cannot match Content ID, no credit needed). 8 moods (tense, curious, triumphant, somber, playful,
+epic, mysterious, upbeat) x 6 era flavours (modern, baroque, jazz-age, fifties, eighties, future); stingers at
+question and verdict scenes. Library tracks: `brand/music/licenses.csv`
+(`file,url,title,artist,source,license,attribution_text,mood`), only CC0 / Public Domain; credits go into the
+description automatically. `source: none` renders without music. Catalogue: `docs/library/music.md`; listen in
+`music-board.mp4`.
+
+## Voices
+`spec.voice = {engine, voice, speaker?, speed?}`. Engines: `kokoro` (default, Apache-2.0, English + es/fr/hi/it/pt)
+and `piper` (installed on first use; only voices in `brand/voices.json` whose training data is CC0 / PD / CC BY, e.g.
+`nl_BE-rdh-medium`, `nl_NL-alex-medium`, `nl_NL-mls-medium`, `en_US-ljspeech-high`; CC BY voices are credited in the
+description). `[pause 0.5]` in a narration inserts 0.5 s of silence (not spoken, not in captions);
+`scenes[].voiceSpeed` (0.5-2.0) overrides the speed for one scene. Catalogue and licence rule:
+`docs/library/voices.md`; listen in `voice-samples.mp4`.
 
 ## Local use
 `make install`, `make render SLUG=0000-sample`, `make studio` (Remotion Studio with the Preview composition).
