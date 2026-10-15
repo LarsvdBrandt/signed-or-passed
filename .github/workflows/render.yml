@@ -159,6 +159,7 @@ jobs:
       - name: Generate clips
         timeout-minutes: 32
         run: |
+          python pipeline/tts_redo.py || true  # VOICE-13: cached clips still judged bad get one deep retry
           python pipeline/tts.py --slug "${{ matrix.slug }}" --shard "${{ matrix.shard }}/${{ matrix.shards }}" \
             --export "build/tts-out"
 
@@ -265,7 +266,9 @@ jobs:
 
       - name: Render
         timeout-minutes: 100
-        run: bash ci/render-all.sh
+        run: |
+          python pipeline/tts_redo.py || true  # VOICE-13: cached clips still judged bad get one deep retry
+          bash ci/render-all.sh
 
       - name: Finalize (always)
         if: always()

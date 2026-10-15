@@ -7,6 +7,10 @@ created by tts.py on first use), never imported by the main pipeline.
       Writes every job's WAV (24 kHz mono float) to `out` (skipped when it exists = cache hit) and `out`.json with
       {wer, asr, retried, exaggeration, seconds}. With --asr every clip is transcribed (faster-whisper, CPU int8) and a
       clip with WER > 0.30 is generated once more with a lower exaggeration / other seed; the better take is kept.
+      VOICE-13: short clips (<= 4 words) are transcribed with 0.6 s padding and beam 5 (base.en mishears isolated
+      one- or two-word clips), and a clip still judged bad after two takes gets two more (up to 4, stopping at the
+      first good one); with `redo` the cached take competes too. The best take wins on (bad, CER, WER); its .json
+      gets deepRetry=true + text (pipeline/tts_redo.py drops older cached clips that are still bad, once).
   python chatterbox_worker.py utmos --wav voice.wav --out utmos.json
       UTMOS22 naturalness MOS prediction (VOICE-10c listening test; tarepan/SpeechMOS via torch.hub, MIT).
   python chatterbox_worker.py liveliness --wav voice.wav --out liveliness.json
@@ -25,6 +29,8 @@ import textnorm  # noqa: E402  (standard library only, shared with tts.py)
 
 RETRY_WER = 0.30
 SR_ASR = 16000
+SHORT_WORDS = 4      # VOICE-13: clips of at most this many words get the careful ASR + deep retry
+ASR_PAD = 0.6        # seconds of silence around a short clip before transcribing
 
 ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen " \
        "seventeen eighteen nineteen".split()
@@ -67,18 +73,37 @@ def load_asr(name):
     return WhisperModel(name, device="cpu", compute_type="int8", cpu_threads=max(1, int(os.environ.get("OMP_NUM_THREADS", "2"))))
 
 
-def transcribe(asr, wav, sr, words=False):
-    """ASR text; with words=True (text, [(word, start, end)])."""
+def transcribe(asr, wav, sr, words=False, careful=False):
+    """ASR text; with words=True (text, [(word, start, end)]). careful=True (VOICE-13, short clips): 0.6 s of
+    silence on both sides and beam 5; word timestamps are shifted back to the unpadded clip."""
     import numpy as np
     import librosa
     a = librosa.resample(np.asarray(wav, dtype=np.float32), orig_sr=sr, target_sr=SR_ASR) if sr != SR_ASR else wav
-    segs, _ = asr.transcribe(a, language="en", beam_size=1, vad_filter=False, condition_on_previous_text=False,
-                             word_timestamps=words)
+    a = np.asarray(a, dtype=np.float32)
+    off = 0.0
+    if careful:
+        pad = np.zeros(int(ASR_PAD * SR_ASR), dtype=np.float32)
+        a, off = np.concatenate([pad, a, pad]), ASR_PAD
+    segs, _ = asr.transcribe(a, language="en", beam_size=5 if careful else 1, vad_filter=False,
+                             condition_on_previous_text=False, word_timestamps=words)
     segs = list(segs)
     text = " ".join(s.text.strip() for s in segs).strip()
     if not words:
         return text
-    return text, [(w.word, float(w.start), float(w.end)) for s in segs for w in (s.words or [])]
+    return text, [(w.word, max(0.0, float(w.start) - off), max(0.0, float(w.end) - off))
+                  for s in segs for w in (s.words or [])]
+
+
+def is_short(text):
+    return len(textnorm.canon(text)) <= SHORT_WORDS
+
+
+def take_score(ref, hyp):
+    """VOICE-13: lower is better: (judged bad, CER, WER)."""
+    if hyp is None:
+        return (0, 0.0, 0.0)
+    return (1 if textnorm.bad_sentence(ref, hyp, RETRY_WER) else 0, round(textnorm.cer(ref, hyp), 3),
+            round(textnorm.wer(ref, hyp), 3))
 
 
 def _toks(text):
@@ -139,8 +164,9 @@ def synth(args):
     torch.set_num_threads(args.threads)
     from chatterbox.tts import ChatterboxTTS
     jobs = json.load(open(args.jobs, encoding="utf-8"))
-    todo = [j for j in jobs if not Path(j["out"]).exists()]
-    print(f"[chatterbox] {len(jobs)} jobs, {len(todo)} to generate, threads={args.threads}", flush=True)
+    todo = [j for j in jobs if not Path(j["out"]).exists() or j.get("redo")]
+    print(f"[chatterbox] {len(jobs)} jobs, {len(todo)} to generate "
+          f"({sum(1 for j in todo if j.get('redo'))} deep retries), threads={args.threads}", flush=True)
     if not todo:
         return
     t0 = time.time()
@@ -152,11 +178,33 @@ def synth(args):
     audio_sec = 0.0
     for n, j in enumerate(todo):
         t1 = time.time()
-        takes = []
-        tries = [(j["exaggeration"], j["cfgWeight"], j.get("seed", 0))]
+        ref = j.get("expected") or j["text"]
+        careful = bool(asr) and is_short(ref)
+        deep = bool(asr)  # VOICE-13: every clip may get up to 4 takes (stops at the first good one)
+        takes = []  # (score, k, audio, hyp, exaggeration, words)
+        seed0 = int(j.get("seed", 0))
+        tries = [(j["exaggeration"], j["cfgWeight"], seed0)]
         if asr:
-            tries.append((max(0.25, j["exaggeration"] - 0.2), max(0.5, j["cfgWeight"]), j.get("seed", 0) + 7919))
+            tries.append((max(0.25, j["exaggeration"] - 0.2), max(0.5, j["cfgWeight"]), seed0 + 7919))
+        if deep:  # VOICE-13: two more takes when the first two are still judged bad
+            tries.append((max(0.25, j["exaggeration"] - 0.1), j["cfgWeight"], seed0 + 15838))
+            tries.append((max(0.25, j["exaggeration"] - 0.3), max(0.5, j["cfgWeight"]), seed0 + 23757))
+        if j.get("redo") and Path(j["out"]).exists() and asr:  # the cached take competes (re-heard carefully)
+            try:
+                old, osr = sf.read(j["out"], dtype="float32")
+                old = np.asarray(old, dtype=np.float32).reshape(-1)
+                if j.get("sentences"):
+                    hyp, words = transcribe(asr, old, osr, words=True, careful=careful)
+                else:
+                    hyp, words = transcribe(asr, old, osr, careful=careful), None
+                sc = take_score(ref, hyp)
+                takes.append((sc, -1, old, hyp, j["exaggeration"], words))
+                print(f"[chatterbox] job {j['id']} cached take re-heard: {hyp!r} {sc}", flush=True)
+            except Exception as e:  # noqa: BLE001
+                print(f"[chatterbox] job {j['id']} cached take unreadable: {e}", flush=True)
         for k, (ex, cfg, seed) in enumerate(tries):
+            if takes and min(takes, key=lambda x: (x[0], x[1]))[0][0] == 0:
+                break  # a good take exists
             torch.manual_seed(int(seed))
             try:
                 wav = model.generate(j["text"], exaggeration=float(ex), cfg_weight=float(cfg),
@@ -167,33 +215,39 @@ def synth(args):
                 continue
             words = None
             if asr and j.get("sentences"):
-                hyp, words = transcribe(asr, a, model.sr, words=True)
+                hyp, words = transcribe(asr, a, model.sr, words=True, careful=careful)
             else:
-                hyp = transcribe(asr, a, model.sr) if asr else None
-            w = wer(j.get("expected") or j["text"], hyp) if asr else None
-            takes.append((w if w is not None else 0.0, k, a, hyp, ex, words))
-            if w is None or not textnorm.bad_sentence(j.get("expected") or j["text"], hyp, RETRY_WER):
-                break
-            print(f"[chatterbox] job {j['id']} WER {w:.2f} -> retry: {hyp!r}", flush=True)
+                hyp = transcribe(asr, a, model.sr, careful=careful) if asr else None
+            sc = take_score(ref, hyp) if asr else (0, 0.0, 0.0)
+            takes.append((sc, k, a, hyp, ex, words))
+            if sc[0]:
+                print(f"[chatterbox] job {j['id']} take {k + 1} WER {sc[2]:.2f} CER {sc[1]:.2f} -> retry: {hyp!r}",
+                      flush=True)
         if not takes:
             continue
-        w, k, a, hyp, ex, words = min(takes, key=lambda x: (x[0], x[1]))
+        sc, k, a, hyp, ex, words = min(takes, key=lambda x: (x[0], x[1]))
+        w = sc[2] if asr else None
+        if k == -1:
+            model_sr = osr
+        else:
+            model_sr = model.sr
         out = Path(j["out"])
         out.parent.mkdir(parents=True, exist_ok=True)
-        sf.write(str(out) + ".tmp.wav", a, model.sr, subtype="FLOAT")
+        sf.write(str(out) + ".tmp.wav", a, model_sr, subtype="FLOAT")
         os.replace(str(out) + ".tmp.wav", out)
         info = {"wer": None if w is None or not asr else round(w, 3), "asr": hyp, "retried": len(takes) > 1 or k > 0,
-                "exaggeration": ex, "seconds": round(len(a) / model.sr, 2), "sr": model.sr}
+                "exaggeration": ex, "seconds": round(len(a) / model_sr, 2), "sr": model_sr,
+                "takes": len(takes), "deepRetry": deep, "carefulAsr": careful, "text": ref}
         if j.get("sentences"):  # VOICE-10b paragraph clip: where to cut it into its sentences
             if words is None and len(j["sentences"]) > 1 and asr is None:
                 words = []
-            cuts, speech = sentence_cuts(j["sentences"], words or [], a, model.sr)
+            cuts, speech = sentence_cuts(j["sentences"], words or [], a, model_sr)
             info.update({"sentences": j["sentences"], "cuts": cuts, "speech": speech})
         json.dump(info, open(str(out) + ".json", "w", encoding="utf-8"))
-        audio_sec += len(a) / model.sr
+        audio_sec += len(a) / model_sr
         el = time.time() - t1
-        print(f"[chatterbox] {n + 1}/{len(todo)} {j['id']} {len(a) / model.sr:.1f}s audio in {el:.1f}s"
-              f"{'' if w is None else f' WER {w:.2f}'}", flush=True)
+        print(f"[chatterbox] {n + 1}/{len(todo)} {j['id']} {len(a) / model_sr:.1f}s audio in {el:.1f}s"
+              f"{'' if w is None else f' WER {w:.2f}'}{f' ({len(takes)} takes)' if len(takes) > 1 else ''}", flush=True)
     print(f"[chatterbox] done: {audio_sec:.0f}s audio in {time.time() - t0:.0f}s", flush=True)
 
 

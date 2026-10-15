@@ -3,5 +3,8 @@
 #   channel pause table (sentence 0.45 / paragraph 0.75 / scene 0.9 / section 1.6 / punch 0.6+0.9 / reveal 1.2 /
 #   question hold 3 s) + pace guard toward ~140 wpm overall. The voice is unchanged (same clips from the cache).
 #   Both specs have no voice overrides, so the new default applies without touching their files.
-2026-10-15-blockbuster-passes-on-netflix
+#   -> Blockbuster passed (run 38797581993); Nike failed the QA gate on two short clips
+#      ('You're Nike.' heard 'Clear Nike.', 'Signed.' heard 'sign').
+# 2026-10-15T20:50Z: VOICE-13 deep retry for short / still-bad Chatterbox clips (careful ASR + up to 4 takes);
+#   re-render Nike only (its spec is unchanged).
 2026-10-15-nike-signs-michael-jordan
