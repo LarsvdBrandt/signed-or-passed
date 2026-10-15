@@ -23,6 +23,8 @@ for props in build/"$slug"/*/props.json; do
   $S "render:$slug:$cut" bash -c "cd render && npx remotion render src/index.ts $comp ../build/$slug/$cut/silent.mp4 --props=../$props --concurrency=2 --image-format=jpeg --jpeg-quality=90 --crf=20 --codec=h264 --log=info"
   $S "mux:$slug:$cut" ffmpeg -y -hide_banner -loglevel error -i "build/$slug/$cut/silent.mp4" -i "build/$slug/$cut/mix.wav" \
     -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$OUT/$name.mp4"
+  # the AAC encode can push hard transients over -1 dBTP (varies per run): re-encode the audio with a stricter limiter
+  $S "peakfix:$slug:$cut" python pipeline/peakfix.py "$OUT/$name.mp4" "build/$slug/$cut/mix.wav"
 done
 
 $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumbnail ../$OUT/thumbnail.png --props=../build/$slug/main/props.json --frame=89"
