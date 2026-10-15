@@ -13,6 +13,7 @@ import {QuestionScene} from './scenes/QuestionScene';
 import {VerdictScene} from './scenes/VerdictScene';
 import {IllustrationScene, motionOf} from './scenes/IllustrationScene';
 import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWallScene, SplitFlapScene, VersusScene} from './scenes/MotionScenes';
+import {ShotScene} from './scenes/ShotScene';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
 
@@ -45,6 +46,8 @@ export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps
       return <DocumentScene scene={scene} ctx={ctx} />;
     case 'photo-wall':
       return <PhotoWallScene scene={scene} ctx={ctx} />;
+    case 'shot':
+      return <ShotScene scene={scene} ctx={ctx} />;
     case 'quote':
       return <QuoteScene scene={scene} ctx={ctx} />;
     case 'reveal':

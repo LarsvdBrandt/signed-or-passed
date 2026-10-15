@@ -6,6 +6,7 @@ import {Thumbnail} from './compositions/Thumbnail';
 import {PREVIEW_FRAMES, Preview} from './compositions/Preview';
 import {THEME_PREVIEW_FRAMES, ThemePreview} from './compositions/ThemePreview';
 import {ERA_PREVIEW_FRAMES, EraPreview} from './compositions/EraPreview';
+import {MOOD_PREVIEW_FRAMES, MoodPreview} from './compositions/MoodPreview';
 import {SoundBoard, soundBoardDefaults} from './compositions/SoundBoard';
 import {sampleLong, sampleShort} from './sample-props';
 import {applyTheme} from './themes';
@@ -49,6 +50,12 @@ const EraPreviewDefault: React.FC = () => (
   </DefaultThemed>
 );
 
+const MoodPreviewDefault: React.FC = () => (
+  <DefaultThemed>
+    <MoodPreview />
+  </DefaultThemed>
+);
+
 const SoundBoardDefault: React.FC<any> = (props) => (
   <DefaultThemed>
     <SoundBoard {...props} />
@@ -64,6 +71,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Preview" component={PreviewDefault} width={1920} height={1080} fps={30} durationInFrames={PREVIEW_FRAMES} />
       <Composition id="ThemePreview" component={ThemePreview} width={1920} height={1080} fps={30} durationInFrames={THEME_PREVIEW_FRAMES} />
       <Composition id="EraPreview" component={EraPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={ERA_PREVIEW_FRAMES} />
+      <Composition id="MoodPreview" component={MoodPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={MOOD_PREVIEW_FRAMES} />
       <Composition id="SoundBoard" component={SoundBoardDefault} width={1920} height={1080} fps={30} durationInFrames={soundBoardDefaults.totalFrames} defaultProps={soundBoardDefaults as any} calculateMetadata={calcBoard as any} />
     </>
   );

@@ -1,1 +1,1 @@
-iteration 22b - 2026-10-15T03:55:00+02:00 - SOUND-2 wiring (fetch_sfx in render-slug.sh) + CHARACTERS-1 rig + schema
+iteration 23 - 2026-10-15T04:10:00+02:00 - MOODS-1 (shot framework + 9 funny shots, scene kind 'shot', preview-moods.mp4)
