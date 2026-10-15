@@ -14,6 +14,7 @@ import {INFOGRAPHIC_PREVIEW_FRAMES, InfographicPreview} from './compositions/Inf
 import {TYPOGRAPHY_PREVIEW_FRAMES, TypographyPreview} from './compositions/TypographyPreview';
 import {TEMPLATE_PREVIEW_FRAMES, TemplatePreview} from './compositions/TemplatePreview';
 import {SoundBoard, soundBoardDefaults} from './compositions/SoundBoard';
+import {LIBRARY_REEL_FRAMES, LibraryReel} from './compositions/LibraryReel';
 import {sampleLong, sampleShort} from './sample-props';
 import {applyTheme} from './themes';
 import type {VideoProps} from './types';
@@ -120,6 +121,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="InfographicPreview" component={InfographicPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={INFOGRAPHIC_PREVIEW_FRAMES} />
       <Composition id="TypographyPreview" component={TypographyPreviewDefault} width={1920} height={1080} fps={30} durationInFrames={TYPOGRAPHY_PREVIEW_FRAMES} />
       <Composition id="TemplatePreview" component={TemplatePreviewDefault} width={1920} height={1080} fps={30} durationInFrames={TEMPLATE_PREVIEW_FRAMES} />
+      <Composition id="LibraryReel" component={LibraryReel} width={1920} height={1080} fps={30} durationInFrames={LIBRARY_REEL_FRAMES} />
       <Composition id="SoundBoard" component={SoundBoardDefault} width={1920} height={1080} fps={30} durationInFrames={soundBoardDefaults.totalFrames} defaultProps={soundBoardDefaults as any} calculateMetadata={calcBoard as any} />
     </>
   );

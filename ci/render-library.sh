@@ -18,6 +18,7 @@ mkdir -p build
 #   preview-infographics.mp4 every infographic type (render/src/infographics) with placeholder data, 6 s each (silent)
 #   preview-typography.mp4   every kinetic-text preset in 2 themes, lower thirds, chapter card, Shorts caption styles (silent)
 #   preview-templates.mp4    every scene template (render/src/templates) in its default era + two others, 4 s each (silent)
+#   library-reel.mp4         2.5 min showcase: a title card + 3 excerpts of every preview above, on a generated CC0 music bed
 #   sound-board.mp4          every sound of the procedural sfx library (pipeline/sfxlib.py) + the CC0/PD recordings
 #                            of brand/sfx/manifest.csv (pipeline/fetch_sfx.py, licence verified live), with audio
 #   sfx-library.zip          all sfx WAVs (wav/ procedural, recorded/ CC0/PD) + catalogues + LICENCE.txt + CREDITS
@@ -35,6 +36,13 @@ mkdir -p build
   $S "preview-infographics:library" bash -c "cd render && npx remotion render src/index.ts InfographicPreview $OUT/preview-infographics.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-typography:library" bash -c "cd render && npx remotion render src/index.ts TypographyPreview $OUT/preview-typography.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
   $S "preview-templates:library" bash -c "cd render && npx remotion render src/index.ts TemplatePreview $OUT/preview-templates.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+  # library-reel.mp4: 2.5 min showcase of every section (render/src/compositions/LibraryReel.tsx) on a generated CC0 bed
+  mkdir -p build/library
+  $S "library-reel:library" bash -c "cd render && npx remotion render src/index.ts LibraryReel ../build/library/reel-silent.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
+  $S "library-reel-bed:library" python pipeline/musicgen.py bed --mood upbeat --seconds 150 --seed library-reel --out build/library/reel-bed.wav
+  $S "library-reel-mux:library" ffmpeg -y -hide_banner -loglevel error -i build/library/reel-silent.mp4 -i build/library/reel-bed.wav \
+    -filter_complex "[1:a]afade=t=in:d=1,afade=t=out:st=141:d=5,loudnorm=I=-18:TP=-2:LRA=11,aresample=48000[a]" \
+    -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 2 -shortest -movflags +faststart "$OUT/library-reel.mp4"
   $S "sound-fetch:library" python pipeline/fetch_sfx.py --out build/sfx-lib --cache build/sfx-cache
   $S "sound-library:library" python pipeline/soundboard.py --out build/sfx-lib --zip "$OUT/sfx-library.zip" --recorded build/sfx-lib/recorded-catalogue.json
   $S "sound-board:library" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/sfx-lib/board-silent.mp4 --props=../build/sfx-lib/soundboard-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
