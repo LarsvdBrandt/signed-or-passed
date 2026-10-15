@@ -26,9 +26,18 @@ data = {
 with open("ci/last-run.json", "w") as f:
     json.dump(data, f, indent=2)
     f.write("\n")
+# one status file per production (render jobs run in parallel, last-run.json only shows the latest one)
+os.makedirs("ci/runs", exist_ok=True)
+for s in data["slugs"]:
+    failed = s in data["failedSlugs"] or (job_status != "success" and s == (slug or ""))
+    per = dict(data, slug=s, status="failure" if failed else ("success" if job_status == "success" or os.path.exists("build/%s/out/render-report.json" % s) else "failure"))
+    with open("ci/runs/%s.json" % s, "w") as f:
+        json.dump(per, f, indent=2)
+        f.write("\n")
 EOF
 
 files=(ci/last-run.json ci/last-run.log)
+for s in ${SLUGS:-}; do files+=("ci/runs/$s.json"); done
 for s in ${SLUGS:-}; do
   if [ -f "productions/$s/render-report.json" ]; then files+=("productions/$s/render-report.json"); fi
 done

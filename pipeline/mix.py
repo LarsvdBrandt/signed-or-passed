@@ -8,8 +8,12 @@ Music (spec.music, docs/library/music.md):
   {mood, era?, source?: auto | generated | library | none, stingers?: true}
   generated  procedural bed from pipeline/musicgen.py (CC0), exactly as long as the cut (timing.json),
              seed = slug + cut so a re-render sounds the same
-  library    first track of brand/music/licenses.csv with that mood (credited in the description)
-  auto       library when a track with that mood exists, else generated (default)
+  library    first track of brand/music/licenses.csv with that mood, else a CC0 / public-domain recording from
+             brand/music/manifest.csv (licence re-verified on Wikimedia Commons at render time), credited in the
+             description; music.track picks one manifest file explicitly
+  auto       licenses.csv track when one with that mood exists, else generated (default). The manifest recordings
+             are opt-in only (source library / track): public-domain classical recordings can draw false Content ID
+             claims, the generated beds cannot.
   none       no music and no stingers
 Stingers (musicgen.stinger) play at question scenes and verdict scenes (signed / passed) unless stingers is false.
 """
@@ -17,6 +21,7 @@ import csv
 import json
 import re
 import subprocess
+import urllib.parse
 
 import musicgen
 from common import (BRAND_INTRO_SFX, BRAND_OUTRO_SFX, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
@@ -71,6 +76,52 @@ def library_track(slug, mood, required):
     return row, dest
 
 
+def manifest_track(slug, mood, track=None):
+    """A CC0 / PD recording from brand/music/manifest.csv, licence verified via the MediaWiki API, trimmed from
+    its `start`. Returns (credit_row, wav_path) or None (with a warning) so the caller falls back to generated."""
+    path = ROOT / "brand" / "music" / "manifest.csv"
+    if not path.exists():
+        return None
+    with open(path, newline="", encoding="utf-8") as f:
+        rows = [r for r in csv.DictReader(f) if (r.get("url") or "").strip()]
+    if not rows:
+        return None
+    if track:
+        t = str(track).strip().lower()
+        match = [r for r in rows if t in ((r.get("file") or "").lower(), (r.get("file") or "").lower().rsplit(".", 1)[0],
+                                           (r.get("title") or "").lower())]
+        if not match:
+            add_warning(slug, f"music.track '{track}' is not in brand/music/manifest.csv: using a generated bed")
+            return None
+    else:
+        gm = resolve_mood(mood)
+        match = [r for r in rows if (r.get("mood") or "").strip().lower() == gm]
+        if not match:
+            add_warning(slug, f"no manifest recording with mood '{gm}': using '{rows[0].get('title')}'")
+            match = rows
+    row = match[0]
+    title = "File:" + urllib.parse.unquote(row["source_page"].split("/wiki/File:", 1)[-1]).replace("_", " ")
+    try:
+        from fetch_sfx import verify
+        url, lic, _artist = verify(title)
+    except Exception as e:  # licence rejected or Commons unreachable: never use an unverified file
+        add_warning(slug, f"music recording '{row.get('file')}' not used ({e}): using a generated bed")
+        return None
+    raw = ROOT / "build" / "music" / ("raw-" + row["file"])
+    dest = ROOT / "build" / "music" / (row["file"].rsplit(".", 1)[0] + ".wav")
+    if not dest.exists():
+        if not raw.exists():
+            download(url, raw)
+        start = float(row.get("start") or 0)
+        subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-ss", f"{start:.2f}", "-i", str(raw),
+                        "-af", "afade=t=in:d=1.5", "-ac", "2", "-ar", "48000", str(dest)], check=True)
+    log(f"music: manifest recording {row['file']} ({lic}, verified on Commons)")
+    credit = {"title": row.get("title"), "artist": row.get("author"), "license": row.get("licence"),
+              "attribution_text": row.get("attribution"), "source": row.get("source_page"), "url": url,
+              "file": row.get("file"), "mood": row.get("mood")}
+    return credit, dest
+
+
 def plan_music(slug, spec):
     """{kind: library|generated|none, ...} and music.json for metadata.py."""
     m = spec.get("music") or {}
@@ -80,8 +131,21 @@ def plan_music(slug, spec):
     if source == "none":
         write_json(work_dir(slug) / "music.json", {"kind": "none"})
         return {"kind": "none", "stingers": False}
-    if source in ("auto", "library"):
-        found = library_track(slug, mood, required=(source == "library"))
+    track = m.get("track")
+    if track and source == "auto":
+        source = "library"
+    if source == "library":
+        found = None if track else library_track(slug, mood, required=False)
+        if not found:
+            found = manifest_track(slug, mood, track)
+        if not found and not track:
+            found = library_track(slug, mood, required=True)
+        if found:
+            row, dest = found
+            write_json(work_dir(slug) / "music.json", dict(row, kind="library"))
+            return {"kind": "library", "path": dest, "stingers": stingers}
+    if source == "auto":
+        found = library_track(slug, mood, required=False)
         if found:
             row, dest = found
             write_json(work_dir(slug) / "music.json", dict(row, kind="library"))
@@ -220,6 +284,10 @@ def mix_cut(slug, cut, plan):
           f"measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
           f"offset={m['target_offset']}:linear=true")
     out = d / "mix.wav"
+    # loudnorm falls back to dynamic mode on peaky mixes and lets true peaks reach ~-1.4 dBTP, which the AAC encode
+    # pushes over -1 dBTP (QA failed at -0.2). A 4x-oversampled limiter at -3 dBFS approximates a true-peak limiter:
+    # measured -2.4 dBTP after AAC for ~0.15 LU of loudness.
+    ln += ",aresample=192000,alimiter=limit=0.7079:level=0:attack=1:release=60:asc=1,aresample=48000"
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(premix), "-af", ln,
          "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(out)])
     after = measure(out)

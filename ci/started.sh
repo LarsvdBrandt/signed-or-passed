@@ -12,5 +12,13 @@ cat > ci/last-run.json <<EOF
   "runUrl": "${GITHUB_SERVER_URL:-}/${GITHUB_REPOSITORY:-}/actions/runs/${GITHUB_RUN_ID:-}"
 }
 EOF
-bash ci/push-results.sh "ci: render started for ${GITHUB_SHA:0:7} [skip ci]" ci/last-run.json || true
+# per production: ci/runs/<slug>.json (the catch-up in render.yml skips a production whose render started after
+# its spec.json was committed)
+mkdir -p ci/runs
+files=(ci/last-run.json)
+for s in ${SLUGS:-}; do
+  sed "s/\"status\": \"running\",/\"status\": \"running\",\n  \"slug\": \"$s\",/" ci/last-run.json > "ci/runs/$s.json"
+  files+=("ci/runs/$s.json")
+done
+bash ci/push-results.sh "ci: render started for ${GITHUB_SHA:0:7} ${SLUGS:-} [skip ci]" "${files[@]}" || true
 exit 0

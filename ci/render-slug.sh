@@ -27,48 +27,11 @@ done
 
 $S "thumbnail:$slug" bash -c "cd render && npx remotion still src/index.ts Thumbnail ../$OUT/thumbnail.png --props=../build/$slug/main/props.json --frame=89"
 
-# The test production also ships the library previews:
-#   preview.mp4              the whole illustration library + a demo of every scene kind (silent)
-#   preview-themes.mp4       the same mini-story + a contact sheet of every component in every theme (silent)
-#   preview-eras.mp4         every era pack: backdrop, all props, a small composed scene (silent)
-#   preview-moods.mp4        every mood shot (scene kind 'shot', render/src/moods) with id, mood and props (silent)
-#   preview-characters.mp4   every pose, costume, hat and held prop of the Character rig + Crowd2 examples (silent)
-#   preview-effects.mp4      every overlay effect, particle, paper variant and look (render/src/effects) on a demo scene (silent)
-#   preview-transitions.mp4  every transition A -> B, param variants and the parallax rig moves (render/src/transitions) (silent)
-#   preview-infographics.mp4 every infographic type (render/src/infographics) with placeholder data, 6 s each (silent)
-#   preview-typography.mp4   every kinetic-text preset in 2 themes, lower thirds, chapter card, Shorts caption styles (silent)
-#   preview-templates.mp4    every scene template (render/src/templates) in its default era + two others, 4 s each (silent)
-#   sound-board.mp4          every sound of the procedural sfx library (pipeline/sfxlib.py) + the CC0/PD recordings
-#                            of brand/sfx/manifest.csv (pipeline/fetch_sfx.py, licence verified live), with audio
-#   sfx-library.zip          all sfx WAVs (wav/ procedural, recorded/ CC0/PD) + catalogues + LICENCE.txt + CREDITS
-#   music-board.mp4          every procedural mood bed, era flavour and stinger (pipeline/musicgen.py), with audio
-#   music-library.zip        all music WAVs + catalogue.json + LICENCE.txt (CC0)
-#   voice-samples.mp4        one sample sentence per voice of brand/voices.json (Kokoro + licence-checked Piper)
-#   voice-samples.zip        the voice sample WAVs + catalogue + voices.json + LICENCES.txt
-if [ "$slug" = "0000-sample" ]; then
-  $S "preview:$slug" bash -c "cd render && npx remotion render src/index.ts Preview ../$OUT/preview.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-themes:$slug" bash -c "cd render && npx remotion render src/index.ts ThemePreview ../$OUT/preview-themes.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-eras:$slug" bash -c "cd render && npx remotion render src/index.ts EraPreview ../$OUT/preview-eras.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-moods:$slug" bash -c "cd render && npx remotion render src/index.ts MoodPreview ../$OUT/preview-moods.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-characters:$slug" bash -c "cd render && npx remotion render src/index.ts CharacterPreview ../$OUT/preview-characters.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-effects:$slug" bash -c "cd render && npx remotion render src/index.ts EffectsPreview ../$OUT/preview-effects.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-transitions:$slug" bash -c "cd render && npx remotion render src/index.ts TransitionPreview ../$OUT/preview-transitions.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-infographics:$slug" bash -c "cd render && npx remotion render src/index.ts InfographicPreview ../$OUT/preview-infographics.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-typography:$slug" bash -c "cd render && npx remotion render src/index.ts TypographyPreview ../$OUT/preview-typography.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "preview-templates:$slug" bash -c "cd render && npx remotion render src/index.ts TemplatePreview ../$OUT/preview-templates.mp4 --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "sound-fetch:$slug" python pipeline/fetch_sfx.py --out build/sfx-lib --cache build/sfx-cache
-  $S "sound-library:$slug" python pipeline/soundboard.py --out build/sfx-lib --zip "$OUT/sfx-library.zip" --recorded build/sfx-lib/recorded-catalogue.json
-  $S "sound-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/sfx-lib/board-silent.mp4 --props=../build/sfx-lib/soundboard-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "sound-board-mux:$slug" ffmpeg -y -hide_banner -loglevel error -i build/sfx-lib/board-silent.mp4 -i build/sfx-lib/soundboard.wav \
-    -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$OUT/sound-board.mp4"
-  $S "music-library:$slug" python pipeline/musicgen.py library --out build/music-lib --zip "$OUT/music-library.zip"
-  $S "music-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/music-lib/board-silent.mp4 --props=../build/music-lib/board-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "music-board-mux:$slug" ffmpeg -y -hide_banner -loglevel error -i build/music-lib/board-silent.mp4 -i build/music-lib/board.wav \
-    -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$OUT/music-board.mp4"
-  $S "voice-library:$slug" python pipeline/voice_samples.py --out build/voice-lib --zip "$OUT/voice-samples.zip"
-  $S "voice-board:$slug" bash -c "cd render && npx remotion render src/index.ts SoundBoard ../build/voice-lib/board-silent.mp4 --props=../build/voice-lib/board-props.json --concurrency=2 --image-format=jpeg --jpeg-quality=85 --crf=23 --codec=h264 --log=error"
-  $S "voice-board-mux:$slug" ffmpeg -y -hide_banner -loglevel error -i build/voice-lib/board-silent.mp4 -i build/voice-lib/board.wav \
-    -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$OUT/voice-samples.mp4"
+# The library previews and sound/music/voice boards are NOT part of a production render any more (they took
+# ~45 min and starved real productions). They are rendered by .github/workflows/library.yml (ci/render-library.sh)
+# into the release 'library'. Locally: RENDER_LIBRARY=1 bash ci/render-slug.sh 0000-sample renders them too.
+if [ "$slug" = "0000-sample" ] && [ "${RENDER_LIBRARY:-0}" = "1" ]; then
+  bash ci/render-library.sh "$OUT"
 fi
 
 $S "metadata:$slug" python pipeline/metadata.py --slug "$slug"
@@ -80,7 +43,7 @@ if [ -n "${GITHUB_ACTIONS:-}" ]; then
   shopt -s nullglob
   files=("$OUT"/video.mp4 "$OUT"/short-*.mp4 "$OUT"/preview*.mp4 "$OUT"/sound-board.mp4 "$OUT"/sfx-library.zip "$OUT"/music-board.mp4 "$OUT"/music-library.zip "$OUT"/voice-samples.mp4 "$OUT"/voice-samples.zip "$OUT"/thumbnail.png "$OUT"/captions.srt "$OUT"/short-*.srt "$OUT"/metadata.json "$OUT"/render-report.json)
   shopt -u nullglob
-  $S "release:$slug" bash -c "gh release delete '$tag' --yes --cleanup-tag >/dev/null 2>&1 || true; sleep 2; gh release create '$tag' ${files[*]} --title '$slug' --notes 'Rendered by the factory from commit ${GITHUB_SHA:-local}. See render-report.json.' --target '${GITHUB_SHA:-main}'"
+  $S "release:$slug" bash ci/release.sh "$tag" "$slug" "${files[@]}"
 fi
 
 $S "qa-gate:$slug" python pipeline/qa.py --slug "$slug" --gate
