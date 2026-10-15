@@ -1,1 +1,1 @@
-2026-10-15T05:50:00+02:00 iteration 27: verify EFFECTS-1 (effects framework, spec.look, preview-effects.mp4) + fetch_sfx 429 backoff
+iteration 28 - 2026-10-15T04:25:00Z - EFFECTS-2 (transitions library + parallax rig, TransitionPreview) + EFFECTS-3 (particles, new looks)

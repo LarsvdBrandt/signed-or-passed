@@ -27,7 +27,7 @@ defaults:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
       PYTHONUNBUFFERED: '1'
@@ -114,7 +114,7 @@ jobs:
 
       - name: Render
         if: env.SLUGS != ''
-        timeout-minutes: 45
+        timeout-minutes: 100
         run: |
           for slug in $SLUGS; do
             bash ci/render-slug.sh "$slug"
