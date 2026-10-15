@@ -15,6 +15,7 @@ def main():
     assets = read_json(assets_path) if assets_path.exists() else {}
     sources = {s["id"]: {"title": s["title"], "url": s["url"]} for s in spec.get("sources") or []}
     theme = spec.get("theme") or DEFAULT_THEME
+    look = spec.get("look")
     for cut in cuts(spec):
         d = cut_dir(args.slug, cut["name"])
         timing = read_json(d / "timing.json")
@@ -40,6 +41,7 @@ def main():
             "format": cut["format"],
             "verdict": spec["verdict"],
             "theme": theme,
+            "look": look,
             "fps": FPS,
             "width": w,
             "height": h,
@@ -54,7 +56,9 @@ def main():
             "title": spec["metadata"]["title"],
         }
         write_json(d / "props.json", props)
+        n_fx = sum(1 for s in scenes if s.get("effects"))
         log(f"props {cut['name']}: {len(scenes)} scenes, {props['totalFrames']} frames ({w}x{h}), theme {theme}, "
+            f"look {look if isinstance(look, str) else ('custom' if look else 'none')}, {n_fx} scenes with effects, "
             f"intro {props['introFrames']} / outro {props['outroFrames']} frames")
 
 

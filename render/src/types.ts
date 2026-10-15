@@ -11,6 +11,8 @@ export type Scene = {
   sfx?: string | null;
   dateTag?: string | null;
   minDurationSec?: number;
+  /** overlay effects (render/src/effects): ids or {id, intensity, params}; merged over spec.look */
+  effects?: any[];
   startFrame: number;
   durationFrames: number;
   sentences: Sentence[];
@@ -23,6 +25,8 @@ export type VideoProps = {
   verdict: 'SIGNED' | 'PASSED';
   /** Theme id from render/src/themes (spec.theme); default 'signed-or-passed'. */
   theme?: string;
+  /** Global look (spec.look): preset name, effect array or {preset, effects}; see docs/library/effects.md. */
+  look?: any;
   fps: number;
   width: number;
   height: number;

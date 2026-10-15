@@ -14,6 +14,15 @@
       "default": "signed-or-passed",
       "description": "visual theme (render/src/themes, docs/library/themes.md); Signed or Passed uses the default house style"
     },
+    "look": {
+      "description": "global effects for every scene (render/src/effects, docs/library/effects.md): a preset name, an array of effects, or {preset, effects}. Scene effects are merged over it. Omit for the clean house style.",
+      "oneOf": [
+        {"$ref": "#/$defs/lookId"},
+        {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}},
+        {"type": "object", "properties": {"preset": {"$ref": "#/$defs/lookId"}, "effects": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}}}},
+        {"type": "null"}
+      ]
+    },
     "voice": {
       "type": "object",
       "required": ["engine", "voice"],
@@ -91,6 +100,22 @@
   },
   "$defs": {
     "sfxName": {"type": "string", "pattern": "^[a-z0-9_]+$", "description": "house sound (pen, stamp, paper, whoosh) or any pipeline/sfxlib.py name (docs/library/sound-usage.md); validate_spec.py checks the name"},
+    "effectId": {"enum": ["film-grain", "old-film", "vignette", "light-leaks", "vhs", "glitch", "chromatic-aberration", "ink-bleed", "paper-texture", "camera-shake", "gate-weave", "depth-of-field", "zoom-blur"]},
+    "lookId": {"enum": ["clean", "archival", "newsreel", "documentary", "cinematic", "vhs", "glitchy", "print", "handmade", "dreamy"]},
+    "effect": {
+      "oneOf": [
+        {"$ref": "#/$defs/effectId"},
+        {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {"$ref": "#/$defs/effectId"},
+            "intensity": {"type": "number", "minimum": 0, "maximum": 3, "description": "default 1; 0 switches a look effect off for this scene"},
+            "params": {"type": "object", "description": "per effect, see docs/library/effects.md"}
+          }
+        }
+      ]
+    },
     "scene": {
       "type": "object",
       "required": ["id", "kind", "narration", "visual"],
@@ -107,6 +132,7 @@
             {"type": "object", "required": ["type"], "properties": {"type": {"enum": ["none", "push-in", "pull-out", "pan", "pan-left", "pan-right", "parallax"]}, "strength": {"type": "number", "minimum": 0, "maximum": 3}}}
           ]
         },
+        "effects": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/effect"}, "description": "overlay effects on this scene (docs/library/effects.md), merged over spec.look"},
         "sfx": {"oneOf": [{"$ref": "#/$defs/sfxName"}, {"type": "null"}], "description": "one sound at the scene start (house sounds keep their animation offsets)"},
         "sfxCues": {
           "type": "array",

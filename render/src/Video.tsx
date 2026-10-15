@@ -16,6 +16,7 @@ import {DocumentScene, GrowthScene, LineChartScene, MoneyCounterScene, PhotoWall
 import {ShotScene} from './scenes/ShotScene';
 import {applyTheme, currentTheme} from './themes';
 import {ThemeDefs, ThemeOverlay, themeContentStyle} from './themes/ThemeLayer';
+import {EffectsStack, resolveEffects} from './effects';
 
 export const SceneContent: React.FC<{scene: Scene; prev?: Scene; ctx: VideoProps}> = ({scene, prev, ctx}) => {
   const v = scene.visual || {};
@@ -99,13 +100,16 @@ export const PaperSheet: React.FC<{slide: boolean; children: React.ReactNode}> =
   );
 };
 
+/** One scene on its paper sheet: theme filter, camera move, then the effects (spec.look + scenes[].effects, render/src/effects). */
 const SceneFrame: React.FC<{scene: Scene; prev?: Scene; slide: boolean; ctx: VideoProps}> = ({scene, prev, slide, ctx}) => (
   <PaperSheet slide={slide}>
-    <AbsoluteFill style={themeContentStyle()}>
-      <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
-        <SceneContent scene={scene} prev={prev} ctx={ctx} />
-      </Camera>
-    </AbsoluteFill>
+    <EffectsStack effects={resolveEffects(ctx.look, scene.effects)} seed={scene.id} duration={scene.durationFrames}>
+      <AbsoluteFill style={themeContentStyle()}>
+        <Camera motion={scene.kind === 'illustration' && motionOf(scene.motion).type === 'parallax' ? null : scene.motion} duration={scene.durationFrames}>
+          <SceneContent scene={scene} prev={prev} ctx={ctx} />
+        </Camera>
+      </AbsoluteFill>
+    </EffectsStack>
   </PaperSheet>
 );
 
