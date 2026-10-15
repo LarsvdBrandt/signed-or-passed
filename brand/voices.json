@@ -1,9 +1,11 @@
 {
   "version": 1,
   "note": "Voice catalogue of the factory (docs/library/voices.md). Only voices whose model AND training data allow commercial use. tts.py refuses Piper voices that are not listed here.",
+  "channelDefault": {"engine": "chatterbox", "voice": "default", "reference": "default", "note": "Signed or Passed channel voice (A/B winner, Lars 2026-10-15) with the VOICE-8 tuning applied by tts.py"},
   "engines": {
     "kokoro": {"package": "kokoro==0.9.4", "model": "hexgrad/Kokoro-82M", "licence": "Apache-2.0", "url": "https://huggingface.co/hexgrad/Kokoro-82M", "voicesDoc": "https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md", "defaultSpeed": 1.1},
-    "piper": {"package": "piper-tts==1.3.0", "modelsRepo": "rhasspy/piper-voices", "modelUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/{path}/{id}.onnx", "licence": "piper-tts is GPL-3.0 (tool only; the audio it produces is not covered); each voice has its own data licence below", "defaultSpeed": 1.0}
+    "piper": {"package": "piper-tts==1.3.0", "modelsRepo": "rhasspy/piper-voices", "modelUrl": "https://huggingface.co/rhasspy/piper-voices/resolve/main/{path}/{id}.onnx", "licence": "piper-tts is GPL-3.0 (tool only; the audio it produces is not covered); each voice has its own data licence below", "defaultSpeed": 1.0},
+    "chatterbox": {"package": "chatterbox-tts==0.1.2", "model": "ResembleAI/chatterbox", "licence": "MIT (code + weights)", "url": "https://huggingface.co/ResembleAI/chatterbox", "requirements": "pipeline/requirements-chatterbox.txt", "defaultSpeed": 1.0, "references": ["default", "narrator"], "tuning": {"exaggerationOffset": 0.15, "cfgOffset": -0.1, "pace": 0.94, "pauseScale": 1.15, "targetWpm": [145, 155]}, "note": "built-in voice ('default') or zero-shot clone of the generated narrator reference; output carries Resemble's inaudible Perth watermark"}
   },
   "samples": {
     "en": "Would you sign this deal, or would you pass? I am {name}, one of the factory voices.",
@@ -15,7 +17,7 @@
     "pt": "Voce assinaria este acordo, ou deixaria passar? Eu sou {name}."
   },
   "voices": [
-    {"id": "bm_george", "engine": "kokoro", "lang": "en-GB", "gender": "m", "grade": "C", "licence": "Apache-2.0", "default": true, "note": "Signed or Passed house voice"},
+    {"id": "bm_george", "engine": "kokoro", "lang": "en-GB", "gender": "m", "grade": "C", "licence": "Apache-2.0", "default": true, "note": "Signed or Passed house voice until 2026-10-15; now the Chatterbox fallback and narrator reference"},
     {"id": "bm_fable", "engine": "kokoro", "lang": "en-GB", "gender": "m", "grade": "C", "licence": "Apache-2.0"},
     {"id": "bm_lewis", "engine": "kokoro", "lang": "en-GB", "gender": "m", "grade": "D+", "licence": "Apache-2.0"},
     {"id": "bm_daniel", "engine": "kokoro", "lang": "en-GB", "gender": "m", "grade": "D", "licence": "Apache-2.0"},

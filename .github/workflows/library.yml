@@ -67,7 +67,7 @@ jobs:
           path: |
             ~/.npm
             ~/.cache/huggingface
-          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt') }}
+          key: deps-${{ runner.os }}-${{ hashFiles('render/package.json', 'pipeline/requirements.txt', 'pipeline/requirements-chatterbox.txt') }}
           restore-keys: |
             deps-${{ runner.os }}-
 
