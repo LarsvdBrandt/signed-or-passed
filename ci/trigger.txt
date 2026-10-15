@@ -1,1 +1,1 @@
-iteration 22 - 2026-10-15T03:50:00+02:00 - SOUND-2 recorded CC0/PD sfx + CHARACTERS-1 rig
+iteration 22b - 2026-10-15T03:55:00+02:00 - SOUND-2 wiring (fetch_sfx in render-slug.sh) + CHARACTERS-1 rig + schema
