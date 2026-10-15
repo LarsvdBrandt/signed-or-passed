@@ -155,8 +155,12 @@
       "required": ["shot"],
       "description": "mood shot from render/src/moods (docs/library/moods.md): a short animated beat that sets an emotion",
       "properties": {
-        "shot": {"enum": ["CartoonBonk", "SweatDrop", "QuestionMarks", "DotsBubble", "BananaSlip", "RecordScratch", "ExaggeratedZoom", "Tumbleweed", "Crickets"]},
-        "props": {"type": "object", "description": "per shot: text, colour, object (CartoonBonk: anvil | book), revealSec (DotsBubble)"},
+        "shot": {"enum": [
+          "CartoonBonk", "SweatDrop", "QuestionMarks", "DotsBubble", "BananaSlip", "RecordScratch", "ExaggeratedZoom", "Tumbleweed", "Crickets",
+          "RainCloud", "WiltingPlant", "ClosedSign", "LightsOut", "EmptyOffice", "FallingLeaf",
+          "TickingClockCloseUp", "HeartbeatLine", "InterrogationSpotlight", "SlowPushIn", "RedAlert"
+        ]},
+        "props": {"type": "object", "description": "per shot (see render/src/moods/index.ts): text, colour; CartoonBonk object anvil | book; DotsBubble revealSec; ClosedSign front, shop; TickingClockCloseUp startSec; HeartbeatLine bpmFrom, bpmTo; SlowPushIn figureColour; RedAlert sub"},
         "label": {"type": "string", "description": "optional small caption at the top (IBM Plex Mono)"}
       }
     },
@@ -172,7 +176,7 @@
             "required": ["component"],
             "properties": {
               "component": {"enum": [
-                "Desk", "Contract", "FountainPen", "Stamp", "DecisionChair", "Person", "Character", "NameCard", "Building", "Phone", "Newspaper", "Briefcase", "MoneyStack", "Clock", "Calendar", "Arrow", "Spotlight",
+                "Desk", "Contract", "FountainPen", "Stamp", "DecisionChair", "Person", "Character", "Crowd2", "NameCard", "Building", "Phone", "Newspaper", "Briefcase", "MoneyStack", "Clock", "Calendar", "Arrow", "Spotlight",
                 "Factory", "StoreFront", "Warehouse", "Bank", "StockBoard", "CrumblingBuilding", "AssemblyLine",
                 "Ship", "ContainerShip", "Train", "Truck", "Airplane", "Rocket",
                 "Computer", "Laptop", "Smartphone", "FloppyDisk", "VHSTape", "DVD", "FilmCamera", "DigitalCamera", "OldTelephone",
@@ -190,7 +194,7 @@
                 "OpenPlanBackdrop", "FlipPhone", "MP3Player", "FlatScreen", "LaptopBag", "WifiRouter", "USBStick", "CompactCamera",
                 "FutureSkylineBackdrop", "SmartphoneGrid", "Drone", "EV", "DataCentre", "VRHeadset", "RobotArm", "SolarPanel"
               ]},
-              "props": {"type": "object", "description": "colour, label, pose (and component specific props, see README). Character: pose stand | walk | run | sit | type | point | shrug | facepalm | celebrate | slump | arms-crossed | handshake | applause | thinking | shock | wave | talk, costume plain | suit, flip, speed (1 = normal), phase (seconds), blendSec"},
+              "props": {"type": "object", "description": "colour, label, pose (and component specific props, see README and docs/library/characters.md). Character: pose stand | walk | run | sit | type | point | shrug | facepalm | celebrate | slump | arms-crossed | handshake | applause | thinking | shock | wave | talk | phone | protest; costume plain | suit | toga | tunic | merchant | victorian | twenties | fifties | dress | eighties | casual | hoodie | future | worker | labcoat | royal | trenchcoat, or an era alias (ancient, medieval, 1600s, victorian, 1920s, 1950s, 1980s, 2000s, modern, future ...); era (alias used when costume is not set); hat top-hat | bowler | fedora | boater | flat-cap | baseball-cap | hard-hat | crown | laurel | capotain | medieval-cap | beret | cowboy | headphones | none (default from the costume); hold / holdLeft briefcase | phone | smartphone | newspaper | coffee | moneybag | pen | contract | placard; holdText (placard text); flip, speed (1 = normal), phase (seconds), blendSec. Crowd2 (1200x520): count 1-24, seed, costumes (ids or era aliases, array or comma separated), era, colours, poses, animate (default true), rows 1-3, label"},
               "x": {"type": "number", "description": "centre, percent of frame width (0-100)"},
               "y": {"type": "number", "description": "centre, percent of frame height (0-100)"},
               "scale": {"type": "number", "exclusiveMinimum": 0},
