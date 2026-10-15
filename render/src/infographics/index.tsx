@@ -4,6 +4,7 @@ import {C, FONT_MONO} from '../constants';
 import {Kicker, SourceLine, useUnit} from '../components/common';
 import type {SceneProps} from '../types';
 import {BarRace, DonutChart, LineAnnotated, NumberTicker, PercentRing, PieChart, RankingList, StackedArea} from './charts';
+import {BubbleChart, CalendarHeatmap, Choropleth, ComparisonTable, MoneyStacks, WhatCouldBuy} from './charts2';
 import type {InfoProps} from './shared';
 
 export type {InfoProps} from './shared';
@@ -14,6 +15,7 @@ export type {InfoProps} from './shared';
  * + docs/library/infographics.md. Data infographics need a sourceId (validate_spec.py).
  */
 export const INFOGRAPHICS: Record<string, React.FC<InfoProps>> = {
+  // INFOGRAPHICS-1 (charts.tsx)
   'bar-race': BarRace,
   'line-annotated': LineAnnotated,
   pie: PieChart,
@@ -22,6 +24,13 @@ export const INFOGRAPHICS: Record<string, React.FC<InfoProps>> = {
   ranking: RankingList,
   ticker: NumberTicker,
   'percent-ring': PercentRing,
+  // INFOGRAPHICS-2 (charts2.tsx)
+  bubble: BubbleChart,
+  'comparison-table': ComparisonTable,
+  'calendar-heatmap': CalendarHeatmap,
+  'map-choropleth': Choropleth,
+  'money-stacks': MoneyStacks,
+  'what-could-buy': WhatCouldBuy,
 };
 
 export const INFOGRAPHIC_TYPES = Object.keys(INFOGRAPHICS);
