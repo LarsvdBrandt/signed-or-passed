@@ -144,7 +144,7 @@
       "required": ["id", "kind", "narration", "visual"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
-        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
+        "kind": {"enum": ["title", "illustration", "evidence", "chart", "counter", "infographic", "timeline", "map", "city", "versus", "growth", "split-flap", "document", "photo-wall", "shot", "quote", "question", "reveal", "verdict", "lesson"]},
         "narration": {"type": "string", "minLength": 1},
         "onScreenText": {"type": ["string", "null"]},
         "visual": {"type": "object"},
@@ -181,6 +181,7 @@
         {"if": {"properties": {"kind": {"const": "evidence"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vEvidence"}}}},
         {"if": {"properties": {"kind": {"const": "chart"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vChart"}}}},
         {"if": {"properties": {"kind": {"const": "counter"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCounter"}}}},
+        {"if": {"properties": {"kind": {"const": "infographic"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vInfographic"}}}},
         {"if": {"properties": {"kind": {"const": "timeline"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vTimeline"}}}},
         {"if": {"properties": {"kind": {"const": "map"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vMap"}}}},
         {"if": {"properties": {"kind": {"const": "city"}}}, "then": {"properties": {"visual": {"$ref": "#/$defs/vCity"}}}},
@@ -270,6 +271,19 @@
       }
     },
     "vCounter": {"type": "object", "required": ["from", "to", "sourceId"], "properties": {"from": {"type": "number"}, "to": {"type": "number"}, "unit": {"type": "string"}, "sourceId": {"type": "string"}, "style": {"enum": ["plain", "money"], "description": "money = banknotes pile up while the number runs"}, "label": {"type": "string"}}},
+    "infographicType": {"enum": ["bar-race", "line-annotated", "pie", "donut", "stacked-area", "ranking", "ticker", "percent-ring"]},
+    "vInfographic": {
+      "type": "object",
+      "required": ["type", "data"],
+      "description": "animated infographic from render/src/infographics (docs/library/infographics.md). Data types need a sourceId (validate_spec.py). data per type: bar-race {periods[], series[{label, values[], colour?}], top?}; line-annotated {points[{label, value}], annotations?[{at: index|label, text}]}; pie / donut {slices[{label, value, colour?}], highlight?, centerText?, centerLabel?, showValues?}; stacked-area {labels[], series[{label, values[], colour?}]}; ranking {items[{label, value?, note?}], order?: top-down|countdown}; ticker {from, to, decimals?, label?}; percent-ring {rings[{label, value 0-100, colour?}]} or {value, label}",
+      "properties": {
+        "type": {"$ref": "#/$defs/infographicType"},
+        "title": {"type": "string", "description": "kicker top-left (default scene.onScreenText)"},
+        "unit": {"type": "string", "description": "$, EUR sign, %, or a word (suffix)"},
+        "sourceId": {"type": "string"},
+        "data": {"type": "object"}
+      }
+    },
     "vTimeline": {"type": "object", "required": ["events"], "properties": {"events": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["date", "label"], "properties": {"date": {"type": "string"}, "label": {"type": "string"}}}}}},
     "vMap": {
       "type": "object",
