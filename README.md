@@ -15,6 +15,7 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
    The test production also ships the library previews:
    - **`preview.mp4`**: contact sheets of the whole illustration library + a demo of every scene kind and brand component (silent)
    - **`preview-themes.mp4`**: the same mini-story in every theme, each followed by a contact sheet of every component in that theme (silent)
+   - **`preview-eras.mp4`**: every era pack: backdrop, all props and a small composed scene (silent)
    - **`sound-board.mp4`**: every sound of the procedural sound library, with its name and category (with audio)
    - **`sfx-library.zip`**: all sound-effect WAVs + `catalogue.json` + `LICENCE.txt` (CC0)
 4. The workflow always commits `ci/last-run.json`, `ci/last-run.log` and `productions/<slug>/render-report.json`.
@@ -32,9 +33,10 @@ on free GitHub-hosted runners. Everything is open source: **Remotion** (React vi
 | `schema/spec.schema.json` | JSON Schema of spec.json v1 |
 | `productions/<slug>/` | `spec.json` (input) and `render-report.json` (output) |
 | `pipeline/` | Python 3.11 scripts (see above) + `upload.py`; `sfxlib.py` + `soundboard.py` = sound library |
-| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `SoundBoard` |
+| `render/` | Remotion 4 project: compositions `LongVideo` 1920x1080, `ShortVideo` 1080x1920, `Thumbnail` 1280x720, `Preview`, `ThemePreview`, `EraPreview`, `SoundBoard` |
 | `render/src/components/brand.tsx` | brand intro sting, end card, watermark, logo lockup, title card |
 | `render/src/illustrations/` | the house-style illustration library (flat SVG, 3px outlines, faceless people) |
+| `render/src/eras/` | era packs (backdrop + props per period, see Eras) |
 | `render/src/scenes/` | one component per scene kind (`MotionScenes.tsx`: versus, growth, split-flap, document, photo-wall, money counter, line chart) |
 | `render/src/themes/` | theme engine and presets (see Themes) |
 | `ci/` | step runner, per-production render script, finalize script, last-run files, trigger |
@@ -66,6 +68,26 @@ approved Signed or Passed house style.
 Details: `docs/library/themes.md`. `render/src/boot.ts` applies the theme from the input props before any module
 is evaluated, so the outline width follows the theme in productions. (In the multi-theme `preview-themes.mp4` all
 themes are drawn with the default 3px outline; colours, fonts and textures are exact.)
+
+## Eras
+Eleven era packs, each a backdrop + animated props in the house style (they follow the active theme). Use the
+backdrop as `visual.background` and the props as illustration layers.
+
+| era | years | backdrop | props |
+|---|---|---|---|
+| ancient | 3000 BC - 500 AD | AncientBackdrop | ColumnTemple, Pyramid, Galley, Chariot, Amphora, Scroll, Laurel, OilLamp, AncientCoin, WaxTablet |
+| medieval | 500 - 1500 | MedievalBackdrop | CastleGate, MarketStall, QuillParchment, WaxSeal, SwordShield, Cart, Lantern, GuildSign |
+| golden-age | 1500 - 1700 | GoldenAgeBackdrop | Fluyt, CanalHouse, Tulip, SpiceSacks, Globe, Compass, Ledger |
+| industrial | 1850 - 1910 | IndustrialBackdrop | SteamEngine, FactoryGate, PennyFarthing, TelegraphKey, TopHat, PocketWatch, GasLamp |
+| twenties | 1919 - 1939 | DecoBackdrop | TickerTape, Gramophone, VintageCar, Breadline, CathedralRadio, CocktailGlass, NewsboyCap |
+| fifties | 1945 - 1969 | DinerBackdrop | Jukebox, TVSet, FinCar, RotaryPhone, Typewriter, RocketToy, Milkshake |
+| eighties | 1970 - 1989 | NeonBackdrop | ArcadeCabinet, Cassette, CRTTV, Boombox, Calculator, Mainframe, PersonalStereo |
+| nineties | 1990 - 2001 | CubicleBackdrop | BeigePC, DialUpModem, CDROM, Pager, EarlyWebsite, ServerRack, ComputerMouse |
+| noughties | 2001 - 2012 | OpenPlanBackdrop | FlipPhone, MP3Player, FlatScreen, LaptopBag, WifiRouter, USBStick, CompactCamera |
+| modern | 2013 - today | OfficeBackdrop | core components |
+| future | 2025 - 2050 | FutureSkylineBackdrop | SmartphoneGrid, Drone, EV, DataCentre, VRHeadset, RobotArm, SolarPanel |
+
+Props per component (labels, poses, animations) and the rules for adding an era: `docs/library/eras.md`.
 
 ## Sound library
 52 procedurally synthesised sound effects (office, money, transitions, UI, impacts, crowd, tech, ambience,
@@ -121,7 +143,7 @@ Every component has an entrance animation (via `enter`) and small idle animation
 - Symbols & time: Arrow, Spotlight, Handshake (`leftColour`, `rightColour`), Gavel, Lightbulb, Envelope, Telegram
   (`label` = message), Scales (`tilt`, `left`, `right`), MagnifyingGlass, LockKey (`locked`), Trophy, Clock, Calendar,
   FlipCalendar (`pages[]`, `label` = month), Hourglass (`seconds`)
-- Backdrops: CityBackdrop, OfficeBackdrop, BoardroomBackdrop
+- Backdrops: CityBackdrop, OfficeBackdrop, BoardroomBackdrop (+ the era backdrops above)
 
 ## Timing
 Scene durations come from the synthesized audio (`timing.json`), never from guesses: lead-in 0.35 s, 0.25 s between
