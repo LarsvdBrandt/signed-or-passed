@@ -1,1 +1,1 @@
-2026-10-16T09:10:00Z MIX-2 documentary underscore (FluidR3_GM + tinysoundfont) + MIX-1 levels
+sample render 2026-10-16T09:11:57Z MIX-2 retry after workflow YAML fix

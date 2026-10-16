@@ -77,7 +77,7 @@ jobs:
 
       - name: Install Python packages
         timeout-minutes: 15
-        run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt && (pip install --no-deps tinysoundfont==0.3.7 || echo 'tinysoundfont unavailable: classic generated music')"
+        run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt && (pip install --no-deps tinysoundfont==0.3.7 || echo 'tinysoundfont unavailable - classic generated music')"
 
       - name: Install Remotion
         timeout-minutes: 15
