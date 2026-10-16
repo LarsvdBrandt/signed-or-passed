@@ -16,6 +16,9 @@ Music (spec.music, docs/library/music.md):
              claims, the generated beds cannot.
   none       no music and no stingers
 Stingers (musicgen.stinger) play at question scenes and verdict scenes (signed / passed) unless stingers is false.
+MIX-2 (default since 2026-10-16): generated music is the documentary underscore of pipeline/underscore.py (own score,
+sampled GM instruments of the MIT FluidR3_GM soundfont, per-section arrangements, returning motif) in music.style
+underscore | rhythmic | cinematic; music.style classic (or a missing soundfont) = the old musicgen beds.
 
 Sound dynamics (RETENTION-4b, docs/library/retention.md):
   scenes[].musicEnergy  low | mid | high | drop | stop, sticky until the next scene that sets one ('mid' before the
@@ -46,6 +49,7 @@ import mixlevels as ml
 import musicdyn
 import musicgen
 import numpy as np
+import underscore
 import soundfile as sf
 from common import (BRAND_OUTRO_SFX, COLD_OPEN_SFX, MUSIC_ENERGIES, RISER_LEAD_SEC, brand_intro_sfx, reveal_index,
                     sound_opts, ROOT, SFX_OFFSETS, add_warning, cut_dir, cuts, fail, load_spec,
@@ -186,7 +190,12 @@ def plan_music(slug, spec):
     era = musicgen.resolve_era(m.get("era"))
     if mood and gmood != str(mood).strip().lower() and str(mood).strip().lower() not in MOOD_ALIASES:
         add_warning(slug, f"music mood '{mood}' is not a musicgen mood: using '{gmood}'")
-    info = {"kind": "generated", "mood": gmood, "era": era, "generator": "pipeline/musicgen.py", "licence": "CC0-1.0"}
+    style = str(m.get("style") or "underscore").strip().lower()
+    if style not in underscore.STYLES + ("classic",):
+        add_warning(slug, f"music.style '{style}' is unknown: using 'underscore'")
+        style = "underscore"
+    info = {"kind": "generated", "mood": gmood, "era": era, "style": style, "licence": "CC0-1.0",
+            "generator": "pipeline/musicgen.py" if style == "classic" else "pipeline/underscore.py"}
     write_json(work_dir(slug) / "music.json", info)
     return dict(info, stingers=stingers)
 
@@ -204,12 +213,43 @@ def energy_changes(cut, timing):
     return out
 
 
-def music_for_cut(slug, cut, plan, total, energies=None):
+def underscore_bed(slug, cut, plan, timing, path):
+    """MIX-2: the documentary underscore (pipeline/underscore.py) rendered with the FluidR3_GM soundfont + room/EQ;
+    False (with a warning) when the soundfont or tinysoundfont is missing, so the caller uses musicgen."""
+    try:
+        x, info = underscore.bed(timing, plan["mood"], f"{slug}:{cut['name']}", plan.get("style") or "underscore",
+                                 spec_scenes=cut["scenes"])
+    except ImportError as e:
+        add_warning(slug, f"underscore needs tinysoundfont ({e}): using the classic generated bed")
+        return False
+    if x is None:
+        add_warning(slug, "no General MIDI soundfont (fluid-soundfont-gm) found: using the classic generated bed")
+        return False
+    dry = path.with_name("music-bed-dry.wav")
+    sf.write(str(dry), x, underscore.SR, subtype="FLOAT")
+    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(dry), "-af", underscore.POST_FILTER,
+         "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(path)])
+    dry.unlink(missing_ok=True)
+    mj = work_dir(slug) / "music.json"
+    m = read_json(mj) if mj.exists() else {}
+    m.setdefault("cuts", {})[cut["name"]] = {k: v for k, v in info.items() if k != "sections"}
+    m["soundfont"] = "FluidR3_GM by Frank Wen (MIT licence)" if "FluidR3" in info["soundfont"] else info["soundfont"]
+    write_json(mj, m)
+    write_json(path.with_name("underscore.json"), info)
+    log(f"music {cut['name']}: underscore {info['style']} {info['bpm']} BPM in {info['key']}"
+        f"{' minor' if info['minor'] else ''}, {len(info['sections'])} phrases, {info['notes']} notes ({info['soundfont']})")
+    return True
+
+
+def music_for_cut(slug, cut, plan, total, energies=None, timing=None):
+    """(path, legacy gain, underscore?) of the music bed of one cut."""
     if plan["kind"] == "library":
-        return plan["path"], LIBRARY_MUSIC_GAIN
+        return plan["path"], LIBRARY_MUSIC_GAIN, False
     if plan["kind"] == "generated":
         path = cut_dir(slug, cut["name"]) / "music-bed.wav"
         seed = f"{slug}:{cut['name']}"
+        if plan.get("style", "underscore") != "classic" and timing and underscore_bed(slug, cut, plan, timing, path):
+            return path, GENERATED_MUSIC_GAIN, True
         if energies:
             x = musicdyn.bed_energy(plan["mood"], plan["era"], total + 0.5, seed=seed, changes=energies)
             how = "energy curve " + " ".join(f"{e}@{t:.1f}" for t, e in energies)
@@ -218,8 +258,8 @@ def music_for_cut(slug, cut, plan, total, energies=None):
             how = "sections"
         musicgen.write_wav(path, x)
         log(f"music {cut['name']}: generated bed {plan['mood']} / {plan['era']} ({total:.1f} s, {how})")
-        return path, GENERATED_MUSIC_GAIN
-    return None, 0.0
+        return path, GENERATED_MUSIC_GAIN, False
+    return None, 0.0, False
 
 
 def section_breaths(timing):
@@ -516,9 +556,10 @@ def mix_cut(slug, cut, plan):
                                        for e in kept])
 
     # 3. music: bed (+ stingers) -> open level voice-10 dB -> ducked under the voice -> closed-loop voice-to-music
-    music_path, _legacy_gain = music_for_cut(slug, cut, plan, total, energies)
+    music_path, _legacy_gain, scored = music_for_cut(slug, cut, plan, total, energies, timing)
     music = None
-    stingers = [(stinger_file(nm), at) for nm, at in stinger_events(cut, timing)] if plan.get("stingers") else []
+    # the underscore plays its own question tick, reveal hit and verdict stinger: no musicgen stingers on top
+    stingers = [(stinger_file(nm), at) for nm, at in stinger_events(cut, timing)] if plan.get("stingers") and not scored else []
     stingers = [(f, at) for f, at in stingers if at < total]
     sections = section_breaths(timing)
     if music_path:

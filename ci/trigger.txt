@@ -1,1 +1,1 @@
-2026-10-16T09:05:00Z MIX-1 voice-is-king mix levels (stems, look-ahead ducking, sfx calibration + thinning, mix QA)
+2026-10-16T09:10:00Z MIX-2 documentary underscore (FluidR3_GM + tinysoundfont) + MIX-1 levels

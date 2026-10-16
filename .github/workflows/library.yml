@@ -73,11 +73,11 @@ jobs:
 
       - name: Install system packages
         timeout-minutes: 10
-        run: bash ci/run-step.sh setup:apt bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng"
+        run: bash ci/run-step.sh setup:apt bash -c "sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng fluid-soundfont-gm"
 
       - name: Install Python packages
         timeout-minutes: 15
-        run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt"
+        run: bash ci/run-step.sh setup:pip bash -c "python -m pip install --upgrade pip && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1 && pip install -r pipeline/requirements.txt && (pip install --no-deps tinysoundfont==0.3.7 || echo 'tinysoundfont unavailable: classic generated music')"
 
       - name: Install Remotion
         timeout-minutes: 15
