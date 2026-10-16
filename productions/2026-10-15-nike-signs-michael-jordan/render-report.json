@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "2026-10-15-nike-signs-michael-jordan",
   "test": false,
-  "generatedAt": "2026-10-15T21:17:58+00:00",
+  "generatedAt": "2026-10-16T10:08:06+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -17,22 +17,22 @@
     {
       "name": "video.mp4: duration 480-720s",
       "ok": true,
-      "detail": "559.7s"
+      "detail": "559.8s"
     },
     {
       "name": "video.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 559.67s vs timing 559.67s"
+      "detail": "video 559.77s vs timing 559.77s"
     },
     {
       "name": "video.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.3 LUFS"
+      "detail": "-14.4 LUFS"
     },
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.1 dBTP"
+      "detail": "-2.5 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -40,9 +40,25 @@
       "detail": "0 silence(s), longest 0.0s, 0.0% silent"
     },
     {
+      "name": "video.mp4: voice-to-music >= 14 dB (integrated)",
+      "ok": true,
+      "detail": "16.0 dB (voice -13.8 / music -29.8 LUFS, under the voice -30.4, in pauses -27.2 LUFS short-term)"
+    },
+    {
+      "name": "video.mp4: voice-to-sfx >= 10 dB (short-term)",
+      "ok": true,
+      "detail": "11.4 dB short-term, 8.3 dB momentary (sfx -30.0 LUFS integrated)"
+    },
+    {
+      "name": "video.mp4: sfx <= 8/min",
+      "ok": true,
+      "detail": "60 sfx (6.4/min, 99 thinned)",
+      "level": "warn"
+    },
+    {
       "name": "video.mp4: visual changes/min >= 20",
-      "ok": false,
-      "detail": "18.4 changes/min (measured), 6.5 planned beats/min, 17.0 sfx/min",
+      "ok": true,
+      "detail": "25.9 changes/min (measured), 6.5 planned beats/min, 6.4 sfx/min",
       "level": "warn"
     },
     {
@@ -58,7 +74,7 @@
     {
       "name": "video.mp4: brand sting after the hook",
       "ok": true,
-      "detail": "sting at 29.5s"
+      "detail": "sting at 29.4s"
     },
     {
       "name": "video.mp4: on-screen number/keyword in the first 8 s",
@@ -69,7 +85,7 @@
     {
       "name": "video.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 330.8s",
+      "detail": "-91.0 dB at 330.9s",
       "level": "warn"
     },
     {
@@ -85,17 +101,17 @@
     {
       "name": "short-short-1.mp4: duration 45-60s",
       "ok": true,
-      "detail": "51.5s"
+      "detail": "51.1s"
     },
     {
       "name": "short-short-1.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 51.47s vs timing 51.47s"
+      "detail": "video 51.13s vs timing 51.13s"
     },
     {
       "name": "short-short-1.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.3 LUFS"
+      "detail": "-14.4 LUFS"
     },
     {
       "name": "short-short-1.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
@@ -108,9 +124,25 @@
       "detail": "0 silence(s), longest 0.0s, 0.0% silent"
     },
     {
-      "name": "short-short-1.mp4: visual changes/min >= 20",
+      "name": "short-short-1.mp4: voice-to-music >= 14 dB (integrated)",
+      "ok": true,
+      "detail": "16.0 dB (voice -13.9 / music -29.9 LUFS, under the voice -39.1, in pauses -26.3 LUFS short-term)"
+    },
+    {
+      "name": "short-short-1.mp4: voice-to-sfx >= 10 dB (short-term)",
+      "ok": true,
+      "detail": "15.7 dB short-term, 10.1 dB momentary (sfx -30.4 LUFS integrated)"
+    },
+    {
+      "name": "short-short-1.mp4: sfx <= 8/min",
       "ok": false,
-      "detail": "17.5 changes/min (measured), 0.0 planned beats/min, 17.5 sfx/min",
+      "detail": "7 sfx (8.2/min, 8 thinned)",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-1.mp4: visual changes/min >= 20",
+      "ok": true,
+      "detail": "29.3 changes/min (measured), 14.1 planned beats/min, 8.2 sfx/min",
       "level": "warn"
     },
     {
@@ -121,7 +153,7 @@
     {
       "name": "short-short-1.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "1.0s at 42.5s"
+      "detail": "1.0s at 42.2s"
     },
     {
       "name": "short-short-1.mp4: on-screen number/keyword in the first 8 s",
@@ -132,7 +164,7 @@
     {
       "name": "short-short-1.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 26.8s",
+      "detail": "-91.0 dB at 26.4s",
       "level": "warn"
     },
     {
@@ -153,17 +185,17 @@
     {
       "name": "short-short-2.mp4: duration matches audio timing",
       "ok": true,
-      "detail": "video 51.00s vs timing 51.00s"
+      "detail": "video 50.97s vs timing 50.97s"
     },
     {
       "name": "short-short-2.mp4: loudness -14 LUFS (+/-1)",
       "ok": true,
-      "detail": "-14.4 LUFS"
+      "detail": "-15.0 LUFS"
     },
     {
       "name": "short-short-2.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.8 dBTP"
+      "detail": "-4.1 dBTP"
     },
     {
       "name": "short-short-2.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -171,9 +203,25 @@
       "detail": "0 silence(s), longest 0.0s, 0.0% silent"
     },
     {
-      "name": "short-short-2.mp4: visual changes/min >= 20",
+      "name": "short-short-2.mp4: voice-to-music >= 14 dB (integrated)",
+      "ok": true,
+      "detail": "16.0 dB (voice -13.9 / music -29.9 LUFS, under the voice -39.2, in pauses -26.1 LUFS short-term)"
+    },
+    {
+      "name": "short-short-2.mp4: voice-to-sfx >= 10 dB (short-term)",
+      "ok": true,
+      "detail": "15.7 dB short-term, 10.1 dB momentary (sfx -30.4 LUFS integrated)"
+    },
+    {
+      "name": "short-short-2.mp4: sfx <= 8/min",
       "ok": false,
-      "detail": "14.1 changes/min (measured), 2.4 planned beats/min, 16.5 sfx/min",
+      "detail": "7 sfx (8.2/min, 7 thinned)",
+      "level": "warn"
+    },
+    {
+      "name": "short-short-2.mp4: visual changes/min >= 20",
+      "ok": true,
+      "detail": "27.1 changes/min (measured), 16.5 planned beats/min, 8.2 sfx/min",
       "level": "warn"
     },
     {
@@ -184,7 +232,7 @@
     {
       "name": "short-short-2.mp4: no static picture > 6 s (outside question holds)",
       "ok": true,
-      "detail": "1.0s at 3.8s"
+      "detail": "1.0s at 42.8s"
     },
     {
       "name": "short-short-2.mp4: on-screen number/keyword in the first 8 s",
@@ -195,7 +243,7 @@
     {
       "name": "short-short-2.mp4: silence before the reveal (0.6 s, < -35 dB)",
       "ok": true,
-      "detail": "-91.0 dB at 29.0s",
+      "detail": "-91.0 dB at 29.1s",
       "level": "warn"
     },
     {
@@ -226,7 +274,7 @@
     {
       "name": "voice: ASR word error rate <= 8 %",
       "ok": true,
-      "detail": "4.7 % (base.en, 1237 words)"
+      "detail": "4.1 % (base.en, 1237 words)"
     },
     {
       "name": "voice: no garbled sentence (WER > 30 % and CER > 35 %, max 2 doubtful)",
@@ -242,13 +290,13 @@
     {
       "name": "voice: pace 135-145 words/min (whole narration)",
       "ok": true,
-      "detail": "140.0 wpm over the whole cut, in-scene 229.0 wpm (articulation 253.9, pace 1.0, pauses x1.268)",
+      "detail": "140.0 wpm over the whole cut, in-scene 228.8 wpm (articulation 253.5, pace 1.0, pauses x1.265)",
       "level": "warn"
     },
     {
       "name": "voice: liveliness (F0 std, semitones)",
       "ok": true,
-      "detail": "5.42 st (per minute [5.65, 5.35, 5.34, 5.72, 5.29, 5.52, 5.6, 5.77, 5.09, 4.88])",
+      "detail": "5.35 st (per minute [5.45, 5.48, 5.23, 6.0, 5.43, 5.43, 5.75, 5.45, 5.2, 4.1])",
       "level": "info"
     },
     {
@@ -263,77 +311,172 @@
     }
   ],
   "durations": {
-    "main": 559.67,
-    "short-short-1": 51.47,
-    "short-short-2": 51.0
+    "main": 559.77,
+    "short-short-1": 51.13,
+    "short-short-2": 50.97
   },
   "audio": {
     "video.mp4": {
-      "lufs": -14.35,
-      "truePeakDb": -2.14,
-      "lra": 3.5,
+      "lufs": -14.43,
+      "truePeakDb": -2.47,
+      "lra": 4.2,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-1.mp4": {
-      "lufs": -14.34,
-      "truePeakDb": -2.73,
-      "lra": 3.0,
+      "lufs": -14.41,
+      "truePeakDb": -2.68,
+      "lra": 6.4,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-short-2.mp4": {
-      "lufs": -14.41,
-      "truePeakDb": -2.81,
-      "lra": 3.5,
+      "lufs": -14.97,
+      "truePeakDb": -4.09,
+      "lra": 6.2,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
+    }
+  },
+  "mix": {
+    "video.mp4": {
+      "voiceLufs": -13.8,
+      "musicLufs": -29.8,
+      "sfxLufs": -30.0,
+      "mixLufs": -14.37,
+      "truePeakDb": -2.99,
+      "voiceToMusicDb": 16.0,
+      "voiceToSfxDb": 16.3,
+      "voiceShortTermLufs": -15.5,
+      "voiceMomentaryLufs": -13.8,
+      "sfxMaxShortTermLufs": -27.0,
+      "sfxMaxMomentaryLufs": -22.0,
+      "voiceToSfxShortTermDb": 11.4,
+      "voiceToSfxMomentaryDb": 8.3,
+      "musicUnderVoiceShortTermLufs": -30.4,
+      "musicOpenShortTermLufs": -27.2,
+      "sfxCount": 60,
+      "sfxCandidates": 159,
+      "sfxThinned": 99,
+      "sfxPerMin": 6.4,
+      "settings": {
+        "voiceToMusicDb": 16.0,
+        "duckDb": 8.0,
+        "sfxBelowVoiceDb": 12.0,
+        "sfxPerMin": 7
+      },
+      "music": "generated",
+      "stingers": 0,
+      "speechPct": 62.6
+    },
+    "short-short-1.mp4": {
+      "voiceLufs": -13.9,
+      "musicLufs": -29.9,
+      "sfxLufs": -30.4,
+      "mixLufs": -14.38,
+      "truePeakDb": -2.99,
+      "voiceToMusicDb": 16.0,
+      "voiceToSfxDb": 16.5,
+      "voiceShortTermLufs": -15.4,
+      "voiceMomentaryLufs": -14.0,
+      "sfxMaxShortTermLufs": -31.1,
+      "sfxMaxMomentaryLufs": -24.1,
+      "voiceToSfxShortTermDb": 15.7,
+      "voiceToSfxMomentaryDb": 10.1,
+      "musicUnderVoiceShortTermLufs": -39.1,
+      "musicOpenShortTermLufs": -26.3,
+      "sfxCount": 7,
+      "sfxCandidates": 15,
+      "sfxThinned": 8,
+      "sfxPerMin": 8.2,
+      "settings": {
+        "voiceToMusicDb": 16.0,
+        "duckDb": 8.0,
+        "sfxBelowVoiceDb": 12.0,
+        "sfxPerMin": 7
+      },
+      "music": "generated",
+      "stingers": 0,
+      "speechPct": 66.1
+    },
+    "short-short-2.mp4": {
+      "voiceLufs": -13.9,
+      "musicLufs": -29.9,
+      "sfxLufs": -30.4,
+      "mixLufs": -14.56,
+      "truePeakDb": -3.0,
+      "voiceToMusicDb": 16.0,
+      "voiceToSfxDb": 16.5,
+      "voiceShortTermLufs": -15.5,
+      "voiceMomentaryLufs": -13.9,
+      "sfxMaxShortTermLufs": -31.2,
+      "sfxMaxMomentaryLufs": -24.0,
+      "voiceToSfxShortTermDb": 15.7,
+      "voiceToSfxMomentaryDb": 10.1,
+      "musicUnderVoiceShortTermLufs": -39.2,
+      "musicOpenShortTermLufs": -26.1,
+      "sfxCount": 7,
+      "sfxCandidates": 14,
+      "sfxThinned": 7,
+      "sfxPerMin": 8.2,
+      "settings": {
+        "voiceToMusicDb": 16.0,
+        "duckDb": 8.0,
+        "sfxBelowVoiceDb": 12.0,
+        "sfxPerMin": 7
+      },
+      "music": "generated",
+      "stingers": 0,
+      "speechPct": 62.9
     }
   },
   "retention": {
     "main": {
       "beats": 61,
       "beatsPerMin": 6.5,
-      "sfx": 159,
-      "sfxPerMin": 17.0,
+      "sfx": 60,
+      "sfxPerMin": 6.4,
       "breaths": 149,
       "sectionPauses": 9,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 172,
-      "visualChangesPerMin": 18.4,
+      "visualChanges": 242,
+      "visualChangesMerged": 169,
+      "visualChangesPerMin": 25.9,
       "longestStaticSec": 2.25,
       "longestStaticAtSec": 108.25,
       "revealSilenceDb": -91.0
     },
     "short-short-1": {
-      "beats": 0,
-      "beatsPerMin": 0.0,
-      "sfx": 15,
-      "sfxPerMin": 17.5,
+      "beats": 12,
+      "beatsPerMin": 14.1,
+      "sfx": 7,
+      "sfxPerMin": 8.2,
       "breaths": 5,
       "sectionPauses": 4,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 15,
-      "visualChangesPerMin": 17.5,
+      "visualChanges": 25,
+      "visualChangesMerged": 18,
+      "visualChangesPerMin": 29.3,
       "longestStaticSec": 1.0,
-      "longestStaticAtSec": 42.5,
+      "longestStaticAtSec": 42.25,
       "revealSilenceDb": -91.0
     },
     "short-short-2": {
-      "beats": 2,
-      "beatsPerMin": 2.4,
-      "sfx": 14,
-      "sfxPerMin": 16.5,
+      "beats": 14,
+      "beatsPerMin": 16.5,
+      "sfx": 7,
+      "sfxPerMin": 8.2,
       "breaths": 5,
       "sectionPauses": 4,
       "firstVisualChangeSec": 0.0,
-      "visualChanges": 12,
-      "visualChangesPerMin": 14.1,
+      "visualChanges": 23,
+      "visualChangesMerged": 13,
+      "visualChangesPerMin": 27.1,
       "longestStaticSec": 1.0,
-      "longestStaticAtSec": 3.75,
+      "longestStaticAtSec": 42.75,
       "revealSilenceDb": -91.0
     }
   },
@@ -343,21 +486,21 @@
     "clips": 131,
     "exaggerationOffset": 0.0,
     "cfgOffset": 0.0,
-    "clipWer": 0.0309,
+    "clipWer": 0.0354,
     "retried": 2,
     "badSentences": [],
     "misheardShortClips": 1,
     "fallbackSentences": [],
     "pace": {
       "words": 1306,
-      "speechSec": 342.14,
-      "wpm": 229.0,
-      "articulationWpm": 253.9,
-      "inSentenceWpm": 253.9,
-      "totalSec": 559.67,
+      "speechSec": 342.46,
+      "wpm": 228.8,
+      "articulationWpm": 253.5,
+      "inSentenceWpm": 253.5,
+      "totalSec": 559.77,
       "overallWpm": 140.0,
       "pace": 1.0,
-      "pauseScale": 1.268,
+      "pauseScale": 1.265,
       "targetWpm": [
         135.0,
         145.0
@@ -368,7 +511,7 @@
         135,
         145
       ],
-      "paceGuardScale": 1.268,
+      "paceGuardScale": 1.265,
       "calibratedOverallWpm": 140.0,
       "pauses": {
         "sentence": 0.45,
@@ -380,32 +523,32 @@
         "afterReveal": 1.2,
         "afterQuestion": 3.0,
         "shortScale": 0.75,
-        "scale": 1.268
+        "scale": 1.265
       },
       "tempoFilter": {},
       "narrationWpm": 140.0
     },
-    "wer": 0.0469,
+    "wer": 0.0412,
     "asrModel": "base.en",
     "words": 1237,
     "liveliness": {
       "metric": "std of F0 in semitones (librosa.pyin)",
       "overall": 5.48,
       "perMinute": [
-        5.65,
-        5.35,
-        5.34,
-        5.72,
-        5.29,
-        5.52,
-        5.6,
-        5.77,
-        5.09,
-        4.88
+        5.45,
+        5.48,
+        5.23,
+        6.0,
+        5.43,
+        5.43,
+        5.75,
+        5.45,
+        5.2,
+        4.1
       ],
-      "mean": 5.42
+      "mean": 5.35
     },
-    "seconds": 559.7
+    "seconds": 559.8
   },
   "warnings": []
 }
