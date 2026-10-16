@@ -2,9 +2,9 @@
 
 Two sources, both safe for monetised YouTube:
 
-1. **Generated** (default): `pipeline/musicgen.py` synthesises every note from numpy oscillators and noise with
-   fixed seeds. No samples, loops or recordings, so it is CC0 by construction and cannot match a Content ID
-   reference. No credit needed.
+1. **Generated** (default): since MIX-2 the documentary underscore of `pipeline/underscore.py` (below); with
+   `music.style: classic` (or as fallback) `pipeline/musicgen.py` synthesises every note from numpy oscillators and
+   noise with fixed seeds. Our own score / synthesis, so it cannot match a Content ID reference. No credit needed.
 2. **Library**: tracks listed in `brand/music/licenses.csv` and the CC0 / public-domain classical recordings of
    `brand/music/manifest.csv` (below), each with a source URL. The workflow downloads them at render time; the
    description credits them. Manifest recordings are **opt-in** (`source: "library"` or `track`).
@@ -12,23 +12,55 @@ Two sources, both safe for monetised YouTube:
 ## spec.music
 
 ```json
-"music": {"mood": "tense", "era": "1920s", "source": "auto", "stingers": true}
+"music": {"mood": "tense", "era": "1920s", "source": "auto", "stingers": true, "style": "underscore"}
 ```
 
 | field | values | default |
 |---|---|---|
 | `mood` | `tense`, `curious`, `triumphant`, `somber`, `playful`, `epic`, `mysterious`, `upbeat` (aliases such as suspense, neutral, hopeful, sad, dramatic, mystery are mapped in `pipeline/mix.py`) | `curious` |
-| `era` | `modern`, `baroque`, `jazz-age`, `fifties`, `eighties`, `future` or an alias (`ancient`, `medieval`, `1600s`, `victorian`, `1920s`, `1950s`, `1980s`, `2000s`, ...) | `modern` |
+| `era` | `modern`, `baroque`, `jazz-age`, `fifties`, `eighties`, `future` or an alias (`ancient`, `medieval`, `1600s`, `victorian`, `1920s`, `1950s`, `1980s`, `2000s`, ...); classic beds only | `modern` |
 | `source` | `auto` (library track with that mood if one exists, else generated), `generated`, `library`, `none` | `auto` |
 | `track` | file name (with or without extension) or title of a `brand/music/manifest.csv` recording; implies `source: library` | none |
-| `stingers` | `true` / `false`: musical hits at question scenes (`question`) and verdict scenes (`signed`, `passed`) | `true` |
-| `scenes[].musicEnergy` | low / mid / high / drop / stop per scene (sticky): re-arranges the generated bed per act, a gain curve for library tracks (docs/library/retention.md) | none = built-in sections |
+| `stingers` | `true` / `false`: musical hits at question scenes (`question`) and verdict scenes (`signed`, `passed`); classic beds and library tracks (the underscore has its own) | `true` |
+| `style` | `underscore`, `rhythmic`, `cinematic`, `classic` (see Underscore) | `underscore` |
+| `scenes[].musicEnergy` | low / mid / high / drop / stop per scene (sticky): sets the level of an underscore phrase, re-arranges a classic bed per act, a gain curve for library tracks (docs/library/retention.md) | none = built-in sections |
 
 The bed is generated per cut (main video and every short) exactly as long as the narration (`timing.json`), with
-the seed `<slug>:<cut>` so a re-render sounds identical. It is ducked under the voice (sidechain) and the final
-mix is normalised to -14 LUFS / -1 dBTP.
+the seed `<slug>:<cut>` so a re-render sounds identical. Its level is set by the MIX-1 mix (docs/library/sound.md#mix:
+ducked 8 dB under the voice, 16 dB below it integrated) and the final mix is normalised to -14 LUFS / -1 dBTP.
+
+## Underscore (MIX-2, default since 2026-10-16) {#underscore}
+Lars: the numpy beds were "a bit boring". Generated music (`source: auto | generated`) is now a **documentary
+underscore** composed by `pipeline/underscore.py` and played by sampled General MIDI instruments:
+- **Renderer**: `tinysoundfont` 0.3.7 (TinySoundFont, MIT; installed with `pip install --no-deps`).
+- **Soundfont**: FluidR3_GM by Frank Wen, **MIT licence** ("I hereby release Fluid under the MIT license",
+  Debian copyright of fluid-soundfont 3.1-5.3, https://sources.debian.org/src/fluid-soundfont/3.1-5.3/debian/copyright/),
+  from the Ubuntu package `fluid-soundfont-gm` (`/usr/share/sounds/sf2/FluidR3_GM.sf2`, installed by the workflows).
+  Our own score + MIT samples: safe for monetised YouTube, no Content ID, no credit needed.
+  GeneralUser GS was checked and **rejected for productions** (its licence allows commercial use, but the author
+  cannot vouch for the origin of every sample); it may only be used as a local test font (`SOUNDFONT=...`).
+- **Form instead of loops**, from the scene kinds of timing.json: scene (soft piano arpeggios + warm pad, motif on
+  celesta) > pressure (pizzicato ostinato, low strings, timpani; synth-bass pulse + low toms from level 2, hats + kick
+  at level 3; every pressure section lifts the key 1-2 semitones) > freeze at the question (suspended chord, a tick on
+  every beat) > reveal (hit: timpani, cymbal, low piano, strings + brass, right after the reveal silence) > aftermath
+  (light modern drums, finger bass, harp plucks, strings; the motif on horn/brass; relative major) > verdict (brass
+  stinger with the motif) > lesson (warm piano, the motif resolves to the tonic). Long sections are cut at story-section
+  flags and every ~32 s into phrases that vary (groove / breakdown / full, new progression, small key shifts).
+  `scenes[].musicEnergy` low / mid / high set the level of a phrase, drop = breakdown (pad + piano), stop = silence.
+- **Motif**: a fixed 4-note "Signed or Passed" figure (5-1-3-2 of the key) returns in every video.
+- Tempo 90-110 BPM and the home key come from the seed `<slug>:<cut>` (re-renders sound the same, every video
+  differs); velocities and timing are humanised; room + EQ via ffmpeg (`underscore.POST_FILTER`).
+- `music.style`: `underscore` (default), `rhythmic` (more drums), `cinematic` (more strings, ~10 BPM slower),
+  `classic` (the numpy beds below; also the automatic fallback when the soundfont or tinysoundfont is missing, with a
+  warning). The underscore plays its own question tick, reveal hit and verdict stinger, so the musicgen stingers are
+  skipped. Levels are set by the MIX-1 mix (docs/library/sound.md#mix), not by the bed.
+- **Listening board** (MIX-3): `pipeline/music_test.py` mixes A classic / B underscore / C rhythmic / D cinematic under
+  the same 60 s (pressure > question > reveal) of a real production; slugs listed in `ci/music-test.txt` publish
+  MP3 + MP4 + music-test.json to the release `music-test` during their render.
 
 ## Moods (8)
+
+Underscore: tense, somber, mysterious and epic are written in minor, the others in major. Classic beds:
 
 | mood | bpm | character |
 |---|---|---|
