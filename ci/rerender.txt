@@ -7,4 +7,8 @@
 #      ('You're Nike.' heard 'Clear Nike.', 'Signed.' heard 'sign').
 # 2026-10-15T20:50Z: VOICE-13 deep retry for short / still-bad Chatterbox clips (careful ASR + up to 4 takes);
 #   re-render Nike only (its spec is unchanged).
+# 2026-10-16T09:30Z: MIX-4 (Lars: sfx and music too dominant, music a bit boring): new channel mix = MIX-1 levels
+#   (music 16 dB under the voice, sfx <= voice-12 dB, max 7 sfx/min) + MIX-2 documentary underscore (FluidR3_GM).
+#   Voice, pauses and visuals unchanged; both specs untouched (music.source auto -> generated -> underscore).
+2026-10-15-blockbuster-passes-on-netflix
 2026-10-15-nike-signs-michael-jordan
