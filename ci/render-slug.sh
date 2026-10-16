@@ -39,6 +39,18 @@ fi
 $S "metadata:$slug" python pipeline/metadata.py --slug "$slug"
 $S "qa:$slug" python pipeline/qa.py --slug "$slug"
 
+# MIX-3: listening board (4 music styles under 60 s of this production) for the slugs listed in ci/music-test.txt,
+# published to the release 'music-test'. Never blocks or fails the production render.
+if grep -qx "$slug" ci/music-test.txt 2>/dev/null; then
+  python pipeline/music_test.py --slug "$slug" 2>&1 | tee -a build/ci.log || echo "music test failed (ignored)"
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    shopt -s nullglob; mt=("$OUT"/music-test/*); shopt -u nullglob
+    if [ "${#mt[@]}" -gt 0 ]; then
+      bash ci/release.sh music-test "Music test: 4 styles under $slug" "${mt[@]}" || echo "music-test release failed (ignored)"
+    fi
+  fi
+fi
+
 if [ -n "${GITHUB_ACTIONS:-}" ]; then
   tag="$slug"
   if [ "$slug" = "0000-sample" ]; then tag="sample"; fi
