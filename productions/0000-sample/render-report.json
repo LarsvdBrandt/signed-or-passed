@@ -2,7 +2,7 @@
   "ok": true,
   "slug": "0000-sample",
   "test": true,
-  "generatedAt": "2026-10-16T08:58:05+00:00",
+  "generatedAt": "2026-10-16T09:28:10+00:00",
   "checks": [
     {
       "name": "video.mp4: resolution 1920x1080",
@@ -32,7 +32,7 @@
     {
       "name": "video.mp4: true peak <= -1 dBTP (0.3 dB codec tolerance)",
       "ok": true,
-      "detail": "-2.7 dBTP"
+      "detail": "-2.8 dBTP"
     },
     {
       "name": "video.mp4: no dead air (silence < -50 dBFS: longest < 4 s, total < 5%)",
@@ -42,7 +42,7 @@
     {
       "name": "video.mp4: voice-to-music >= 14 dB (integrated)",
       "ok": true,
-      "detail": "16.0 dB (voice -13.6 / music -29.6 LUFS, under the voice -31.0, in pauses -26.2 LUFS short-term)"
+      "detail": "16.0 dB (voice -13.6 / music -29.6 LUFS, under the voice -29.9, in pauses -26.9 LUFS short-term)"
     },
     {
       "name": "video.mp4: voice-to-sfx >= 10 dB (short-term)",
@@ -126,12 +126,12 @@
     {
       "name": "short-s1.mp4: voice-to-music >= 14 dB (integrated)",
       "ok": true,
-      "detail": "16.0 dB (voice -13.2 / music -29.2 LUFS, under the voice -35.3, in pauses -24.6 LUFS short-term)"
+      "detail": "16.0 dB (voice -13.5 / music -29.5 LUFS, under the voice -34.9, in pauses -23.3 LUFS short-term)"
     },
     {
       "name": "short-s1.mp4: voice-to-sfx >= 10 dB (short-term)",
       "ok": true,
-      "detail": "14.9 dB short-term, 9.9 dB momentary (sfx -29.0 LUFS integrated)"
+      "detail": "14.9 dB short-term, 9.9 dB momentary (sfx -29.3 LUFS integrated)"
     },
     {
       "name": "short-s1.mp4: sfx <= 8/min",
@@ -209,17 +209,17 @@
   },
   "audio": {
     "video.mp4": {
-      "lufs": -14.19,
-      "truePeakDb": -2.74,
-      "lra": 4.5,
+      "lufs": -14.2,
+      "truePeakDb": -2.78,
+      "lra": 4.3,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
     },
     "short-s1.mp4": {
       "lufs": -14.63,
-      "truePeakDb": -2.87,
-      "lra": 9.2,
+      "truePeakDb": -2.93,
+      "lra": 8.7,
       "silences": 0,
       "longestSilenceSec": 0.0,
       "silentPct": 0.0
@@ -230,8 +230,8 @@
       "voiceLufs": -13.6,
       "musicLufs": -29.6,
       "sfxLufs": -29.7,
-      "mixLufs": -14.18,
-      "truePeakDb": -3.0,
+      "mixLufs": -14.19,
+      "truePeakDb": -2.99,
       "voiceToMusicDb": 16.0,
       "voiceToSfxDb": 16.1,
       "voiceShortTermLufs": -14.8,
@@ -240,8 +240,8 @@
       "sfxMaxMomentaryLufs": -21.8,
       "voiceToSfxShortTermDb": 12.1,
       "voiceToSfxMomentaryDb": 8.4,
-      "musicUnderVoiceShortTermLufs": -31.0,
-      "musicOpenShortTermLufs": -26.2,
+      "musicUnderVoiceShortTermLufs": -29.9,
+      "musicOpenShortTermLufs": -26.9,
       "sfxCount": 18,
       "sfxCandidates": 43,
       "sfxThinned": 25,
@@ -253,25 +253,25 @@
         "sfxPerMin": 7
       },
       "music": "generated",
-      "stingers": 2,
+      "stingers": 0,
       "speechPct": 66.1
     },
     "short-s1.mp4": {
-      "voiceLufs": -13.2,
-      "musicLufs": -29.2,
-      "sfxLufs": -29.0,
-      "mixLufs": -14.6,
+      "voiceLufs": -13.5,
+      "musicLufs": -29.5,
+      "sfxLufs": -29.3,
+      "mixLufs": -14.59,
       "truePeakDb": -3.0,
       "voiceToMusicDb": 16.0,
       "voiceToSfxDb": 15.8,
-      "voiceShortTermLufs": -13.9,
-      "voiceMomentaryLufs": -13.3,
-      "sfxMaxShortTermLufs": -28.8,
-      "sfxMaxMomentaryLufs": -23.2,
+      "voiceShortTermLufs": -14.2,
+      "voiceMomentaryLufs": -13.6,
+      "sfxMaxShortTermLufs": -29.1,
+      "sfxMaxMomentaryLufs": -23.5,
       "voiceToSfxShortTermDb": 14.9,
       "voiceToSfxMomentaryDb": 9.9,
-      "musicUnderVoiceShortTermLufs": -35.3,
-      "musicOpenShortTermLufs": -24.6,
+      "musicUnderVoiceShortTermLufs": -34.9,
+      "musicOpenShortTermLufs": -23.3,
       "sfxCount": 6,
       "sfxCandidates": 9,
       "sfxThinned": 3,
@@ -283,7 +283,7 @@
         "sfxPerMin": 7
       },
       "music": "generated",
-      "stingers": 2,
+      "stingers": 0,
       "speechPct": 56.3
     }
   },
