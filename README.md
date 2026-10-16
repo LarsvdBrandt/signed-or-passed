@@ -188,6 +188,14 @@ slots per template: `docs/library/templates.md`; preview: `preview-templates.mp4
 - Catalogue and usage in specs (`scenes[].sfx`, `scenes[].sfxCues`): `docs/library/sound.md`,
   `docs/library/sound-usage.md`; listen to everything in `sound-board.mp4`, download it as `sfx-library.zip`.
 
+## Mix (MIX-1: voice is king)
+Three stems, levels relative to the voice (`pipeline/mixlevels.py`, docs/library/sound.md#mix): music open level
+voice - 10 dB (about -24 LUFS in pauses / after the verdict), ducked 8 dB while the voice speaks (150 ms look-ahead
+attack, 600 ms release), closed loop to 16 dB under the voice integrated (about -30 LUFS); every sfx <= voice - 12 dB
+momentary (transients -4 dB more, impact / stamp / pen <= voice - 10 dB), sfx stem ducked 3 dB, at most 7 sfx per
+minute (best beats win). Then -14 LUFS / -1 dBTP as before. `spec.mix = {voiceToMusicDb, duckDb, sfxBelowVoiceDb,
+sfxPerMin}` overrides; `mix-report.json` / `render-report.json` `mix` hold per-stem LUFS and the ratios.
+
 ## Mood shots (scene kind `shot`)
 28 short animated beats (2-5 s) that set an emotion between story scenes, in five moods: funny (9), sad (6),
 tension (5), triumph (5), mystery (3). Example:
@@ -292,6 +300,8 @@ number/keyword in the first 8 s, < 20 measured visual changes/min and a missing 
 `report.retention` holds changes/min, beats/min, sfx/min, the longest static stretch and the reveal silence level.
 Intentional pauses (timing.json `breaths` <= 1.8 s) are exempt from the static-picture scan; the voice pace warning
 judges the overall rate (words / whole video: 135-145 wpm with the VOICE-12 breathing layout).
+Mix QA (MIX-1): voice-to-music >= 14 dB (integrated) and voice-to-sfx >= 10 dB (short-term) fail the gate, more than
+8 sfx/min warns; `report.mix` holds the stem loudness per file.
 Warnings do not fail the gate.
 
 ## Metadata (metadata.json)
@@ -307,7 +317,13 @@ with the YouTube Data API v3 enabled; scopes `youtube.upload` and `youtube.force
 phone-verified channel.
 
 ## Music
-`spec.music = {mood, era, source, track?, stingers}`. Default source `auto`: a library track with that mood if one exists,
+**MIX-2 default**: generated music is a documentary underscore (`pipeline/underscore.py`): our own score per story
+section (scene, pressure, freeze, reveal, aftermath, verdict, lesson) with a returning 4-note motif, played by sampled
+GM instruments of the MIT-licensed FluidR3_GM soundfont via tinysoundfont (MIT). `music.style` = underscore |
+rhythmic | cinematic | classic (classic = the numpy beds below, also the fallback). Details and licences:
+docs/library/music.md#underscore; 4-style listening board: release `music-test` (ci/music-test.txt).
+
+`spec.music = {mood, era, source, track?, stingers, style?}`. Default source `auto`: a library track with that mood if one exists,
 otherwise a bed **generated** by `pipeline/musicgen.py` (numpy oscillators, fixed seed `<slug>:<cut>`, no samples:
 CC0 by construction, cannot match Content ID, no credit needed). 8 moods (tense, curious, triumphant, somber, playful,
 epic, mysterious, upbeat) x 6 era flavours (modern, baroque, jazz-age, fifties, eighties, future); stingers at
