@@ -1,1 +1,1 @@
-2026-10-15T22:55:00Z RETENTION-9 long-format rhythm + QA change-peak counter
+2026-10-16T09:05:00Z MIX-1 voice-is-king mix levels (stems, look-ahead ducking, sfx calibration + thinning, mix QA)

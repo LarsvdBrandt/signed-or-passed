@@ -28,6 +28,12 @@ Sound dynamics (RETENTION-4b, docs/library/retention.md):
                         the verdict (and a softer one on a separate reveal scene).
   VOICE-12              every section pause of timing.json (breaths of kind 'section') gets a soft house whoosh on
                         the visual cut (unless another sound lands within 0.5 s) and a gentle music swell (~+2.6 dB).
+
+MIX-1 levels (pipeline/mixlevels.py, docs/library/sound.md#mix, spec.mix): the cut is built from three stems
+  voice (untouched), music (open level voice - 10 dB, ducked 8 dB while the voice speaks with a 150 ms look-ahead
+  attack and 600 ms release, closed loop to voice-to-music 16 dB integrated) and sfx (thinned to <= 7 per minute,
+  every sound calibrated to <= voice - 12 dB momentary, transients -4 dB more, ducked 3 dB under the voice), summed
+  and loudness-normalised as before. Per stem LUFS and the ratios go to build/<slug>/<cut>/mix-report.json (qa.py).
 """
 import csv
 import json
@@ -36,6 +42,7 @@ import subprocess
 import urllib.parse
 from pathlib import Path
 
+import mixlevels as ml
 import musicdyn
 import musicgen
 import numpy as np
@@ -368,87 +375,193 @@ def sfx_events(timing, cues=None):
     return [(n, max(0.0, t), g) for n, t, g in events if t < total]
 
 
+def ffwav(inputs, graph, label, out):
+    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", *inputs, "-filter_complex", ";".join(graph),
+         "-map", label, "-ar", str(ml.SR), "-ac", "2", "-c:a", "pcm_f32le", str(out)])
+    x, _sr = sf.read(str(out), dtype="float32", always_2d=True)
+    return x
+
+
+def fit(x, n):
+    """Stereo float32 array of exactly n samples."""
+    if len(x) >= n:
+        return x[:n]
+    return np.concatenate([x, np.zeros((n - len(x), x.shape[1]), np.float32)])
+
+
+def sfx_file_level(f):
+    """Momentary max loudness (LUFS) of one sfx file as it enters the mix (48 kHz stereo), cached."""
+    cache_path = ROOT / "build" / "sfx" / "levels.json"
+    cache = read_json(cache_path) if cache_path.exists() else {}
+    st = Path(f).stat()
+    key = f"{Path(f).name}:{st.st_size}:{int(st.st_mtime)}"
+    if key not in cache:
+        tmp = Path(f).parent / ".lvl.wav"
+        subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(f), "-af",
+                        "aresample=48000,aformat=channel_layouts=stereo,apad=pad_dur=0.6", str(tmp)], check=True)
+        m = ml.ebur128(tmp)
+        tmp.unlink()
+        cache[key] = max(m["M"]) if m["M"] else m["I"]
+        write_json(cache_path, cache)
+    return float(cache[key])
+
+
+def tagged_events(timing, cut, plan, sfx_dir, slug):
+    """Every candidate sound effect as {name, file, at, legacyDb, trim, kind, prio, exempt}."""
+    cues = {sc["id"]: sc.get("sfxCues") or [] for sc in cut["scenes"]}
+    total = float(timing["totalSec"])
+    kinds = {sc["id"]: sc.get("kind") for sc in timing["scenes"]}
+    ri = reveal_index(timing["scenes"])
+    reveal_id = timing["scenes"][ri]["id"] if ri is not None else None
+    base = 20.0 * np.log10(SFX_GAIN)
+    ev = []
+
+    def add(name, at, gain_db, kind, trim=0.0, required=True):
+        f = sfx_dir / f"{name}.wav"
+        if not f.exists():
+            if required:
+                fail(f"missing sfx {f}; run sfx.py --slug {slug} first")
+            return
+        if 0 <= at < total:
+            ev.append({"name": name, "file": f, "at": max(0.0, at), "legacyDb": base + gain_db, "trim": trim,
+                       "kind": kind, "prio": ml.PRIO[kind], "exempt": kind == "brand"})
+
+    def scene_kind(sid):
+        k = kinds.get(sid)
+        return "verdict" if k == "verdict" else "reveal" if (k == "reveal" or sid == reveal_id) else \
+            "question" if k == "question" else "scene"
+
+    for sc in timing["scenes"]:
+        if sc.get("sfx"):
+            add(sc["sfx"], sc["start"] + SFX_OFFSETS.get(sc["sfx"], 0.0), 0.0, scene_kind(sc["id"]))
+        for cue in cues.get(sc["id"]) or []:
+            if cue.get("sfx"):
+                k = scene_kind(sc["id"])
+                add(cue["sfx"], sc["start"] + float(cue.get("atSec") or 0.0), float(cue.get("gainDb") or 0.0),
+                    k if k != "scene" else "cue")
+        if sc.get("coldOpen"):
+            for name, anchor, off, gain in COLD_OPEN_SFX:
+                add(name, (sc["start"] if anchor == "start" else sc["end"]) + off, gain, "coldopen")
+    intro, intro_at = float(timing.get("introSec") or 0), float(timing.get("introAtSec") or 0)
+    outro = float(timing.get("outroSec") or 0)
+    if intro > 0:
+        for n, off in brand_intro_sfx(intro):
+            if off < intro:
+                add(n, intro_at + off, 0.0, "brand")
+    if outro > 0:
+        for n, off in BRAND_OUTRO_SFX:
+            add(n, total - outro + off, 0.0, "brand")
+    d = cut_dir(slug, cut["name"])
+    beats = read_json(d / "beats.json") if (d / "beats.json").exists() else []
+    do_at = {round(float(b["sec"]), 3): b for b in beats}
+    for name, at, gain_db in beat_sfx_events(beats, plan.get("sfxDensity")):
+        b = do_at.get(round(float(at), 3)) or {}
+        k = "cue" if b.get("sfx") else "punch" if b.get("do") in ml.PUNCH_BEATS else \
+            "number" if b.get("do") in ml.NUMBER_BEATS else "beat"
+        add(name, at, gain_db, k, required=False)
+    whoosh = sfx_dir / "whoosh.wav"
+    for a, b, cut_at in section_breaths(timing):  # VOICE-12: a soft whoosh on the visual cut inside every section pause
+        if whoosh.exists() and not any(abs(e["at"] - cut_at) < 0.5 for e in ev):
+            add("whoosh", cut_at - 0.25, SECTION_WHOOSH_GAIN_DB, "section")
+    auto, silence = auto_sound_events(timing, plan.get("sound") or {})
+    if silence:
+        a, b = silence[0] - SILENCE_GUARD_SEC, silence[1]
+        ev = [e for e in ev if not (a <= e["at"] < b)]
+    for name, at, gain_db, trim in auto:
+        k = "riser" if name == "riser" else ("verdict" if gain_db == IMPACT_GAIN_DB else "reveal")
+        add(name, at, gain_db, k, trim=trim, required=False)
+    return ev, silence
+
+
 def mix_cut(slug, cut, plan):
     d = cut_dir(slug, cut["name"])
     timing = read_json(d / "timing.json")
     total = float(timing["totalSec"])
+    n = int(round(total * ml.SR))
+    opts = plan.get("mix") or dict(ml.MIX_DEFAULTS)
     energies = energy_changes(cut, timing)
-    music, music_gain = music_for_cut(slug, cut, plan, total, energies)
-    auto, silence = auto_sound_events(timing, plan.get("sound") or {})
-    cues = {sc["id"]: sc.get("sfxCues") or [] for sc in cut["scenes"]}
     sfx_dir = ROOT / "build" / "sfx"
-    inputs = ["-i", str(d / "voice.wav")]
-    graph = [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={total},atrim=0:{total},asplit=2[vmix][vkey]"]
-    mix_labels = ["[vmix]"]
-    idx = 1
-    events = []
-    for name, at, gain_db in sfx_events(timing, cues):
-        f = sfx_dir / f"{name}.wav"
-        if not f.exists():
-            fail(f"missing sfx {f}; run sfx.py --slug {slug} first")
-        events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0))))
-    beats_path = d / "beats.json"
-    beat_events = beat_sfx_events(read_json(beats_path), plan.get("sfxDensity")) if beats_path.exists() else []
-    for name, at, gain_db in beat_events:
-        f = sfx_dir / f"{name}.wav"
-        if f.exists() and at < total:
-            events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0))))
-    if beat_events:
-        log(f"  {len(beat_events)} automatic beat sounds (sfxDensity {plan.get('sfxDensity') or 'mid'})")
-    n_sting = 0
-    if plan.get("stingers"):
-        for name, at in stinger_events(cut, timing):
-            if at < total:
-                events.append((stinger_file(name), max(0.0, at), STINGER_GAIN))
-                n_sting += 1
+
+    # 1. voice stem (unchanged voice, 48 kHz stereo) + where it speaks
+    voice = fit(ffwav(["-i", str(d / "voice.wav")],
+                      [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur={total},atrim=0:{total}[v]"],
+                      "[v]", d / "stem-voice.wav"), n)
+    active = ml.voice_activity(voice)
+    v_meter = ml.ebur128(d / "stem-voice.wav")
+    v_i = v_meter["I"]
+
+    # 2. sfx: candidates -> thinning -> calibrated levels -> stem (ducked 3 dB under the voice)
+    cands, silence = tagged_events(timing, cut, plan, sfx_dir, slug)
+    kept, dropped = ml.thin(cands, opts["sfxPerMin"])
+    inputs, graph, labels = [], [], []
+    for i, e in enumerate(kept):
+        gdb = ml.sfx_level_db(e["name"], e["legacyDb"], sfx_file_level(e["file"]), v_i, opts)
+        e["gainDb"] = round(gdb, 1)
+        inputs += ["-i", str(e["file"])]
+        pre = f"atrim=start={e['trim']:.3f},asetpts=PTS-STARTPTS," if e["trim"] > 0 else ""
+        graph.append(f"[{i}:a]{pre}aresample=48000,aformat=channel_layouts=stereo,volume={10 ** (gdb / 20):.5f},"
+                     f"adelay={int(round(e['at'] * 1000))}:all=1[s{i}]")
+        labels.append(f"[s{i}]")
+    if kept:
+        graph.append(f"{''.join(labels)}amix=inputs={len(labels)}:normalize=0,apad=whole_dur={total},atrim=0:{total}[sx]"
+                     if len(labels) > 1 else f"[s0]apad=whole_dur={total},atrim=0:{total}[sx]")
+        sfx = fit(ffwav(inputs, graph, "[sx]", d / "stem-sfx.wav"), n)
+        g = ml.duck_gain(active, ml.SFX_DUCK_DB, attack=0.05, release=0.3, n_samples=n)
+        if g is not None:
+            sfx *= g[:, None]
+    else:
+        sfx = np.zeros((n, 2), np.float32)
+    log(f"  sfx: {len(cands)} candidates -> {len(kept)} kept ({len(dropped)} thinned, max {opts['sfxPerMin']}/min)")
+    write_json(d / "sfx-events.json", [{"sec": round(e["at"], 3), "sfx": e["name"], "kind": e["kind"], "gainDb": e["gainDb"]}
+                                       for e in kept])
+
+    # 3. music: bed (+ stingers) -> open level voice-10 dB -> ducked under the voice -> closed-loop voice-to-music
+    music_path, _legacy_gain = music_for_cut(slug, cut, plan, total, energies)
+    music = None
+    stingers = [(stinger_file(nm), at) for nm, at in stinger_events(cut, timing)] if plan.get("stingers") else []
+    stingers = [(f, at) for f, at in stingers if at < total]
     sections = section_breaths(timing)
-    whoosh = sfx_dir / "whoosh.wav"  # house sound, always generated by sfx.py
-    n_wh = 0
-    for a, b, cut_at in sections:  # VOICE-12: a soft whoosh on the visual cut inside every section pause
-        if whoosh.exists() and not any(abs(ev[1] - cut_at) < 0.5 for ev in events):
-            events.append((whoosh, max(0.0, cut_at - 0.25), SFX_GAIN * (10 ** (SECTION_WHOOSH_GAIN_DB / 20.0))))
-            n_wh += 1
-    if sections:
-        log(f"  {len(sections)} section pause(s): {n_wh} whoosh(es) + music swell")
-    if silence:
-        a, b = silence[0] - SILENCE_GUARD_SEC, silence[1]
-        before = len(events)
-        events = [ev for ev in events if not (a <= ev[1] < b)]
-        log(f"  silence before the reveal {silence[0]:.2f} -> {silence[1]:.2f} s ({before - len(events)} sfx dropped)")
-    events = [(f, at, vol, 0.0) for f, at, vol in events]
-    for name, at, gain_db, trim in auto:
-        f = sfx_dir / f"{name}.wav"
-        if f.exists() and 0 <= at < total:
-            events.append((f, at, SFX_GAIN * (10 ** (gain_db / 20.0)), trim))
-    if auto:
-        log(f"  {len(auto)} automatic riser / impact sound(s)")
-    # RETENTION-6: qa.py reports sfx/min from this list
-    write_json(d / "sfx-events.json", sorted(({"sec": round(at, 3), "sfx": Path(str(f)).stem} for f, at, _v, _t in events),
-                                             key=lambda e: e["sec"]))
-    for f, at, vol, trim in events:
-        ms = int(round(at * 1000))
-        inputs += ["-i", str(f)]
-        pre = f"atrim=start={trim:.3f},asetpts=PTS-STARTPTS," if trim > 0 else ""
-        graph.append(f"[{idx}:a]{pre}aresample=48000,aformat=channel_layouts=stereo,volume={vol:.4f},adelay={ms}:all=1[s{idx}]")
-        mix_labels.append(f"[s{idx}]")
-        idx += 1
-    if music:
-        inputs += ["-stream_loop", "-1", "-i", str(music)]
+    if music_path:
         fade_st = max(0.0, total - 2.5)
         expr = gain_expr(*music_curve(plan["kind"], energies, silence, [(a, b) for a, b, _c in sections]))
         curve = f"volume='{expr}':eval=frame," if expr else ""
-        graph.append(
-            f"[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total},asetpts=N/SR/TB,volume={music_gain},"
-            f"{curve}afade=t=in:d=1.5,afade=t=out:st={fade_st}:d=2.5[mus]")
-        graph.append("[mus][vkey]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=400[duck]")
-        mix_labels.append("[duck]")
-        idx += 1
-    else:
-        graph.append("[vkey]anullsink")
-    graph.append(f"{''.join(mix_labels)}amix=inputs={len(mix_labels)}:normalize=0:duration=first,atrim=0:{total}[pre]")
+        inputs = ["-stream_loop", "-1", "-i", str(music_path)]
+        graph = [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total},asetpts=N/SR/TB,"
+                 f"{curve}afade=t=in:d=1.5,afade=t=out:st={fade_st}:d=2.5[bed]"]
+        bed = fit(ffwav(inputs, graph, "[bed]", d / "stem-music-raw.wav"), n)
+        b_i = ml.ebur128(d / "stem-music-raw.wav")["I"]
+        music = bed * np.float32(10 ** (((v_i - ml.MUSIC_OPEN_BELOW_VOICE_DB) - b_i) / 20.0))
+        if stingers:  # stingers sit at the open music level (they play into pauses / the verdict)
+            inputs, graph, labels = [], [], []
+            for i, (f, at) in enumerate(stingers):
+                inputs += ["-i", str(f)]
+                graph.append(f"[{i}:a]aresample=48000,aformat=channel_layouts=stereo,volume={STINGER_GAIN / GENERATED_MUSIC_GAIN:.4f},"
+                             f"adelay={int(round(max(0.0, at) * 1000))}:all=1[t{i}]")
+                labels.append(f"[t{i}]")
+            graph.append(f"{''.join(labels)}amix=inputs={len(labels)}:normalize=0,apad=whole_dur={total},atrim=0:{total}[st]"
+                         if len(labels) > 1 else f"[t0]apad=whole_dur={total},atrim=0:{total}[st]")
+            st = fit(ffwav(inputs, graph, "[st]", d / "stem-stingers.wav"), n)
+            music += st * np.float32(10 ** (((v_i - ml.MUSIC_OPEN_BELOW_VOICE_DB) - b_i) / 20.0))
+        g = ml.duck_gain(active, opts["duckDb"], n_samples=n)
+        if g is not None:
+            music *= g[:, None]
+        if silence:
+            a, b = int(max(0.0, silence[0] - 0.08) * ml.SR), int(silence[1] * ml.SR)
+            music[a:b] = 0.0
+        m_i = ml.ebur128(music, tmp_dir=d)["I"]
+        corr = float(np.clip((v_i - m_i) - opts["voiceToMusicDb"], -20.0,
+                             ml.MUSIC_OPEN_BELOW_VOICE_DB - ml.MUSIC_MIN_OPEN_BELOW_VOICE_DB))
+        music *= np.float32(10 ** (corr / 20.0))
+        log(f"  music: open level voice-{ml.MUSIC_OPEN_BELOW_VOICE_DB:.0f} dB, ducked {opts['duckDb']:.0f} dB under the voice, "
+            f"correction {corr:+.1f} dB, {len(stingers)} stinger(s)")
+    if silence:
+        a, b = int(max(0.0, silence[0] - 0.08) * ml.SR), int(silence[1] * ml.SR)
+        sfx[a:b] = 0.0
+
+    # 4. premix = voice + music + sfx, then two-pass loudnorm + true-peak limiter (unchanged)
+    pre = voice + sfx + (music if music is not None else 0.0)
     premix = d / "premix.wav"
-    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", *inputs, "-filter_complex", ";".join(graph),
-         "-map", "[pre]", "-ar", "48000", "-c:a", "pcm_s16le", str(premix)])
+    sf.write(str(premix), pre, ml.SR, subtype="FLOAT")
     m = measure(premix)
     ln = (f"loudnorm=I={TARGET_I}:TP={TARGET_TP}:LRA={TARGET_LRA}:measured_I={m['input_i']}:"
           f"measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
@@ -461,14 +574,39 @@ def mix_cut(slug, cut, plan):
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(premix), "-af", ln,
          "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(out)])
     after = measure(out)
-    log(f"mix {cut['name']}: {total:.2f}s, {idx - 1} extra input(s) ({n_sting} stinger(s)), music={plan['kind']}, "
-        f"loudness {after['input_i']} LUFS, true peak {after['input_tp']} dBTP")
+    gain = float(after["input_i"]) - float(m["input_i"])  # the (linear) loudnorm gain applied to every stem
+
+    # 5. MIX-1 report: stem loudness at the final scale and the voice-to-music / voice-to-sfx ratios
+    s_meter = ml.ebur128(sfx, tmp_dir=d) if kept else {"I": -120.0, "M": [], "S": []}
+    mu_meter = ml.ebur128(music, tmp_dir=d) if music is not None else None
+    stats = ml.short_term_stats(v_meter, s_meter, mu_meter, active)
+    for k in list(stats):
+        if k.endswith("Lufs") and stats[k] is not None:
+            stats[k] = round(stats[k] + gain, 1)
+    rep = {"voiceLufs": round(v_i + gain, 1), "musicLufs": None if mu_meter is None else round(mu_meter["I"] + gain, 1),
+           "sfxLufs": round(s_meter["I"] + gain, 1) if kept else None, "mixLufs": float(after["input_i"]),
+           "truePeakDb": float(after["input_tp"]),
+           "voiceToMusicDb": None if mu_meter is None else round(v_i - mu_meter["I"], 1),
+           "voiceToSfxDb": round(v_i - s_meter["I"], 1) if kept else None, **stats,
+           "sfxCount": len(kept), "sfxCandidates": len(cands), "sfxThinned": len(dropped),
+           "sfxPerMin": round(len(kept) / max(total / 60.0, 1e-6), 1), "settings": opts,
+           "music": plan["kind"], "stingers": len(stingers), "speechPct": round(100.0 * float(active.mean()), 1)}
+    write_json(d / "mix-report.json", rep)
+    for p in ("stem-music-raw.wav", "stem-stingers.wav", "stem-voice.wav"):
+        (d / p).unlink(missing_ok=True)
+    if music is not None:  # final stems at premix scale, kept for listening boards (MIX-3) and debugging
+        sf.write(str(d / "stem-music.wav"), music, ml.SR, subtype="PCM_16")
+    sf.write(str(d / "stem-sfx.wav"), sfx, ml.SR, subtype="PCM_16")
+    log(f"mix {cut['name']}: {total:.2f}s, {len(kept)} sfx, music={plan['kind']}, loudness {after['input_i']} LUFS, "
+        f"true peak {after['input_tp']} dBTP; voice {rep['voiceLufs']} / music {rep['musicLufs']} / sfx {rep['sfxLufs']} LUFS, "
+        f"voice-music {rep['voiceToMusicDb']} dB, voice-sfx short-term {rep['voiceToSfxShortTermDb']} dB")
 
 
 def main():
     args = slug_arg()
     spec = load_spec(args.slug)
-    plan = {**plan_music(args.slug, spec), "sfxDensity": spec.get("sfxDensity") or "mid", "sound": sound_opts(spec)}
+    plan = {**plan_music(args.slug, spec), "sfxDensity": spec.get("sfxDensity") or "mid", "sound": sound_opts(spec),
+            "mix": ml.mix_opts(spec)}
     for cut in cuts(spec):
         mix_cut(args.slug, cut, plan)
 

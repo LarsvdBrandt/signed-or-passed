@@ -8,6 +8,8 @@ report.retention. Checks with level 'warn'
 are listed but do not fail the gate.
 VOICE-12: intentional pauses (timing.json breaths <= 1.8 s) are exempt from the static scan; the voice pace check
 judges the overall rate (words / whole main cut, target 135-145 wpm) and the report keeps overallWpm and inSentenceWpm.
+MIX-1: per cut the stem loudness of build/<slug>/<cut>/mix-report.json goes to report.mix; checks voice-to-music
+>= 14 dB (integrated) and voice-to-sfx >= 10 dB (short-term), sfx/min <= 8 as a warning.
 """
 import json
 import re
@@ -18,6 +20,7 @@ from datetime import datetime, timezone
 
 from common import (ROOT, SIZES, cut_dir, cuts, is_test, load_spec, log, out_dir, read_json, slug_arg, warnings,
                     write_json)
+from mixlevels import QA_VOICE_TO_MUSIC_DB, QA_VOICE_TO_SFX_DB
 from retention import NO_AUTO_KEYWORD_KINDS
 
 SCAN_W, SCAN_H, SCAN_FPS = 64, 36, 4
@@ -204,7 +207,7 @@ def main():
 
     spec = load_spec(slug)
     test = is_test(slug)
-    checks, durations, audio_stats, retention = [], {}, {}, {}
+    checks, durations, audio_stats, retention, mix_stats = [], {}, {}, {}, {}
 
     def check(name, ok, detail="", level="fail"):
         c = {"name": name, "ok": bool(ok), "detail": str(detail)}
@@ -259,6 +262,22 @@ def main():
                       f"{len(spans)} silence(s), longest {longest:.1f}s, {100.0 * total_sil / dur if dur else 0:.1f}% silent")
             else:
                 check(f"{fname}: loudness measurable", False, "loudnorm parse failed")
+        mr_path = cut_dir(slug, cut["name"]) / "mix-report.json"
+        if mr_path.exists():  # MIX-1: voice is king (pipeline/mixlevels.py)
+            mr = read_json(mr_path)
+            mix_stats[fname] = mr
+            if mr.get("voiceToMusicDb") is not None:
+                check(f"{fname}: voice-to-music >= {QA_VOICE_TO_MUSIC_DB:.0f} dB (integrated)",
+                      mr["voiceToMusicDb"] >= QA_VOICE_TO_MUSIC_DB,
+                      f"{mr['voiceToMusicDb']} dB (voice {mr['voiceLufs']} / music {mr['musicLufs']} LUFS, under the voice "
+                      f"{mr.get('musicUnderVoiceShortTermLufs')}, in pauses {mr.get('musicOpenShortTermLufs')} LUFS short-term)")
+            if mr.get("voiceToSfxShortTermDb") is not None:
+                check(f"{fname}: voice-to-sfx >= {QA_VOICE_TO_SFX_DB:.0f} dB (short-term)",
+                      mr["voiceToSfxShortTermDb"] >= QA_VOICE_TO_SFX_DB,
+                      f"{mr['voiceToSfxShortTermDb']} dB short-term, {mr.get('voiceToSfxMomentaryDb')} dB momentary "
+                      f"(sfx {mr.get('sfxLufs')} LUFS integrated)")
+            check(f"{fname}: sfx <= 8/min", (mr.get("sfxPerMin") or 0) <= 8.0,
+                  f"{mr.get('sfxCount')} sfx ({mr.get('sfxPerMin')}/min, {mr.get('sfxThinned')} thinned)", level="warn")
         if v:
             retention[cut["name"]] = retention_checks(slug, cut, path, timing, dur, check)
 
@@ -346,6 +365,7 @@ def main():
         "checks": checks,
         "durations": durations,
         "audio": audio_stats,
+        "mix": mix_stats,
         "retention": retention,
         "voice": voice_qa,
         "warnings": warnings(slug),
