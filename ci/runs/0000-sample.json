@@ -1,7 +1,13 @@
 {
-  "status": "running",
-  "slug": "0000-sample",
+  "status": "success",
+  "jobStatus": "success",
   "triggerSha": "469b8872630f6d906f4412ae87aee2649dd9ef71",
-  "startedAt": "2026-10-16T08:48:50Z",
+  "slug": "0000-sample",
+  "slugs": [
+    "0000-sample"
+  ],
+  "finishedAt": "2026-10-16T08:58:10+00:00",
+  "failedStep": null,
+  "failedSlugs": [],
   "runUrl": "https://github.com/LarsvdBrandt/signed-or-passed/actions/runs/38876167431"
 }
